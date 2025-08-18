@@ -1857,3 +1857,102 @@ body {
     font-size: 0.85rem;
   }
 }
+
+/* Reports Page Table Alignment */
+.reports-page .table-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reports-page .table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+/* Appointments Table Column Widths */
+.reports-page .table-container:has(h3:contains("Appointments")) .table th:nth-child(1),
+.reports-page .table-container:has(h3:contains("Appointments")) .table td:nth-child(1) {
+  width: 12%; /* Date */
+}
+
+.reports-page .table-container:has(h3:contains("Appointments")) .table th:nth-child(2),
+.reports-page .table-container:has(h3:contains("Appointments")) .table td:nth-child(2) {
+  width: 10%; /* Time */
+}
+
+.reports-page .table-container:has(h3:contains("Appointments")) .table th:nth-child(3),
+.reports-page .table-container:has(h3:contains("Appointments")) .table td:nth-child(3) {
+  width: 20%; /* Client */
+}
+
+.reports-page .table-container:has(h3:contains("Appointments")) .table th:nth-child(4),
+.reports-page .table-container:has(h3:contains("Appointments")) .table td:nth-child(4) {
+  width: 18%; /* Service */
+}
+
+.reports-page .table-container:has(h3:contains("Appointments")) .table th:nth-child(5),
+.reports-page .table-container:has(h3:contains("Appointments")) .table td:nth-child(5) {
+  width: 15%; /* Payment */
+}
+
+.reports-page .table-container:has(h3:contains("Appointments")) .table th:nth-child(6),
+.reports-page .table-container:has(h3:contains("Appointments")) .table td:nth-child(6) {
+  width: 15%; /* Tip */
+}
+
+/* Expenses Table Column Widths - Aligned with Appointments */
+.reports-page .table-container:has(h3:contains("Expenses")) .table th:nth-child(1),
+.reports-page .table-container:has(h3:contains("Expenses")) .table td:nth-child(1) {
+  width: 12%; /* Date - Same as Appointments Date */
+}
+
+.reports-page .table-container:has(h3:contains("Expenses")) .table th:nth-child(2),
+.reports-page .table-container:has(h3:contains("Expenses")) .table td:nth-child(2) {
+  width: 48%; /* Description - Spans Client + Service + Payment columns */
+}
+
+.reports-page .table-container:has(h3:contains("Expenses")) .table th:nth-child(3),
+.reports-page .table-container:has(h3:contains("Expenses")) .table td:nth-child(3) {
+  width: 25%; /* Category - Spans remaining space */
+}
+
+.reports-page .table-container:has(h3:contains("Expenses")) .table th:nth-child(4),
+.reports-page .table-container:has(h3:contains("Expenses")) .table td:nth-child(4) {
+  width: 15%; /* Amount - Same as Appointments Tip */
+}
+
+/* Ensure consistent table widths */
+.reports-page .table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.reports-page .table th,
+.reports-page .table td {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.reports-page .table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .reports-page .table {
+    table-layout: auto;
+  }
+  
+  .reports-page .table th,
+  .reports-page .table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.9rem;
+  }
+}

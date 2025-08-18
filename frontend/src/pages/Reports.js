@@ -169,6 +169,7 @@ const Reports = () => {
 
   return (
     <div className="reports-page">
+      <style>{printStyles}</style>
       {/* Generate Reports Section */}
       <div className="table-container generate-reports-section">
         <div style={{ padding: '0.75rem' }}>
