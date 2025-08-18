@@ -1535,11 +1535,11 @@ body {
 .hero-section.ultra-compact {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 2.5rem 2rem;
+  padding: 2rem 2rem;
   text-align: center;
   position: relative;
   overflow: hidden;
-  min-height: 85vh;
+  min-height: 65vh;
   display: flex;
   align-items: center;
 }
@@ -1615,7 +1615,7 @@ body {
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(10px);
   border-radius: 15px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border: 1px solid rgba(255,255,255,0.2);
   transition: all 0.3s ease;
 }
@@ -1636,7 +1636,7 @@ body {
 .period-title {
   font-size: 1.1rem;
   color: #fff;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   font-weight: 600;
   text-align: center;
   opacity: 0.9;
@@ -1690,16 +1690,16 @@ body {
 .features-grid.ultra-compact {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem 2rem;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
   background: #f8f9fa;
-  min-height: 15vh;
+  min-height: 12vh;
 }
 
 .feature-card.ultra-compact {
   background: white;
   border-radius: 15px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   text-align: center;
   box-shadow: 0 5px 20px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
@@ -1712,22 +1712,22 @@ body {
 }
 
 .feature-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
   display: block;
 }
 
 .feature-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #2c3e50;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .feature-description {
   color: #6c757d;
-  line-height: 1.5;
-  font-size: 0.9rem;
+  line-height: 1.4;
+  font-size: 0.85rem;
 }
 
 /* Responsive Design */
