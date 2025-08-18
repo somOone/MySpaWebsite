@@ -57,8 +57,8 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {/* Compact Hero Section with Inline Stats */}
-      <section className="hero-section compact">
+      {/* Compact Hero Section with All Statistics */}
+      <section className="hero-section ultra-compact">
         <div className="hero-content">
           <div className="hero-text">
             <h1 className="hero-title">Welcome to Serenity Spa</h1>
@@ -70,27 +70,74 @@ const Home = () => {
             </button>
           </div>
           
-          {/* Inline Key Statistics */}
-          <div className="hero-stats">
-            <div className="hero-stat-item">
-              <div className="hero-stat-number">{spaServices.allTime.massages}</div>
-              <div className="hero-stat-label">Massages Given</div>
+          {/* Comprehensive Statistics Grid */}
+          <div className="hero-stats-comprehensive">
+            {/* Current Year Statistics */}
+            <div className="stats-period current-year">
+              <h3 className="period-title">This Year</h3>
+              <div className="stats-grid-compact">
+                <div className="stat-item-compact massage">
+                  <div className="stat-icon-small">💆‍♀️</div>
+                  <div className="stat-content-compact">
+                    <div className="stat-number-compact">{spaServices.currentYear.massages}</div>
+                    <div className="stat-label-compact">Massages</div>
+                  </div>
+                </div>
+                
+                <div className="stat-item-compact facial">
+                  <div className="stat-icon-small">✨</div>
+                  <div className="stat-content-compact">
+                    <div className="stat-number-compact">{spaServices.currentYear.facials}</div>
+                    <div className="stat-label-compact">Facials</div>
+                  </div>
+                </div>
+                
+                <div className="stat-item-compact combo">
+                  <div className="stat-icon-small">🌟</div>
+                  <div className="stat-content-compact">
+                    <div className="stat-number-compact">{spaServices.currentYear.combos}</div>
+                    <div className="stat-label-compact">Combos</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="hero-stat-item">
-              <div className="hero-stat-number">{spaServices.allTime.facials}</div>
-              <div className="hero-stat-label">Facials Done</div>
-            </div>
-            <div className="hero-stat-item">
-              <div className="hero-stat-number">{spaServices.allTime.combos}</div>
-              <div className="hero-stat-label">Massage + Facial Combos</div>
+            
+            {/* All Time Statistics */}
+            <div className="stats-period all-time">
+              <h3 className="period-title">All Time</h3>
+              <div className="stats-grid-compact">
+                <div className="stat-item-compact massage">
+                  <div className="stat-icon-small">💆‍♀️</div>
+                  <div className="stat-content-compact">
+                    <div className="stat-number-compact">{spaServices.allTime.massages}</div>
+                    <div className="stat-label-compact">Massages</div>
+                  </div>
+                </div>
+                
+                <div className="stat-item-compact facial">
+                  <div className="stat-icon-small">✨</div>
+                  <div className="stat-content-compact">
+                    <div className="stat-number-compact">{spaServices.allTime.facials}</div>
+                    <div className="stat-label-compact">Facials</div>
+                  </div>
+                </div>
+                
+                <div className="stat-item-compact combo">
+                  <div className="stat-icon-small">🌟</div>
+                  <div className="stat-content-compact">
+                    <div className="stat-number-compact">{spaServices.allTime.combos}</div>
+                    <div className="stat-label-compact">Combos</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Compact Features Grid */}
-      <section className="features-grid compact">
-        <div className="feature-card compact">
+      {/* Ultra Compact Features Grid */}
+      <section className="features-grid ultra-compact">
+        <div className="feature-card ultra-compact">
           <div className="feature-icon">🧖‍♀️</div>
           <h3 className="feature-title">Professional Services</h3>
           <p className="feature-description">
@@ -99,7 +146,7 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="feature-card compact">
+        <div className="feature-card ultra-compact">
           <div className="feature-icon">🌿</div>
           <h3 className="feature-title">Natural Products</h3>
           <p className="feature-description">
@@ -108,80 +155,13 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="feature-card compact">
+        <div className="feature-card ultra-compact">
           <div className="feature-icon">✨</div>
           <h3 className="feature-title">Luxury Experience</h3>
           <p className="feature-description">
             Immerse yourself in our serene atmosphere designed for complete 
             relaxation and peace of mind.
           </p>
-        </div>
-      </section>
-
-      {/* Compact Spa Service Statistics Section */}
-      <section className="spa-stats-section compact">
-        <h2 className="spa-stats-title">Our Spa Services</h2>
-        
-        <div className="spa-stats-container compact">
-          {/* Current Year Statistics */}
-          <div className="stats-period-section compact">
-            <h3 className="period-title">This Year ({new Date().getFullYear()})</h3>
-            <div className="spa-stats-grid compact">
-              <div className="spa-stat-card massage compact">
-                <div className="stat-icon">💆‍♀️</div>
-                <div className="stat-content">
-                  <div className="stat-number">{spaServices.currentYear.massages}</div>
-                  <div className="stat-label">Massages Given</div>
-                </div>
-              </div>
-              
-              <div className="spa-stat-card facial compact">
-                <div className="stat-icon">✨</div>
-                <div className="stat-content">
-                  <div className="stat-number">{spaServices.currentYear.facials}</div>
-                  <div className="stat-label">Facials Done</div>
-                </div>
-              </div>
-              
-              <div className="spa-stat-card combo compact">
-                <div className="stat-icon">🌟</div>
-                <div className="stat-content">
-                  <div className="stat-number">{spaServices.currentYear.combos}</div>
-                  <div className="stat-label">Massage + Facial Combos</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* All Time Statistics */}
-          <div className="stats-period-section compact">
-            <h3 className="period-title">All Time</h3>
-            <div className="spa-stats-grid compact">
-              <div className="spa-stat-card massage all-time compact">
-                <div className="stat-icon">💆‍♀️</div>
-                <div className="stat-content">
-                  <div className="stat-number">{spaServices.allTime.massages}</div>
-                  <div className="stat-label">Massages Given</div>
-                </div>
-              </div>
-              
-              <div className="spa-stat-card facial all-time compact">
-                <div className="stat-icon">✨</div>
-                <div className="stat-content">
-                  <div className="stat-number">{spaServices.allTime.facials}</div>
-                  <div className="stat-label">Facials Done</div>
-                </div>
-              </div>
-              
-              <div className="spa-stat-card combo all-time compact">
-                <div className="stat-icon">🌟</div>
-                <div className="stat-content">
-                  <div className="stat-number">{spaServices.allTime.combos}</div>
-                  <div className="stat-label">Massage + Facial Combos</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
