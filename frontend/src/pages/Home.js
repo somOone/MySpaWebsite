@@ -57,20 +57,40 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <h1 className="hero-title">Welcome to Serenity Spa</h1>
-        <p className="hero-subtitle">
-          Experience ultimate relaxation and rejuvenation in our tranquil oasis
-        </p>
-        <button className="cta-button" onClick={openBookingModal}>
-          Book Your Appointment
-        </button>
+      {/* Compact Hero Section with Inline Stats */}
+      <section className="hero-section compact">
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="hero-title">Welcome to Serenity Spa</h1>
+            <p className="hero-subtitle">
+              Experience ultimate relaxation and rejuvenation in our tranquil oasis
+            </p>
+            <button className="cta-button" onClick={openBookingModal}>
+              Book Your Appointment
+            </button>
+          </div>
+          
+          {/* Inline Key Statistics */}
+          <div className="hero-stats">
+            <div className="hero-stat-item">
+              <div className="hero-stat-number">{stats.totalAppointments || 0}</div>
+              <div className="hero-stat-label">Total Appointments</div>
+            </div>
+            <div className="hero-stat-item">
+              <div className="hero-stat-number">${(stats.totalRevenue || 0).toLocaleString()}</div>
+              <div className="hero-stat-label">Total Revenue</div>
+            </div>
+            <div className="hero-stat-item">
+              <div className="hero-stat-number">{stats.totalClients || 0}</div>
+              <div className="hero-stat-label">Happy Clients</div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="features-grid">
-        <div className="feature-card">
+      {/* Compact Features Grid */}
+      <section className="features-grid compact">
+        <div className="feature-card compact">
           <div className="feature-icon">🧖‍♀️</div>
           <h3 className="feature-title">Professional Services</h3>
           <p className="feature-description">
@@ -79,7 +99,7 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="feature-card">
+        <div className="feature-card compact">
           <div className="feature-icon">🌿</div>
           <h3 className="feature-title">Natural Products</h3>
           <p className="feature-description">
@@ -88,7 +108,7 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="feature-card">
+        <div className="feature-card compact">
           <div className="feature-icon">✨</div>
           <h3 className="feature-title">Luxury Experience</h3>
           <p className="feature-description">
@@ -98,17 +118,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Spa Service Statistics Section */}
-      <section className="spa-stats-section">
+      {/* Compact Spa Service Statistics Section */}
+      <section className="spa-stats-section compact">
         <h2 className="spa-stats-title">Our Spa Services</h2>
-        <p className="spa-stats-subtitle">Experience the numbers that reflect our commitment to excellence</p>
         
-        <div className="spa-stats-container">
+        <div className="spa-stats-container compact">
           {/* Current Year Statistics */}
-          <div className="stats-period-section">
+          <div className="stats-period-section compact">
             <h3 className="period-title">This Year ({new Date().getFullYear()})</h3>
-            <div className="spa-stats-grid">
-              <div className="spa-stat-card massage">
+            <div className="spa-stats-grid compact">
+              <div className="spa-stat-card massage compact">
                 <div className="stat-icon">💆‍♀️</div>
                 <div className="stat-content">
                   <div className="stat-number">{spaServices.currentYear.massages}</div>
@@ -116,7 +135,7 @@ const Home = () => {
                 </div>
               </div>
               
-              <div className="spa-stat-card facial">
+              <div className="spa-stat-card facial compact">
                 <div className="stat-icon">✨</div>
                 <div className="stat-content">
                   <div className="stat-number">{spaServices.currentYear.facials}</div>
@@ -124,7 +143,7 @@ const Home = () => {
                 </div>
               </div>
               
-              <div className="spa-stat-card combo">
+              <div className="spa-stat-card combo compact">
                 <div className="stat-icon">🌟</div>
                 <div className="stat-content">
                   <div className="stat-number">{spaServices.currentYear.combos}</div>
@@ -135,10 +154,10 @@ const Home = () => {
           </div>
           
           {/* All Time Statistics */}
-          <div className="stats-period-section">
+          <div className="stats-period-section compact">
             <h3 className="period-title">All Time</h3>
-            <div className="spa-stats-grid">
-              <div className="spa-stat-card massage all-time">
+            <div className="spa-stats-grid compact">
+              <div className="spa-stat-card massage all-time compact">
                 <div className="stat-icon">💆‍♀️</div>
                 <div className="stat-content">
                   <div className="stat-number">{spaServices.allTime.massages}</div>
@@ -146,7 +165,7 @@ const Home = () => {
                 </div>
               </div>
               
-              <div className="spa-stat-card facial all-time">
+              <div className="spa-stat-card facial all-time compact">
                 <div className="stat-icon">✨</div>
                 <div className="stat-content">
                   <div className="stat-number">{spaServices.allTime.facials}</div>
@@ -154,7 +173,7 @@ const Home = () => {
                 </div>
               </div>
               
-              <div className="spa-stat-card combo all-time">
+              <div className="spa-stat-card combo all-time compact">
                 <div className="stat-icon">🌟</div>
                 <div className="stat-content">
                   <div className="stat-number">{spaServices.allTime.combos}</div>
