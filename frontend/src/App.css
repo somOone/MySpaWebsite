@@ -587,21 +587,13 @@ body {
 .year-header,
 .month-header,
 .date-header {
-  background: #f8f9fa;
-  padding: 0.25rem 0.5rem;
-  border: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-  margin-bottom: 0.15rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  user-select: none;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
 .year-header.expanded,
