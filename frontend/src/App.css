@@ -594,6 +594,14 @@ body {
   padding: 0.5rem;
   border-radius: 4px;
   transition: background-color 0.2s ease;
+  background: #f8f9fa;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  user-select: none;
+  margin-bottom: 0.15rem;
 }
 
 .year-header.expanded,
@@ -678,12 +686,19 @@ body {
 .year-header > span:first-child,
 .month-header > span:first-child,
 .date-header > span:first-child {
+  flex: 0 0 auto;
+}
+
+.year-header > span:nth-child(2),
+.month-header > span:nth-child(2),
+.date-header > span:nth-child(2) {
   flex: 1;
 }
 
 .year-header > span:last-child,
 .month-header > span:last-child,
 .date-header > span:last-child {
+  flex: 0 0 auto;
   margin-left: auto;
 }
 
