@@ -121,3 +121,6 @@ coverage/
 
 # Local development files
 .local
+
+# Cursor rules
+.cursor

@@ -1,151 +1,89 @@
 const express = require('express');
 const moment = require('moment');
 const { getDatabase } = require('../database/init');
-const { parseNaturalLanguageDate } = require('../utils/chatUtils');
+const { parseNaturalLanguageDate } = require('../shared');
 const { body, validationResult } = require('express-validator');
+const dbUtils = require('../utils/dbUtils');
 
 const router = express.Router();
 
 // Get all appointments
-router.get('/', (req, res) => {
-  const db = getDatabase();
-  
-  db.all(`
-    SELECT * FROM appointments 
-    ORDER BY date DESC, time ASC
-  `, (err, rows) => {
-    if (err) {
-      console.error('Error fetching appointments:', err);
-      return res.status(500).json({ error: 'Failed to fetch appointments' });
-    }
-    
-    res.json(rows);
-  });
+router.get('/', async (req, res) => {
+  try {
+    const db = getDatabase();
+    const appointments = await dbUtils.getAllAppointments(db);
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
 });
 
 // Get appointments grouped by date for scheduled view
-router.get('/scheduled', (req, res) => {
-  const db = getDatabase();
-  
-  db.all(`
-    SELECT * FROM appointments 
-    ORDER BY date DESC, time ASC
-  `, (err, rows) => {
-    if (err) {
-      console.error('Error fetching appointments:', err);
-      return res.status(500).json({ error: 'Failed to fetch appointments' });
-    }
-    
-    // Group appointments by year -> month -> date
-    const grouped = {};
-    
-    rows.forEach(appt => {
-      const date = moment(appt.date);
-      const year = date.format('YYYY');
-      const month = date.format('MMMM');
-      const dateStr = date.format('YYYY-MM-DD');
-      
-      if (!grouped[year]) grouped[year] = {};
-      if (!grouped[year][month]) grouped[year][month] = {};
-      if (!grouped[year][month][dateStr]) grouped[year][month][dateStr] = [];
-      
-      grouped[year][month][dateStr].push(appt);
-    });
-    
-    res.json({ grouped, appointments: rows });
-  });
+router.get('/scheduled', async (req, res) => {
+  try {
+    const db = getDatabase();
+    const result = await dbUtils.getAppointmentsByDate(db);
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching scheduled appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch scheduled appointments' });
+  }
 });
 
 // Get available time slots for a specific date
-router.get('/available-times/:date', (req, res) => {
-  const { date } = req.params;
-  const db = getDatabase();
-  
-  // Check if date is valid
-  if (!moment(date, 'YYYY-MM-DD', true).isValid()) {
-    return res.json({ available: false, reason: 'Invalid date format' });
-  }
-  
-  // Check if it's Sunday
-  const dateObj = moment(date);
-  if (dateObj.day() === 0) {
-    return res.json({ available: false, reason: 'Closed on Sundays' });
-  }
-  
-  // Check if it's in the past
-  const today = moment().startOf('day');
-  if (dateObj.isBefore(today)) {
-    return res.json({ available: false, reason: 'Cannot book in the past' });
-  }
-  
-  // Check if it's more than 45 days in the future
-  const maxDate = moment().add(45, 'days').startOf('day');
-  if (dateObj.isAfter(maxDate)) {
-    return res.json({ available: false, reason: 'Cannot book more than 45 days in advance' });
-  }
-  
-  // Get all available time slots between 2 PM and 8 PM with 30-minute intervals
-  const allTimeSlots = [
-    '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', 
-    '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM'
-  ];
-  
-  // Get booked times for this date (include both pending and completed appointments)
-  console.log(`Fetching appointments for date: ${date}`);
-  db.all('SELECT time, completed FROM appointments WHERE date = ?', [date], (err, rows) => {
-    if (err) {
-      console.error('Error fetching booked times:', err);
-      return res.status(500).json({ error: 'Failed to fetch booked times' });
+router.get('/available-times/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    
+    // Check if date is valid
+    if (!moment(date, 'YYYY-MM-DD', true).isValid()) {
+      return res.json({ available: false, reason: 'Invalid date format' });
     }
     
-    console.log(`Raw appointment data for ${date}:`, rows);
-    const bookedTimes = rows.map(row => row.time);
-    console.log(`Booked times for ${date}:`, bookedTimes);
+    // Check if it's Sunday
+    const dateObj = moment(date);
+    if (dateObj.day() === 0) {
+      return res.json({ available: false, reason: 'Closed on Sundays' });
+    }
     
-    // Filter out booked times and ensure proper spacing between appointments
-    const availableTimes = allTimeSlots.filter(time => {
-      // Check if this exact time is booked
-      if (bookedTimes.includes(time)) {
-        return false;
-      }
-      
-      // Check if this time would conflict with existing appointments
-      // Appointments are 1 hour long, need 30-minute gap between them
-      const timeMoment = moment(`${date} ${time}`, 'YYYY-MM-DD h:mm A');
-      const timeEnd = moment(timeMoment).add(1, 'hour'); // Appointment ends 1 hour later
-      
-      const hasConflict = bookedTimes.some(bookedTime => {
-        const bookedMoment = moment(`${date} ${bookedTime}`, 'YYYY-MM-DD h:mm A');
-        const bookedEnd = moment(bookedMoment).add(1, 'hour'); // Existing appointment ends 1 hour later
-        
-        // Check if appointments overlap OR are too close together
-        // Need at least 30 minutes between appointments
-        const gap1 = Math.abs(timeMoment.diff(bookedEnd, 'minutes')); // Gap between new start and existing end
-        const gap2 = Math.abs(bookedMoment.diff(timeEnd, 'minutes')); // Gap between existing start and new end
-        
-        // Check for direct overlap first
-        const hasOverlap = timeMoment.isBefore(bookedEnd) && timeEnd.isAfter(bookedMoment);
-        if (hasOverlap) return true;
-        
-        // If no overlap, check for insufficient gap
-        const hasInsufficientGap = gap1 < 30 || gap2 < 30;
-        return hasInsufficientGap;
-      });
-      
-      return !hasConflict;
-    });
+    // Check if it's in the past
+    const today = moment().startOf('day');
+    if (dateObj.isBefore(today)) {
+      return res.json({ available: false, reason: 'Cannot book in the past' });
+    }
     
-    // Debug logging
-    console.log(`Date: ${date}, Booked times:`, bookedTimes, 'Available times:', availableTimes.length);
+    // Check if it's more than 45 days in the future
+    const maxDate = moment().add(45, 'days').startOf('day');
+    if (dateObj.isAfter(maxDate)) {
+      return res.json({ available: false, reason: 'Cannot book more than 45 days in advance' });
+    }
+    
+    const db = getDatabase();
+    const availableTimes = await dbUtils.getAvailableTimesForDate(db, date);
+    
+    // Get all available time slots between 2 PM and 8 PM with 30-minute intervals
+    const allTimeSlots = [
+      '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', 
+      '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM'
+    ];
+    
+    // Get booked times for this date (include both pending and completed appointments)
+    const bookedTimes = await dbUtils.getBookedTimesForDate(db, date);
+    const bookedTimeStrings = bookedTimes.map(row => row.time);
     
     res.json({
       available: availableTimes.length > 0,
       availableTimes,
-      bookedTimes,
+      bookedTimes: bookedTimeStrings,
       allTimeSlots,
       reason: availableTimes.length === 0 ? 'No available time slots with 30-minute intervals' : null
     });
-  });
+    
+  } catch (error) {
+    console.error('Error fetching available times:', error);
+    res.status(500).json({ error: 'Failed to fetch available times' });
+  }
 });
 
 // Create new appointment
@@ -193,7 +131,7 @@ router.post('/', [
   const timeMoment = moment(`${date} ${time}`, 'YYYY-MM-DD h:mm A');
   const timeEnd = moment(timeMoment).add(1, 'hour'); // New appointment ends 1 hour later
   const startTime = moment(`${date} 2:00 PM`, 'YYYY-MM-DD h:mm A');
-  const endTime = moment(`${date} 7:30 PM`, 'YYYY-MM-DD h:mm A'); // Last slot is 7:30 PM
+  const endTime = moment(`${date} 8:00 PM`, 'YYYY-MM-DD h:mm A'); // Last slot is 8:00 PM
   
   if (timeMoment.isBefore(startTime) || timeMoment.isAfter(endTime)) {
     return res.status(400).json({ error: 'Appointments can only be booked between 2:00 PM and 7:30 PM' });
@@ -327,9 +265,10 @@ router.put('/:id', [
 // Mark appointment as completed
 router.patch('/:id/complete', (req, res) => {
   const { id } = req.params;
+  const { tip } = req.body;
   const db = getDatabase();
   
-  db.run('UPDATE appointments SET completed = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id], function(err) {
+  db.run('UPDATE appointments SET completed = 1, tip = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [tip, id], function(err) {
     if (err) {
       console.error('Error completing appointment:', err);
       return res.status(500).json({ error: 'Failed to complete appointment' });

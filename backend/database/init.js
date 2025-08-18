@@ -28,6 +28,10 @@ function initializeDatabase() {
       createTables()
         .then(() => {
           console.log('✅ Database tables created');
+          return migrateExpensesTable();
+        })
+        .then(() => {
+          console.log('✅ Expenses table migration completed');
           return importExistingData();
         })
         .then(() => {
@@ -51,6 +55,7 @@ function createTables() {
         payment REAL NOT NULL,
         tip REAL DEFAULT 0,
         completed BOOLEAN DEFAULT 0,
+        completed_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
@@ -61,7 +66,8 @@ function createTables() {
         description TEXT NOT NULL,
         amount REAL NOT NULL,
         category TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`
     ];
 
@@ -82,6 +88,54 @@ function createTables() {
   });
 }
 
+function migrateExpensesTable() {
+  return new Promise((resolve, reject) => {
+    // Check if updated_at column exists in expenses table
+    db.get("PRAGMA table_info(expenses)", (err, rows) => {
+      if (err) {
+        console.error('Error checking expenses table structure:', err.message);
+        reject(err);
+        return;
+      }
+      
+      db.all("PRAGMA table_info(expenses)", (err, columns) => {
+        if (err) {
+          console.error('Error getting expenses table columns:', err.message);
+          reject(err);
+          return;
+        }
+        
+        const hasUpdatedAt = columns.some(col => col.name === 'updated_at');
+        
+        if (!hasUpdatedAt) {
+          console.log('Adding updated_at column to expenses table...');
+          db.run('ALTER TABLE expenses ADD COLUMN updated_at DATETIME', (err) => {
+            if (err) {
+              console.error('Error adding updated_at column:', err.message);
+              reject(err);
+              return;
+            }
+            
+            // Update existing records to have current timestamp
+            db.run('UPDATE expenses SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL', (err) => {
+              if (err) {
+                console.error('Error updating existing expenses:', err.message);
+                reject(err);
+                return;
+              }
+              console.log('✅ Expenses table migration completed');
+              resolve();
+            });
+          });
+        } else {
+          console.log('✅ Expenses table already has updated_at column');
+          resolve();
+        }
+      });
+    });
+  });
+}
+
 function importExistingData() {
   return new Promise((resolve, reject) => {
     // Check if we already have data
@@ -92,7 +146,7 @@ function importExistingData() {
       }
       
       if (row.count > 0) {
-        console.log('Database already has data, skipping import');
+        console.log('Database already has data, skipping sample data import...');
         resolve();
         return;
       }
@@ -135,7 +189,6 @@ function importExistingData() {
       sampleExpenses.forEach((exp, index) => {
         db.run(
           'INSERT INTO expenses (date, description, amount, category) VALUES (?, ?, ?, ?)',
-          exp,
           (err) => {
             if (err) {
               console.error('Error inserting expense:', err.message);

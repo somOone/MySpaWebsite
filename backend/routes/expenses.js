@@ -2,43 +2,32 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const moment = require('moment');
 const { getDatabase } = require('../database/init');
+const dbUtils = require('../utils/dbUtils');
 
 const router = express.Router();
 
 // Get all expenses
-router.get('/', (req, res) => {
-  const db = getDatabase();
-  
-  db.all(`
-    SELECT * FROM expenses 
-    ORDER BY date DESC
-  `, (err, rows) => {
-    if (err) {
-      console.error('Error fetching expenses:', err);
-      return res.status(500).json({ error: 'Failed to fetch expenses' });
-    }
-    
-    res.json(rows);
-  });
+router.get('/', async (req, res) => {
+  try {
+    const db = getDatabase();
+    const expenses = await dbUtils.getAllExpenses(db);
+    res.json(expenses);
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+    res.status(500).json({ error: 'Failed to fetch expenses' });
+  }
 });
 
 // Get expenses grouped by month
-router.get('/grouped', (req, res) => {
-  const db = getDatabase();
-  
-  db.all(`
-    SELECT * FROM expenses 
-    ORDER BY date DESC
-  `, (err, rows) => {
-    if (err) {
-      console.error('Error fetching expenses:', err);
-      return res.status(500).json({ error: 'Failed to fetch expenses' });
-    }
+router.get('/grouped', async (req, res) => {
+  try {
+    const db = getDatabase();
+    const expenses = await dbUtils.getAllExpenses(db);
     
     // Group expenses by month
     const grouped = {};
     
-    rows.forEach(expense => {
+    expenses.forEach(expense => {
       const date = moment(expense.date);
       const monthKey = date.format('YYYY-MM');
       const monthName = date.format('MMMM YYYY');
@@ -63,132 +52,102 @@ router.get('/grouped', (req, res) => {
     });
     
     res.json(groupedArray);
-  });
+  } catch (error) {
+    console.error('Error fetching grouped expenses:', error);
+    res.status(500).json({ error: 'Failed to fetch grouped expenses' });
+  }
+});
+
+// Get expenses by date range
+router.get('/range', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+    
+    const db = getDatabase();
+    const expenses = await dbUtils.getExpensesByDateRange(db, startDate, endDate);
+    res.json(expenses);
+  } catch (error) {
+    console.error('Error fetching expenses by date range:', error);
+    res.status(500).json({ error: 'Failed to fetch expenses by date range' });
+  }
 });
 
 // Create new expense
 router.post('/', [
-  body('date').isISO8601().withMessage('Valid date required'),
-  body('description').notEmpty().withMessage('Description required'),
-  body('amount').isFloat({ min: 0.01 }).withMessage('Valid amount required'),
-  body('category').notEmpty().withMessage('Category required')
-], (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  
-  const { date, description, amount, category } = req.body;
-  
-  // Validate date is not in the future
-  const dateObj = moment(date);
-  const today = moment().startOf('day');
-  
-  if (dateObj.isAfter(today)) {
-    return res.status(400).json({ error: 'Cannot add expenses for future dates' });
-  }
-  
-  const db = getDatabase();
-  
-  db.run(`
-    INSERT INTO expenses (date, description, amount, category)
-    VALUES (?, ?, ?, ?)
-  `, [date, description, amount, category], function(err) {
-    if (err) {
-      console.error('Error creating expense:', err);
-      return res.status(500).json({ error: 'Failed to create expense' });
+  body('date').notEmpty().withMessage('Date is required'),
+  body('description').notEmpty().withMessage('Description is required'),
+  body('amount').isFloat({ min: 0 }).withMessage('Amount must be a positive number'),
+  body('category').notEmpty().withMessage('Category is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
     
-    res.status(201).json({
-      id: this.lastID,
-      date, description, amount, category
-    });
-  });
+    const { date, description, amount, category } = req.body;
+    const db = getDatabase();
+    
+    const result = await dbUtils.createExpense(db, { date, description, amount, category });
+    res.status(201).json(result);
+    
+  } catch (error) {
+    console.error('Error creating expense:', error);
+    res.status(500).json({ error: 'Failed to create expense' });
+  }
 });
 
 // Update expense
 router.put('/:id', [
-  body('date').optional().isISO8601(),
-  body('description').optional().notEmpty(),
-  body('amount').optional().isFloat({ min: 0.01 }),
-  body('category').optional().notEmpty()
-], (req, res) => {
-  const { id } = req.params;
-  const { date, description, amount, category } = req.body;
-  
-  const db = getDatabase();
-  
-  // Get current expense
-  db.get('SELECT * FROM expenses WHERE id = ?', [id], (err, row) => {
-    if (err) {
-      console.error('Error fetching expense:', err);
-      return res.status(500).json({ error: 'Failed to fetch expense' });
+  body('date').optional().notEmpty().withMessage('Date cannot be empty'),
+  body('description').optional().notEmpty().withMessage('Description cannot be empty'),
+  body('amount').optional().isFloat({ min: 0 }).withMessage('Amount must be a positive number'),
+  body('category').optional().notEmpty().withMessage('Category cannot be empty')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
     
-    if (!row) {
-      return res.status(404).json({ error: 'Expense not found' });
+    const { id } = req.params;
+    const updates = req.body;
+    const db = getDatabase();
+    
+    const result = await dbUtils.updateExpense(db, id, updates);
+    res.json(result);
+    
+  } catch (error) {
+    console.error('Error updating expense:', error);
+    if (error.message === 'Expense not found') {
+      res.status(404).json({ error: 'Expense not found' });
+    } else {
+      res.status(500).json({ error: 'Failed to update expense' });
     }
-    
-    // Update fields
-    const updates = [];
-    const values = [];
-    
-    if (date !== undefined) {
-      updates.push('date = ?');
-      values.push(date);
-    }
-    
-    if (description !== undefined) {
-      updates.push('description = ?');
-      values.push(description);
-    }
-    
-    if (amount !== undefined) {
-      updates.push('amount = ?');
-      values.push(amount);
-    }
-    
-    if (category !== undefined) {
-      updates.push('category = ?');
-      values.push(category);
-    }
-    
-    if (updates.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
-    }
-    
-    values.push(id);
-    
-    const sql = `UPDATE expenses SET ${updates.join(', ')} WHERE id = ?`;
-    
-    db.run(sql, values, function(err) {
-      if (err) {
-        console.error('Error updating expense:', err);
-        return res.status(500).json({ error: 'Failed to update expense' });
-      }
-      
-      res.json({ message: 'Expense updated successfully' });
-    });
-  });
+  }
 });
 
 // Delete expense
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const db = getDatabase();
-  
-  db.run('DELETE FROM expenses WHERE id = ?', [id], function(err) {
-    if (err) {
-      console.error('Error deleting expense:', err);
-      return res.status(500).json({ error: 'Failed to delete expense' });
-    }
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = getDatabase();
     
-    if (this.changes === 0) {
-      return res.status(404).json({ error: 'Expense not found' });
-    }
+    const result = await dbUtils.deleteExpense(db, id);
+    res.json(result);
     
-    res.json({ message: 'Expense deleted successfully' });
-  });
+  } catch (error) {
+    console.error('Error deleting expense:', error);
+    if (error.message === 'Expense not found') {
+      res.status(404).json({ error: 'Expense not found' });
+    } else {
+      res.status(500).json({ error: 'Failed to delete expense' });
+    }
+  }
 });
 
 module.exports = router;

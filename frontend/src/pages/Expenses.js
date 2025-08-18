@@ -221,6 +221,49 @@ const Expenses = () => {
     );
   };
 
+  const renderMobileExpenseCard = (expense) => {
+    return (
+      <div key={expense.id} className="appointment-card">
+        <div className="card-header">
+          <span className="time">{moment(expense.date).format('h:mm A')}</span>
+          <span className="status">{expense.category}</span>
+        </div>
+        
+        <div className="card-body">
+          <div className="info-row">
+            <span className="label">Description:</span>
+            <span className="value">{expense.description}</span>
+          </div>
+          
+          <div className="info-row">
+            <span className="label">Amount:</span>
+            <span className="value">${expense.amount.toFixed(2)}</span>
+          </div>
+          
+          <div className="info-row">
+            <span className="label">Category:</span>
+            <span className="value">{expense.category}</span>
+          </div>
+        </div>
+        
+        <div className="actions">
+          <button
+            className="action-btn edit-btn"
+            onClick={() => handleEdit(expense)}
+          >
+            Edit
+          </button>
+          <button
+            className="action-btn delete-btn"
+            onClick={() => handleDelete(expense.id)}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const renderDateGroup = (date, expenses) => {
     const dateKey = `${date}`;
     const isExpanded = expandedDates.has(dateKey);
@@ -255,6 +298,11 @@ const Expenses = () => {
                 {expenses.map(expense => renderExpenseRow(expense))}
               </tbody>
             </table>
+            
+            {/* Mobile card layout - hidden by default, shown on small screens */}
+            <div className="mobile-cards">
+              {expenses.map(expense => renderMobileExpenseCard(expense))}
+            </div>
           </div>
         )}
       </div>

@@ -27,36 +27,36 @@ const Appointments = () => {
       
       if (dateParam) {
         // If there's a date parameter, let the other useEffect handle it
-        console.log('🔄 Date parameter detected, skipping default expansion');
+        // console.log('🔄 Date parameter detected, skipping default expansion');
         return;
       }
       
       // Default behavior: find current day or next day with appointments
-      console.log('🔄 No date parameter, applying default expansion logic');
+      // console.log('🔄 No date parameter, applying default expansion logic');
       
       const today = moment();
       const todayKey = today.format('YYYY-MM-DD');
       const currentYear = today.format('YYYY');
       const currentMonth = today.format('MMMM');
       
-      console.log('🔄 [DEFAULT EXPANSION] Today:', todayKey, 'Current year:', currentYear, 'Current month:', currentMonth);
+      // console.log('🔄 [DEFAULT EXPANSION] Today:', todayKey, 'Current year:', currentYear, 'Current month:', currentMonth);
       
       // Check if today has appointments
       if (groupedAppointments[currentYear]?.[currentMonth]?.[todayKey]?.length > 0) {
-        console.log('🔄 [DEFAULT EXPANSION] Today has appointments, expanding today');
+        // console.log('🔄 [DEFAULT EXPANSION] Today has appointments, expanding today');
         setExpandedYears(new Set([currentYear]));
         setExpandedMonths(new Set([currentMonth]));
         setExpandedDates(new Set([todayKey]));
         
         // Log what we're expanding
-        console.log('🔄 [DEFAULT EXPANSION] Expanding sections (today):', {
-          year: currentYear,
-          month: currentMonth,
-          date: todayKey
-        });
+        // console.log('🔄 [DEFAULT EXPANSION] Expanding sections (today):', {
+        //   year: currentYear,
+        //   month: currentMonth,
+        //   date: todayKey
+        // });
       } else {
         // Find the next day with appointments
-        console.log('🔄 [DEFAULT EXPANSION] Today has no appointments, searching for next day with appointments');
+        // console.log('🔄 [DEFAULT EXPANSION] Today has no appointments, searching for next day with appointments');
         
         let foundDate = null;
         let foundYear = null;
@@ -79,7 +79,7 @@ const Appointments = () => {
           });
         });
         
-        console.log('🔄 [DEFAULT EXPANSION] All dates with appointments:', allDates.map(d => d.dateKey));
+        // console.log('🔄 [DEFAULT EXPANSION] All dates with appointments:', allDates.map(d => d.dateKey));
         
         // Sort dates chronologically
         allDates.sort((a, b) => a.moment.diff(b.moment));
@@ -95,38 +95,38 @@ const Appointments = () => {
         }
         
         if (foundDate) {
-          console.log('🔄 [DEFAULT EXPANSION] Found next day with appointments:', foundDate);
+          // console.log('🔄 [DEFAULT EXPANSION] Found next day with appointments:', foundDate);
           setExpandedYears(new Set([foundYear]));
           setExpandedMonths(new Set([foundMonth]));
           setExpandedDates(new Set([foundDate]));
           
           // Log what we're expanding
-          console.log('🔄 [DEFAULT EXPANSION] Expanding sections:', {
-            year: foundYear,
-            month: foundMonth,
-            date: foundDate
-          });
+          // console.log('🔄 [DEFAULT EXPANSION] Expanding sections:', {
+          //   year: foundYear,
+          //   month: foundMonth,
+          //   date: foundDate
+          // });
         } else {
           // Fallback: expand today even if no appointments
-          console.log('🔄 [DEFAULT EXPANSION] No future appointments found, expanding today as fallback');
+          // console.log('🔄 [DEFAULT EXPANSION] No future appointments found, expanding today as fallback');
           setExpandedYears(new Set([currentYear]));
           setExpandedMonths(new Set([currentMonth]));
           setExpandedDates(new Set([todayKey]));
           
           // Log what we're expanding
-          console.log('🔄 [DEFAULT EXPANSION] Expanding sections (fallback):', {
-            year: currentYear,
-            month: currentMonth,
-            date: todayKey
-          });
+          // console.log('🔄 [DEFAULT EXPANSION] Expanding sections (fallback):', {
+          //   year: currentYear,
+          //   month: currentMonth,
+          //   date: todayKey
+          // });
         }
         
         // Log what was expanded
-        console.log('🔄 [DEFAULT EXPANSION] Final expansion state:', {
-          years: Array.from(expandedYears),
-          months: Array.from(expandedMonths),
-          dates: Array.from(expandedDates)
-        });
+        // console.log('🔄 [DEFAULT EXPANSION] Final expansion state:', {
+        //   years: Array.from(expandedYears),
+        //   months: Array.from(expandedMonths),
+        //   dates: Array.from(expandedDates)
+        // });
       }
     }
   }, [groupedAppointments, expandedDates.size]);
@@ -137,7 +137,7 @@ const Appointments = () => {
     const dateParam = urlParams.get('date');
     
     if (dateParam && Object.keys(groupedAppointments).length > 0) {
-      console.log('🔄 [CHATBOT REDIRECT] Auto-expanding section for date:', dateParam);
+      // console.log('🔄 [CHATBOT REDIRECT] Auto-expanding section for date:', dateParam);
       
       // Parse the date parameter and find the relevant sections
       const targetDate = moment(dateParam);
@@ -150,20 +150,20 @@ const Appointments = () => {
       setExpandedMonths(new Set([targetMonth]));
       setExpandedDates(new Set([targetDateKey]));
       
-      console.log('🔄 [CHATBOT REDIRECT] Expanded sections:', {
-        year: targetYear,
-        month: targetMonth,
-        date: targetDateKey
-      });
+      // console.log('🔄 [CHATBOT REDIRECT] Expanded sections:', {
+      //   year: targetYear,
+      //   month: targetMonth,
+      //   date: targetDateKey
+      // });
       
       // Scroll to the relevant section after a short delay
       setTimeout(() => {
         const dateElement = document.querySelector(`[data-date="${targetDateKey}"]`);
         if (dateElement) {
-          console.log('🔄 [CHATBOT REDIRECT] Scrolling to date element');
+          // console.log('🔄 [CHATBOT REDIRECT] Scrolling to date element');
           dateElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-          console.log('🔄 [CHATBOT REDIRECT] Date element not found for scrolling');
+          // console.log('🔄 [CHATBOT REDIRECT] Date element not found for scrolling');
         }
       }, 100);
     }
@@ -402,6 +402,112 @@ const Appointments = () => {
     );
   };
 
+  const renderMobileAppointmentCard = (appointment) => {
+    const isEditing = editingId === appointment.id;
+
+    return (
+      <div key={appointment.id} className="appointment-card">
+        <div className="card-header">
+          <span className="time">{appointment.time}</span>
+          <span className="status">
+            {appointment.completed ? 'Completed' : 'Active'}
+          </span>
+        </div>
+        
+        <div className="card-body">
+          <div className="info-row">
+            <span className="label">Client:</span>
+            <span className="value">{appointment.client}</span>
+          </div>
+          
+          <div className="info-row">
+            <span className="label">Category:</span>
+            <span className="value">
+              {isEditing ? (
+                <select
+                  value={editForm.category}
+                  onChange={(e) => updatePrice(e.target.value)}
+                  className="form-select"
+                  style={{ fontSize: '0.9rem', padding: '0.25rem' }}
+                >
+                  <option value="Facial">Facial</option>
+                  <option value="Massage">Massage</option>
+                  <option value="Facial + Massage">Facial + Massage</option>
+                </select>
+              ) : (
+                appointment.category
+              )}
+            </span>
+          </div>
+          
+          <div className="info-row">
+            <span className="label">Tip:</span>
+            <span className="value">
+              {isEditing ? (
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editForm.tip}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, tip: parseFloat(e.target.value) || 0 }))}
+                  className="form-input"
+                  style={{ fontSize: '0.9rem', padding: '0.25rem', width: '80px' }}
+                />
+              ) : (
+                `$${(appointment.tip || 0).toFixed(2)}`
+              )}
+            </span>
+          </div>
+        </div>
+        
+        <div className="actions">
+          {isEditing ? (
+            <>
+              <button
+                className="action-btn save-btn"
+                onClick={() => handleSave(appointment.id)}
+              >
+                Save
+              </button>
+              <button
+                className="action-btn cancel-btn"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              {!appointment.completed ? (
+                <>
+                  <button
+                    className="action-btn edit-btn"
+                    onClick={() => handleEdit(appointment)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="action-btn save-btn"
+                    onClick={() => handleComplete(appointment.id)}
+                  >
+                    Complete
+                  </button>
+                  <button
+                    className="action-btn delete-btn"
+                    onClick={() => handleDelete(appointment.id)}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <span className="completed-status">Completed</span>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderDateGroup = (date, appointments) => {
     const dateKey = `${date}`;
     const isExpanded = expandedDates.has(dateKey);
@@ -432,6 +538,11 @@ const Appointments = () => {
                 {appointments.map(renderAppointmentRow)}
               </tbody>
             </table>
+            
+            {/* Mobile card layout - hidden by default, shown on small screens */}
+            <div className="mobile-cards">
+              {appointments.map(renderMobileAppointmentCard)}
+            </div>
           </div>
         )}
       </div>

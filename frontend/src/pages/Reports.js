@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -69,9 +69,7 @@ const Reports = () => {
     end_year: moment().format('YYYY')
   });
 
-  useEffect(() => {
-    fetchReport();
-  }, [dateRange]);
+  
 
   // Add print styles to document head
   useEffect(() => {
@@ -84,7 +82,7 @@ const Reports = () => {
     };
   }, []);
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get('/api/reports', {
@@ -97,7 +95,12 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange]);
+
+  // Fetch report whenever the memoized fetchReport changes
+  useEffect(() => {
+    fetchReport();
+  }, [fetchReport]);
 
   const handleMonthYearChange = (type, field, value) => {
     setTempDateRange(prev => ({ 
@@ -541,6 +544,40 @@ const Reports = () => {
               ))}
             </tbody>
           </table>
+          
+          {/* Mobile card layout for appointments */}
+          <div className="mobile-cards">
+            {appointments.map((appt) => (
+              <div key={appt.id} className="appointment-card">
+                <div className="card-header">
+                  <span className="time">{moment(appt.date).format('MMM D, YYYY')}</span>
+                  <span className="status">{appt.time}</span>
+                </div>
+                
+                <div className="card-body">
+                  <div className="info-row">
+                    <span className="label">Client:</span>
+                    <span className="value">{appt.client}</span>
+                  </div>
+                  
+                  <div className="info-row">
+                    <span className="label">Service:</span>
+                    <span className="value">{appt.category}</span>
+                  </div>
+                  
+                  <div className="info-row">
+                    <span className="label">Payment:</span>
+                    <span className="value">${appt.payment.toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="info-row">
+                    <span className="label">Tip:</span>
+                    <span className="value">${(appt.tip || 0).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -570,6 +607,35 @@ const Reports = () => {
               ))}
             </tbody>
           </table>
+          
+          {/* Mobile card layout for expenses */}
+          <div className="mobile-cards">
+            {expenses.map((exp) => (
+              <div key={exp.id} className="appointment-card">
+                <div className="card-header">
+                  <span className="time">{moment(exp.date).format('MMM D, YYYY')}</span>
+                  <span className="status">{exp.category}</span>
+                </div>
+                
+                <div className="card-body">
+                  <div className="info-row">
+                    <span className="label">Description:</span>
+                    <span className="value">{exp.description}</span>
+                  </div>
+                  
+                  <div className="info-row">
+                    <span className="label">Category:</span>
+                    <span className="value">{exp.category}</span>
+                  </div>
+                  
+                  <div className="info-row">
+                    <span className="label">Amount:</span>
+                    <span className="value">${exp.amount.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

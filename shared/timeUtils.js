@@ -1,31 +1,27 @@
-/**
- * Chat Utilities - Comprehensive utility functions for chat operations
- * 
- * This file consolidates all utility functions needed for chat functionality,
- * including time conversion, date parsing, validation, and regex operations.
- * Functions are grouped by type for easy navigation and maintenance.
- */
-
-// ============================================================================
-// TIME UTILITIES
-// ============================================================================
+// Shared Time utility functions for both frontend and backend
 
 /**
- * Converts military time format to 12-hour format for display
- * @param {string} timeString - Time in military format (e.g., "1900 hours", "19:00 hours")
+ * Convert military time to 12-hour format for display
+ * @param {string} timeString - Time string in military or 12-hour format
  * @returns {string} Time in 12-hour format (e.g., "7:00 PM")
- * 
- * Examples:
- * - "1900 hours" → "7:00 PM"
- * - "19:00 hours" → "7:00 PM"
- * - "2:00 PM" → "2:00 PM" (already 12-hour format)
  */
 const convertMilitaryTo12Hour = (timeString) => {
   if (timeString.includes('hours')) {
-    // Military time format: "1900 hours" → "7:00 PM"
+    // Military time format: "1900 hours" or "19:00 hours" → "7:00 PM"
     const militaryTime = timeString.replace(/\s*hours?/i, '');
-    const hour = parseInt(militaryTime.substring(0, 2));
-    const minute = militaryTime.substring(2, 4);
+    
+    // Handle both "1900" and "19:00" formats
+    let hour, minute;
+    if (militaryTime.includes(':')) {
+      // Format: "19:00"
+      const parts = militaryTime.split(':');
+      hour = parseInt(parts[0]);
+      minute = parts[1];
+    } else {
+      // Format: "1900"
+      hour = parseInt(militaryTime.substring(0, 2));
+      minute = militaryTime.substring(2, 4);
+    }
     
     if (hour === 0) {
       return `12:${minute} AM`;
@@ -42,21 +38,27 @@ const convertMilitaryTo12Hour = (timeString) => {
 };
 
 /**
- * Standardizes time format for backend database queries
- * @param {string} timeString - Time in various formats
- * @returns {string} Standardized time in "X:XX AM/PM" format
- * 
- * Examples:
- * - "1730 hours" → "5:30 PM"
- * - "19:00 hours" → "7:00 PM"
- * - "2:30 p.m." → "2:30 PM"
+ * Standardize time format for backend database queries
+ * @param {string} timeString - Time string in various formats
+ * @returns {string} Standardized time format for backend
  */
 const standardizeTimeForBackend = (timeString) => {
   if (timeString.includes('hours')) {
-    // Military time: "1730 hours" → "5:30 PM"
+    // Military time: "1730 hours" or "17:30 hours" → "5:30 PM"
     const militaryTime = timeString.replace(/\s*hours?/i, '');
-    const hour = parseInt(militaryTime.substring(0, 2));
-    const minute = militaryTime.substring(2, 4);
+    
+    // Handle both "1730" and "17:30" formats
+    let hour, minute;
+    if (militaryTime.includes(':')) {
+      // Format: "17:30"
+      const parts = militaryTime.split(':');
+      hour = parseInt(parts[0]);
+      minute = parts[1];
+    } else {
+      // Format: "1730"
+      hour = parseInt(militaryTime.substring(0, 2));
+      minute = militaryTime.substring(2, 4);
+    }
     
     if (hour === 0) {
       return `12:${minute} AM`;
@@ -70,22 +72,37 @@ const standardizeTimeForBackend = (timeString) => {
   } else {
     // 12-hour format: standardize to "X:XX AM/PM" format
     // Remove dots and convert to uppercase for consistency
-    return timeString.replace(/\./g, '').toUpperCase();
+    let standardized = timeString.replace(/\./g, '').toUpperCase();
+    
+    // Check if minutes are missing and add ":00" if needed
+    // Pattern: "5 PM" → "5:00 PM", "2:30 PM" → "2:30 PM" (no change)
+    const timePattern = /^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i;
+    const match = standardized.match(timePattern);
+    
+    if (match) {
+      const hour = match[1];
+      const minutes = match[2];
+      const period = match[3];
+      
+      if (!minutes) {
+        // No minutes specified, add ":00"
+        return `${hour}:00 ${period}`;
+      } else {
+        // Minutes already present, return as-is
+        return standardized;
+      }
+    }
+    
+    // If pattern doesn't match, return as-is
+    return standardized;
   }
 };
 
-// ============================================================================
-// DATE UTILITIES
-// ============================================================================
-
 /**
- * Parses natural language date strings to YYYY-MM-DD format
- * @param {string} dateStr - Date string (e.g., "August 16th", "March 3rd 2025")
- * @param {string|null} yearParam - Optional explicit year from regex capture
- * @returns {Object} Parsed date information
- * @returns {Date} returns.parsedDate - JavaScript Date object
- * @returns {string} returns.formattedDate - YYYY-MM-DD string
- * @returns {string} returns.year - Year used for parsing
+ * Parse natural language dates to proper date objects
+ * @param {string} dateStr - Natural language date string (e.g., "august 19th", "March 3rd")
+ * @param {string|null} yearParam - Optional year parameter
+ * @returns {Object} Object containing parsedDate, formattedDate, and year
  * 
  * Examples:
  * - "August 16th" + null → Uses current year, or next year if past
@@ -155,61 +172,8 @@ const parseNaturalLanguageDate = (dateStr, yearParam = null) => {
   }
 };
 
-// ============================================================================
-// VALIDATION UTILITIES
-// ============================================================================
-
-/**
- * Validates client name format
- * @param {string} clientName - Client name to validate
- * @returns {boolean} True if valid, false otherwise
- * 
- * Allows: letters, digits, spaces, hyphens, apostrophes
- * Examples: "Sarah Johnson", "Mary-Jane", "O'Connor", "Client 3"
- */
-const validateClientName = (clientName) => {
-  const clientNameRegex = /^[a-zA-Z0-9\-\'\s]+$/;
-  return clientNameRegex.test(clientName);
-};
-
-/**
- * Validates time format (12-hour or military)
- * @param {string} timeString - Time string to validate
- * @returns {boolean} True if valid, false otherwise
- * 
- * Accepts: "2:00 PM", "2:30 p.m.", "1900 hours", "19:00 hours"
- */
-const validateTimeFormat = (timeString) => {
-  const timeRegex = /^(\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)|(\d{1,2}(?::\d{2})?\s*hours?))$/i;
-  return timeRegex.test(timeString);
-};
-
-/**
- * Validates date format
- * @param {string} dateString - Date string to validate
- * @returns {boolean} True if valid, false otherwise
- * 
- * Accepts: "August 16th", "March 3rd", "December 25th"
- */
-const validateDateFormat = (dateString) => {
-  const dateRegex = /^[a-zA-Z]+\s+\d+(?:st|nd|rd|th)?$/i;
-  return dateRegex.test(dateString);
-};
-
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
 module.exports = {
-  // Time utilities
   convertMilitaryTo12Hour,
   standardizeTimeForBackend,
-  
-  // Date utilities
-  parseNaturalLanguageDate,
-  
-  // Validation utilities
-  validateClientName,
-  validateTimeFormat,
-  validateDateFormat
+  parseNaturalLanguageDate
 };
