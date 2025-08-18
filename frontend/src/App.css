@@ -1236,14 +1236,16 @@ body {
   border-bottom: 1px solid #e1e5e9 !important;
   font-size: 0.85rem !important;
   vertical-align: top !important;
+  line-height: 1.2 !important;
   min-height: 2.5rem !important;
-  height: 2.5rem !important;
+  /* Remove height and max-height - browsers ignore them for table cells with wrapped content */
 }
 
+/* Remove the ineffective height properties from tr elements */
 .appointments-page .date-content .table tr,
 .appointments-page .month-content .table tr,
 .appointments-page .year-content .table tr {
-  height: 2.5rem !important;
+  /* Remove height - browsers ignore it for table rows */
 }
 
 /* Appointments page column widths - adjusted for 5 columns (Payment hidden) */
@@ -1261,6 +1263,7 @@ body {
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
   white-space: normal !important;
+  text-overflow: ellipsis !important;
 }
 
 .appointments-page .date-content .table th:nth-child(3), /* Category */
@@ -1270,6 +1273,7 @@ body {
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
   white-space: normal !important;
+  text-overflow: ellipsis !important;
 }
 
 .appointments-page .date-content .table th:nth-child(4), /* Payment - hidden */
