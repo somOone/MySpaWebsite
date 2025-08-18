@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import TipModal from '../components/TipModal';
 
 const Appointments = () => {
   const [groupedAppointments, setGroupedAppointments] = useState({});
@@ -8,6 +9,10 @@ const Appointments = () => {
   const [error, setError] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
+  
+  // Tip modal state
+  const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
   
   // Accordion state management
   const [expandedYears, setExpandedYears] = useState(new Set());
@@ -208,15 +213,27 @@ const Appointments = () => {
     setEditForm({});
   };
 
-  const handleComplete = async (appointmentId) => {
-    if (window.confirm('Mark this appointment as completed?')) {
-      try {
-        await axios.patch(`/api/appointments/${appointmentId}/complete`);
-        fetchAppointments(); // Refresh data
-      } catch (error) {
-        console.error('Error completing appointment:', error);
-        alert('Failed to complete appointment');
-      }
+  const handleComplete = (appointment) => {
+    setSelectedAppointment(appointment);
+    setTipModalOpen(true);
+  };
+
+  const handleCompleteWithTip = async (tipAmount) => {
+    try {
+      await axios.patch(`/api/appointments/${selectedAppointment.id}/complete`, {
+        tip: tipAmount
+      });
+      
+      // Close modal and refresh data
+      setTipModalOpen(false);
+      setSelectedAppointment(null);
+      fetchAppointments();
+      
+      // Show success message
+      alert(`Appointment completed successfully with tip: $${tipAmount.toFixed(2)}`);
+    } catch (error) {
+      console.error('Error completing appointment:', error);
+      alert('Failed to complete appointment');
     }
   };
 
@@ -381,7 +398,7 @@ const Appointments = () => {
                   </button>
                   <button
                     className="action-btn save-btn"
-                    onClick={() => handleComplete(appointment.id)}
+                    onClick={() => handleComplete(appointment)}
                   >
                     Complete
                   </button>
@@ -487,7 +504,7 @@ const Appointments = () => {
                   </button>
                   <button
                     className="action-btn save-btn"
-                    onClick={() => handleComplete(appointment.id)}
+                    onClick={() => handleComplete(appointment)}
                   >
                     Complete
                   </button>
@@ -645,6 +662,13 @@ const Appointments = () => {
           </div>
         </>
       )}
+
+      <TipModal
+        isOpen={tipModalOpen}
+        onClose={() => setTipModalOpen(false)}
+        onConfirm={handleCompleteWithTip}
+        appointment={selectedAppointment}
+      />
     </div>
   );
 };

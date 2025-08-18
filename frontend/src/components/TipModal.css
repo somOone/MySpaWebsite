@@ -1,0 +1,275 @@
+/* Tip Modal Styles */
+.tip-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.tip-modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tip-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.tip-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+.tip-modal-body {
+  padding: 1.5rem;
+}
+
+.appointment-info {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.appointment-info p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.appointment-info p:first-child {
+  margin-top: 0;
+}
+
+.appointment-info p:last-child {
+  margin-bottom: 0;
+}
+
+.tip-section {
+  margin-bottom: 1rem;
+}
+
+.tip-section label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.tip-input-container {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.tip-input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.tip-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.tip-input::-webkit-outer-spin-button,
+.tip-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.tip-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.quick-tips {
+  margin-top: 1.5rem;
+}
+
+.quick-tips p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.quick-tip-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.quick-tip-btn {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+  min-width: 60px;
+}
+
+.quick-tip-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.quick-tip-btn:active {
+  background: #dee2e6;
+}
+
+.tip-modal-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 480px) {
+  .tip-modal {
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+  
+  .tip-modal-header {
+    padding: 1rem 1rem 0.75rem;
+  }
+  
+  .tip-modal-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .tip-modal-body {
+    padding: 1rem;
+  }
+  
+  .tip-modal-footer {
+    padding: 0.75rem 1rem 1rem;
+    flex-direction: column;
+  }
+  
+  .quick-tip-buttons {
+    gap: 0.25rem;
+  }
+  
+  .quick-tip-btn {
+    min-width: 50px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .tip-input {
+    font-size: 1rem; /* Prevent zoom on iOS */
+    padding: 0.75rem 0.75rem 0.75rem 2rem;
+  }
+}
