@@ -278,9 +278,9 @@ const Expenses = () => {
           className={`date-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleDate(dateKey)}
         >
-          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
           <span>{dayName}, {formattedDate}</span>
           <span className="date-total">Total: ${totalAmount.toFixed(2)}</span>
+          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
         </div>
         {isExpanded && (
           <div className="date-content">
@@ -322,9 +322,9 @@ const Expenses = () => {
           className={`month-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleMonth(monthKey)}
         >
-          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
           <span>{month}</span>
           <span className="month-total">Total: ${monthTotal.toFixed(2)}</span>
+          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
         </div>
         {isExpanded && (
           <div className="month-content">
@@ -354,9 +354,9 @@ const Expenses = () => {
           className={`year-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleYear(yearKey)}
         >
-          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
           <span>{year}</span>
           <span className="year-total">Total: ${yearTotal.toFixed(2)}</span>
+          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
         </div>
         {isExpanded && (
           <div className="year-content">
