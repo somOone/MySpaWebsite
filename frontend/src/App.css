@@ -1217,70 +1217,78 @@ body {
 }
 
 /* Appointments page table layout - ensure consistent row heights */
-.appointments-page .table {
-  table-layout: fixed;
-  width: 100%;
-  border-collapse: collapse;
+.appointments-page .date-content .table,
+.appointments-page .month-content .table,
+.appointments-page .year-content .table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
 }
 
-.appointments-page .table th,
-.appointments-page .table td {
-  padding: 0.4rem 0.6rem;
-  text-align: left;
-  border-bottom: 1px solid #e1e5e9;
-  font-size: 0.85rem;
-  vertical-align: top;
-  min-height: 2.5rem;
-  height: 2.5rem;
+.appointments-page .date-content .table th,
+.appointments-page .date-content .table td,
+.appointments-page .month-content .table th,
+.appointments-page .month-content .table td,
+.appointments-page .year-content .table th,
+.appointments-page .year-content .table td {
+  padding: 0.4rem 0.6rem !important;
+  text-align: left !important;
+  border-bottom: 1px solid #e1e5e9 !important;
+  font-size: 0.85rem !important;
+  vertical-align: top !important;
+  min-height: 2.5rem !important;
+  height: 2.5rem !important;
 }
 
-.appointments-page .table tr {
-  height: 2.5rem;
+.appointments-page .date-content .table tr,
+.appointments-page .month-content .table tr,
+.appointments-page .year-content .table tr {
+  height: 2.5rem !important;
 }
 
 /* Appointments page column widths - adjusted for 5 columns (Payment hidden) */
-.appointments-page .table th:nth-child(1), /* Time */
-.appointments-page .table td:nth-child(1) {
-  width: 80px;
-  max-width: 80px;
-  white-space: nowrap;
+.appointments-page .date-content .table th:nth-child(1), /* Time */
+.appointments-page .date-content .table td:nth-child(1) {
+  width: 80px !important;
+  max-width: 80px !important;
+  white-space: nowrap !important;
 }
 
-.appointments-page .table th:nth-child(2), /* Client */
-.appointments-page .table td:nth-child(2) {
-  width: 180px;
-  max-width: 180px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
+.appointments-page .date-content .table th:nth-child(2), /* Client */
+.appointments-page .date-content .table td:nth-child(2) {
+  width: 180px !important;
+  max-width: 180px !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
 }
 
-.appointments-page .table th:nth-child(3), /* Category */
-.appointments-page .table td:nth-child(3) {
-  width: 140px;
-  max-width: 140px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
+.appointments-page .date-content .table th:nth-child(3), /* Category */
+.appointments-page .date-content .table td:nth-child(3) {
+  width: 140px !important;
+  max-width: 140px !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
 }
 
-.appointments-page .table th:nth-child(4), /* Payment - hidden */
-.appointments-page .table td:nth-child(4) {
-  display: none;
+.appointments-page .date-content .table th:nth-child(4), /* Payment - hidden */
+.appointments-page .date-content .table td:nth-child(4) {
+  display: none !important;
 }
 
-.appointments-page .table th:nth-child(5), /* Tip */
-.appointments-page .table td:nth-child(5) {
-  width: 100px;
-  max-width: 100px;
-  white-space: nowrap;
+.appointments-page .date-content .table th:nth-child(5), /* Tip */
+.appointments-page .date-content .table td:nth-child(5) {
+  width: 100px !important;
+  max-width: 100px !important;
+  white-space: nowrap !important;
 }
 
-.appointments-page .table th:nth-child(6), /* Actions */
-.appointments-page .table td:nth-child(6) {
-  width: 200px;
-  max-width: 200px;
-  white-space: nowrap;
+.appointments-page .date-content .table th:nth-child(6), /* Actions */
+.appointments-page .date-content .table td:nth-child(6) {
+  width: 200px !important;
+  max-width: 200px !important;
+  white-space: nowrap !important;
 }
 
 /* Mobile cards - hidden by default */
