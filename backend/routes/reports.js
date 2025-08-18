@@ -169,17 +169,62 @@ router.get('/dashboard', (req, res) => {
             return res.status(500).json({ error: 'Failed to fetch total clients' });
           }
             
-          res.json({
-            today: {
-              date: today,
-              appointments: todayAppointments.length,
-              revenue: todayAppointments.reduce((sum, appt) => sum + appt.payment, 0)
-            },
-            totals: {
-              appointments: totalAppointments.count || 0,
-              revenue: totalRevenue.total || 0,
-              clients: totalClients.count || 0
+          // Get spa service statistics - all time
+          db.all('SELECT category, COUNT(*) as count FROM appointments WHERE completed = 1 GROUP BY category', (err, serviceStats) => {
+            if (err) {
+              console.error('Error fetching service statistics:', err);
+              return res.status(500).json({ error: 'Failed to fetch service statistics' });
             }
+            
+            // Get spa service statistics - current year
+            const currentYear = moment().format('YYYY');
+            db.all('SELECT category, COUNT(*) as count FROM appointments WHERE completed = 1 AND strftime("%Y", date) = ? GROUP BY category', [currentYear], (err, currentYearServiceStats) => {
+              if (err) {
+                console.error('Error fetching current year service statistics:', err);
+                return res.status(500).json({ error: 'Failed to fetch current year service statistics' });
+              }
+              
+              // Process service statistics
+              const processServiceStats = (stats) => {
+                const result = {
+                  massages: 0,
+                  facials: 0,
+                  combos: 0
+                };
+                
+                stats.forEach(stat => {
+                  if (stat.category === 'Massage') {
+                    result.massages = stat.count;
+                  } else if (stat.category === 'Facial') {
+                    result.facials = stat.count;
+                  } else if (stat.category === 'Facial + Massage') {
+                    result.combos = stat.count;
+                  }
+                });
+                
+                return result;
+              };
+              
+              const allTimeServices = processServiceStats(serviceStats);
+              const currentYearServices = processServiceStats(currentYearServiceStats);
+              
+              res.json({
+                today: {
+                  date: today,
+                  appointments: todayAppointments.length,
+                  revenue: todayAppointments.reduce((sum, appt) => sum + appt.payment, 0)
+                },
+                totals: {
+                  appointments: totalAppointments.count || 0,
+                  revenue: totalRevenue.total || 0,
+                  clients: totalClients.count || 0
+                },
+                spaServices: {
+                  allTime: allTimeServices,
+                  currentYear: currentYearServices
+                }
+              });
+            });
           });
         });
       });

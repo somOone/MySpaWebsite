@@ -8,6 +8,10 @@ const Home = () => {
     totalRevenue: 0,
     totalClients: 0
   });
+  const [spaServices, setSpaServices] = useState({
+    allTime: { massages: 0, facials: 0, combos: 0 },
+    currentYear: { massages: 0, facials: 0, combos: 0 }
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -22,6 +26,10 @@ const Home = () => {
         totalRevenue: 0,
         totalClients: 0
       });
+      setSpaServices(response.data.spaServices || {
+        allTime: { massages: 0, facials: 0, combos: 0 },
+        currentYear: { massages: 0, facials: 0, combos: 0 }
+      });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       // Set default values on error
@@ -29,6 +37,10 @@ const Home = () => {
         totalAppointments: 0,
         totalRevenue: 0,
         totalClients: 0
+      });
+      setSpaServices({
+        allTime: { massages: 0, facials: 0, combos: 0 },
+        currentYear: { massages: 0, facials: 0, combos: 0 }
       });
     }
   };
@@ -86,21 +98,70 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Statistics Section */}
-      <section className="stats-section">
-        <h2 className="stats-title">Spa Statistics</h2>
-        <div className="stats-grid">
-          <div className="stat-item">
-            <div className="stat-number">{stats.totalAppointments || 0}</div>
-            <div className="stat-label">Total Appointments</div>
+      {/* Spa Service Statistics Section */}
+      <section className="spa-stats-section">
+        <h2 className="spa-stats-title">Our Spa Services</h2>
+        <p className="spa-stats-subtitle">Experience the numbers that reflect our commitment to excellence</p>
+        
+        <div className="spa-stats-container">
+          {/* Current Year Statistics */}
+          <div className="stats-period-section">
+            <h3 className="period-title">This Year ({new Date().getFullYear()})</h3>
+            <div className="spa-stats-grid">
+              <div className="spa-stat-card massage">
+                <div className="stat-icon">💆‍♀️</div>
+                <div className="stat-content">
+                  <div className="stat-number">{spaServices.currentYear.massages}</div>
+                  <div className="stat-label">Massages Given</div>
+                </div>
+              </div>
+              
+              <div className="spa-stat-card facial">
+                <div className="stat-icon">✨</div>
+                <div className="stat-content">
+                  <div className="stat-number">{spaServices.currentYear.facials}</div>
+                  <div className="stat-label">Facials Done</div>
+                </div>
+              </div>
+              
+              <div className="spa-stat-card combo">
+                <div className="stat-icon">🌟</div>
+                <div className="stat-content">
+                  <div className="stat-number">{spaServices.currentYear.combos}</div>
+                  <div className="stat-label">Massage + Facial Combos</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="stat-item">
-            <div className="stat-number">${(stats.totalRevenue || 0).toLocaleString()}</div>
-            <div className="stat-label">Total Revenue</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">{stats.totalClients || 0}</div>
-            <div className="stat-label">Happy Clients</div>
+          
+          {/* All Time Statistics */}
+          <div className="stats-period-section">
+            <h3 className="period-title">All Time</h3>
+            <div className="spa-stats-grid">
+              <div className="spa-stat-card massage all-time">
+                <div className="stat-icon">💆‍♀️</div>
+                <div className="stat-content">
+                  <div className="stat-number">{spaServices.allTime.massages}</div>
+                  <div className="stat-label">Massages Given</div>
+                </div>
+              </div>
+              
+              <div className="spa-stat-card facial all-time">
+                <div className="stat-icon">✨</div>
+                <div className="stat-content">
+                  <div className="stat-number">{spaServices.allTime.facials}</div>
+                  <div className="stat-label">Facials Done</div>
+                </div>
+              </div>
+              
+              <div className="spa-stat-card combo all-time">
+                <div className="stat-icon">🌟</div>
+                <div className="stat-content">
+                  <div className="stat-number">{spaServices.allTime.combos}</div>
+                  <div className="stat-label">Massage + Facial Combos</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
