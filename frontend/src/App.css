@@ -1535,11 +1535,11 @@ body {
 .hero-section.ultra-compact {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem 2rem 1rem 2rem;
   text-align: center;
   position: relative;
   overflow: hidden;
-  min-height: 55vh;
+  min-height: 52vh;
   display: flex;
   align-items: center;
 }
@@ -1691,7 +1691,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 0.75rem;
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem 1rem 2rem;
   background: #f8f9fa;
   min-height: 8vh;
 }
