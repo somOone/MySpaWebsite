@@ -1628,9 +1628,11 @@ body {
 }
 
 .hero-stat-label {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   opacity: 0.9;
   font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
 }
 
 /* Compact Features Grid */

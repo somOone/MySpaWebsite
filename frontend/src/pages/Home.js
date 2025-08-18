@@ -73,16 +73,16 @@ const Home = () => {
           {/* Inline Key Statistics */}
           <div className="hero-stats">
             <div className="hero-stat-item">
-              <div className="hero-stat-number">{stats.totalAppointments || 0}</div>
-              <div className="hero-stat-label">Total Appointments</div>
+              <div className="hero-stat-number">{spaServices.allTime.massages}</div>
+              <div className="hero-stat-label">Massages Given</div>
             </div>
             <div className="hero-stat-item">
-              <div className="hero-stat-number">${(stats.totalRevenue || 0).toLocaleString()}</div>
-              <div className="hero-stat-label">Total Revenue</div>
+              <div className="hero-stat-number">{spaServices.allTime.facials}</div>
+              <div className="hero-stat-label">Facials Done</div>
             </div>
             <div className="hero-stat-item">
-              <div className="hero-stat-number">{stats.totalClients || 0}</div>
-              <div className="hero-stat-label">Happy Clients</div>
+              <div className="hero-stat-number">{spaServices.allTime.combos}</div>
+              <div className="hero-stat-label">Massage + Facial Combos</div>
             </div>
           </div>
         </div>
