@@ -535,8 +535,8 @@ const Appointments = () => {
           className={`date-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleDate(dateKey)}
         >
-          {moment(date).format('dddd, MMMM D, YYYY')} 
           <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
+          {moment(date).format('dddd, MMMM D, YYYY')} 
         </div>
         {isExpanded && (
           <div className="date-content">
@@ -576,8 +576,8 @@ const Appointments = () => {
           className={`month-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleMonth(monthKey)}
         >
-          {month} 
           <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
+          {month} 
         </div>
         {isExpanded && (
           <div className="month-content">
@@ -602,8 +602,8 @@ const Appointments = () => {
           className={`year-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleYear(yearKey)}
         >
-          {year} 
           <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
+          {year} 
         </div>
         {isExpanded && (
           <div className="year-content">
