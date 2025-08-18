@@ -66,7 +66,7 @@ const Home = () => {
               Experience ultimate relaxation and rejuvenation in our tranquil oasis
             </p>
             <button className="cta-button" onClick={openBookingModal}>
-              Book Your Appointment
+              Book New Appointment
             </button>
           </div>
           
