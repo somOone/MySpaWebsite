@@ -1,0 +1,81 @@
+# Appointment Cancellation Validation Rules
+
+## General Instruction
+Always enforce and test these validation rules across all appointment cancellation code, including controllers, services, models, and test suites.  
+Do not skip or bypass these rules unless explicitly instructed.
+
+---
+
+## Required Fields Validation
+- **Appointment ID**: Must be a valid, existing appointment ID
+- **User Confirmation**: Must be explicitly confirmed by user
+
+---
+
+## Status-Based Validation (Currently Implemented)
+- **Cannot cancel completed appointments**: Appointments with status = 'completed' cannot be cancelled
+- **Cannot cancel already cancelled appointments**: Appointments with status = 'cancelled' cannot be cancelled again
+- **Can only cancel pending appointments**: Only appointments with status = 'pending' can be cancelled
+
+---
+
+## Confirmation Methods (Currently Implemented)
+- **UI Confirmation**: Website cancellation requires "Are you sure?" popup confirmation
+- **ChatBot Confirmation**: ChatBot cancellation requires user to type 'yes' to confirm
+
+---
+
+## Business Logic (Currently Implemented)
+- **Soft Delete Implementation**: Cancellations update status to 'cancelled' instead of hard deletion
+- **Timestamp Tracking**: updated_at field is set to current timestamp when cancelled
+- **Reason Tracking**: update_reason field captures cancellation reason (defaults to 'Cancelled by user')
+
+---
+
+## Error Handling (Currently Implemented)
+- **Appointment not found**: Returns 404 if appointment ID doesn't exist
+- **Already completed**: Returns 400 if trying to cancel completed appointment
+- **Already cancelled**: Returns 400 if trying to cancel already cancelled appointment
+- **System errors**: Returns 500 for database or system failures
+
+---
+
+<!-- ## Future Enhancement Opportunities
+
+### Time-Based Restrictions
+- **Cannot cancel past appointments**: Appointments that have already passed cannot be cancelled
+- **Advance notice requirement**: Require minimum notice (e.g., 24 hours) before cancellation
+- **Same-day cancellation limits**: Restrict same-day cancellations to emergency situations
+
+### User Authorization Rules
+- **Admin override**: Allow admins to cancel any appointment regardless of status
+- **Client verification**: Verify client identity before allowing cancellation
+- **Ownership validation**: Only allow cancellation by appointment owner or admin
+
+### Business Policy Enforcement
+- **Cancellation fees**: Apply fees for late cancellations
+- **No-show policy**: Handle no-shows differently from cancellations
+- **Rescheduling option**: Offer rescheduling as alternative to cancellation
+
+### Audit and Compliance
+- **Cancellation reason required**: Make update_reason mandatory for business tracking
+- **Cancellation history**: Track all cancellation attempts and reasons
+- **Compliance reporting**: Generate reports for business compliance needs
+-->
+---
+
+## Testing Requirements
+When writing tests:
+- Always include **valid** and **invalid** test cases for each validation rule
+- Test all status combinations (pending, completed, cancelled)
+- Test confirmation flows (UI and ChatBot)
+- Test error conditions and edge cases
+- Verify soft delete behavior (status update, timestamp update, reason capture)
+
+---
+alwaysApply: true
+---
+description: Appointment cancellation validation rules that must always be enforced
+globs: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+alwaysApply: true
+---

@@ -62,22 +62,20 @@ router.get('/available-times/:date', async (req, res) => {
     const db = getDatabase();
     const availableTimes = await dbUtils.getAvailableTimesForDate(db, date);
     
-    // Get all available time slots between 2 PM and 8 PM with 30-minute intervals
-    const allTimeSlots = [
-      '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', 
-      '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM'
-    ];
+    // Check if there are any available time slots
+    if (availableTimes.length === 0) {
+      return res.json({ 
+        available: false, 
+        reason: 'No available time slots for this date',
+        availableTimes: []
+      });
+    }
     
-    // Get booked times for this date (include both pending and completed appointments)
-    const bookedTimes = await dbUtils.getBookedTimesForDate(db, date);
-    const bookedTimeStrings = bookedTimes.map(row => row.time);
-    
-    res.json({
-      available: availableTimes.length > 0,
-      availableTimes,
-      bookedTimes: bookedTimeStrings,
-      allTimeSlots,
-      reason: availableTimes.length === 0 ? 'No available time slots with 30-minute intervals' : null
+    // Return available time slots
+    res.json({ 
+      available: true, 
+      availableTimes: availableTimes,
+      reason: null
     });
     
   } catch (error) {
@@ -134,12 +132,12 @@ router.post('/', [
   const endTime = moment(`${date} 8:00 PM`, 'YYYY-MM-DD h:mm A'); // Last slot is 8:00 PM
   
   if (timeMoment.isBefore(startTime) || timeMoment.isAfter(endTime)) {
-    return res.status(400).json({ error: 'Appointments can only be booked between 2:00 PM and 7:30 PM' });
+    return res.status(400).json({ error: 'Appointments can only be booked between 2:00 PM and 8:00 PM' });
   }
   
   // Check for conflicts with existing appointments (include both pending and completed appointments)
   const db = getDatabase();
-  db.all('SELECT time FROM appointments WHERE date = ?', [date], (err, rows) => {
+  db.all('SELECT time FROM appointments WHERE date = ? AND status != "cancelled"', [date], (err, rows) => {
     if (err) {
       console.error('Error checking time slots:', err);
       return res.status(500).json({ error: 'Failed to check time slot availability' });
@@ -176,9 +174,9 @@ router.post('/', [
     
     // Create appointment
     db.run(`
-      INSERT INTO appointments (date, time, client, category, payment, completed)
-      VALUES (?, ?, ?, ?, ?, 0)
-    `, [date, time, client, category, payment], function(err) {
+      INSERT INTO appointments (date, time, client, category, payment, status)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, [date, time, client, category, payment, 'pending'], function(err) {
       if (err) {
         console.error('Error creating appointment:', err);
         return res.status(500).json({ error: 'Failed to create appointment' });
@@ -186,7 +184,7 @@ router.post('/', [
       
       res.status(201).json({
         id: this.lastID,
-        date, time, client, category, payment, completed: false
+        date, time, client, category, payment, status: 'pending'
       });
     });
   });
@@ -268,7 +266,7 @@ router.patch('/:id/complete', (req, res) => {
   const { tip } = req.body;
   const db = getDatabase();
   
-  db.run('UPDATE appointments SET completed = 1, tip = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [tip, id], function(err) {
+  db.run('UPDATE appointments SET status = "completed", tip = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [tip, id], function(err) {
     if (err) {
       console.error('Error completing appointment:', err);
       return res.status(500).json({ error: 'Failed to complete appointment' });
@@ -282,22 +280,46 @@ router.patch('/:id/complete', (req, res) => {
   });
 });
 
-// Cancel appointment
+// Cancel appointment (soft delete)
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
+  const { update_reason } = req.body; // Optional cancellation reason
   const db = getDatabase();
   
-  db.run('DELETE FROM appointments WHERE id = ?', [id], function(err) {
+  // First check if appointment exists and is not completed
+  db.get('SELECT id, status FROM appointments WHERE id = ?', [id], (err, row) => {
     if (err) {
-      console.error('Error deleting appointment:', err);
-      return res.status(500).json({ error: 'Failed to delete appointment' });
+      console.error('Error checking appointment:', err);
+      return res.status(500).json({ error: 'Failed to check appointment' });
     }
     
-    if (this.changes === 0) {
+    if (!row) {
       return res.status(404).json({ error: 'Appointment not found' });
     }
     
-    res.json({ message: 'Appointment cancelled successfully' });
+    if (row.status === 'completed') {
+      return res.status(400).json({ error: 'Cannot cancel completed appointments' });
+    }
+    
+    if (row.status === 'cancelled') {
+      return res.status(400).json({ error: 'Appointment is already cancelled' });
+    }
+    
+    // Soft delete: update status and timestamp
+    db.run(`
+      UPDATE appointments 
+      SET status = 'cancelled', 
+          updated_at = CURRENT_TIMESTAMP,
+          update_reason = ?
+      WHERE id = ?
+    `, [update_reason || 'Cancelled by user', id], function(updateErr) {
+      if (updateErr) {
+        console.error('Error cancelling appointment:', updateErr);
+        return res.status(500).json({ error: 'Failed to cancel appointment' });
+      }
+      
+      res.json({ message: 'Appointment cancelled successfully' });
+    });
   });
 });
 
@@ -349,7 +371,7 @@ router.get('/search', (req, res) => {
       WHERE client LIKE ? 
       AND time = ? 
       AND date = ?
-      AND completed = 0
+      AND status = 'pending'
     `;
     
     const searchParams = [`%${clientName}%`, time, dateString];

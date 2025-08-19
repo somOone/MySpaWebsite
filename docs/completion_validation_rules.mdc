@@ -1,0 +1,62 @@
+# Appointment Completion Validation Rules
+
+## General Instruction
+Always enforce and test these validation rules across all appointment completion code, including controllers, services, models, and test suites.  
+Do not skip or bypass these rules unless explicitly instructed.
+
+---
+alwaysApply: true
+---
+
+## Status-Based Validation (Currently Implemented)
+- **Can only complete pending appointments**: Only appointments with status = 'pending' can be completed
+- **Cannot complete already completed appointments**: Appointments with status = 'completed' cannot be completed again
+- **Cannot complete cancelled appointments**: Appointments with status = 'cancelled' cannot be completed
+
+---
+
+## Tip Validation (Currently Implemented)
+- **Tip amount required**: Tip field must be provided (even if 0)
+- **Tip range validation**: Tip amount must be between $0.00 and $1000.00
+- **Tip format**: Tip must be a valid number with up to 2 decimal places
+- **Negative tip prevention**: Tip amount cannot be negative
+
+---
+
+## Confirmation Methods (Currently Implemented)
+- **UI Confirmation**: Website completion requires clicking "Complete Appointment" button
+- **ChatBot Confirmation**: ChatBot completion requires user to type 'yes' to confirm
+- **Tip Collection**: ChatBot asks for tip amount before completion
+- **Tip Modal**: Tip amount must be entered and confirmed before completion
+
+---
+
+## Business Logic (Currently Implemented)
+- **Status Update**: Completion updates status from 'pending' to 'completed'
+- **Timestamp Tracking**: updated_at field is set to current timestamp when completed
+- **Tip Storage**: Tip amount is saved to the tip field in the database
+- **Appointment Lock**: Completed appointments cannot be modified or cancelled
+
+---
+
+## Error Handling (Currently Implemented)
+- **Appointment not found**: Returns 404 if appointment ID doesn't exist
+- **Invalid tip amount**: Returns validation error for negative or excessive tips
+- **System errors**: Returns 500 for database or system failures
+- **No changes made**: Returns 404 if no rows were updated
+
+---
+
+## Testing Requirements
+When writing tests:
+- Always include **valid** and **invalid** test cases for each validation rule
+- Test all status combinations (pending, completed, cancelled)
+- Test tip validation (negative, excessive, valid ranges)
+- Test confirmation flows (UI and ChatBot)
+- Test error conditions and edge cases
+- Verify completion behavior (status update, timestamp update, tip storage)
+- Test that completed appointments cannot be modified or cancelled
+description: Appointment completion validation rules that must always be enforced
+globs: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+alwaysApply: true
+---

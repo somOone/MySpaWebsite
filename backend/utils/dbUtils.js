@@ -7,6 +7,7 @@ const getAllAppointments = (db) => {
   return new Promise((resolve, reject) => {
     db.all(`
       SELECT * FROM appointments 
+      WHERE status != 'cancelled'
       ORDER BY date DESC, time ASC
     `, (err, rows) => {
       if (err) {
@@ -26,6 +27,7 @@ const getAppointmentsByDate = (db) => {
   return new Promise((resolve, reject) => {
     db.all(`
       SELECT * FROM appointments 
+      WHERE status != 'cancelled'
       ORDER BY date DESC, time ASC
     `, (err, rows) => {
       if (err) {
@@ -68,7 +70,7 @@ const getAvailableTimesForDate = (db, date) => {
     
     // Get booked times for this date (include both pending and completed appointments)
     console.log(`Fetching appointments for date: ${date}`);
-    db.all('SELECT time, completed FROM appointments WHERE date = ?', [date], (err, rows) => {
+    db.all('SELECT time, status FROM appointments WHERE date = ?', [date], (err, rows) => {
       if (err) {
         console.error('Error fetching booked times:', err);
         reject(err);
@@ -76,7 +78,10 @@ const getAvailableTimesForDate = (db, date) => {
       }
       
       console.log(`Raw appointment data for ${date}:`, rows);
-      const bookedTimes = rows.map(row => row.time);
+      
+      // Filter out cancelled appointments and map booked times
+      const activeAppointments = rows.filter(row => row.status !== 'cancelled');
+      const bookedTimes = activeAppointments.map(row => row.time);
       console.log(`Booked times for ${date}:`, bookedTimes);
       
       // Filter out booked times and ensure proper spacing between appointments
@@ -125,9 +130,9 @@ const getAvailableTimesForDate = (db, date) => {
  */
 const getBookedTimesForDate = (db, date) => {
   return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM appointments WHERE date = ?', [date], (err, rows) => {
+    db.all('SELECT time, status FROM appointments WHERE date = ? AND status != "cancelled"', [date], (err, rows) => {
       if (err) {
-        console.error('Error fetching booked times:', err);
+        console.error('Error fetching booked times for date:', err);
         reject(err);
         return;
       }
@@ -141,18 +146,22 @@ const getBookedTimesForDate = (db, date) => {
  */
 const createAppointment = (db, appointmentData) => {
   return new Promise((resolve, reject) => {
-    const { date, time, client, category, payment, tip } = appointmentData;
+    const { date, time, client, category, payment } = appointmentData;
     
     db.run(`
-      INSERT INTO appointments (date, time, client, category, payment, tip, completed, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-    `, [date, time, client, category, payment, tip || 0], function(err) {
+      INSERT INTO appointments (date, time, client, category, payment, tip, status, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, 0, 'pending', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    `, [date, time, client, category, payment], function(err) {
       if (err) {
         console.error('Error creating appointment:', err);
         reject(err);
         return;
       }
-      resolve({ id: this.lastID, message: 'Appointment created successfully' });
+      
+      resolve({
+        id: this.lastID,
+        date, time, client, category, payment, status: 'pending'
+      });
     });
   });
 };
@@ -230,17 +239,15 @@ const updateAppointment = (db, id, updates) => {
 /**
  * Mark appointment as completed
  */
-const completeAppointment = (db, id, tip) => {
+const completeAppointment = (db, appointmentId, tip = 0) => {
   return new Promise((resolve, reject) => {
-    const updateData = tip !== undefined ? 
-      [tip, id] : 
-      [id];
+    const sql = tip > 0 ? 
+      'UPDATE appointments SET status = "completed", tip = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?' :
+      'UPDATE appointments SET status = "completed", updated_at = CURRENT_TIMESTAMP WHERE id = ?';
     
-    const sql = tip !== undefined ?
-      'UPDATE appointments SET completed = 1, tip = ?, completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?' :
-      'UPDATE appointments SET completed = 1, completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
+    const params = tip > 0 ? [tip, appointmentId] : [appointmentId];
     
-    db.run(sql, updateData, function(err) {
+    db.run(sql, params, function(err) {
       if (err) {
         console.error('Error completing appointment:', err);
         reject(err);
@@ -282,32 +289,23 @@ const deleteAppointment = (db, id) => {
 /**
  * Search appointments by client details
  */
-const searchAppointments = (db, clientName, time, dateString, completed = 'false') => {
+const searchAppointments = (db, clientName, time, dateString, status = 'pending') => {
   return new Promise((resolve, reject) => {
-    // Simple search query
-    const searchQuery = `
+    let sql = `
       SELECT * FROM appointments 
       WHERE client LIKE ? 
-      AND time = ? 
+      AND time = ?
       AND date = ?
-      AND completed = ?
+      AND status = ?
     `;
     
-    const searchParams = [`%${clientName}%`, time, dateString, completed === 'true' ? 1 : 0];
+    const searchParams = [`%${clientName}%`, time, dateString, status === 'completed' ? 'completed' : 'pending'];
     
-    console.log('🔍 SQL Query:', searchQuery);
-    console.log('🔍 Search Parameters:', searchParams);
-    
-    db.all(searchQuery, searchParams, (err, rows) => {
+    db.all(sql, searchParams, (err, rows) => {
       if (err) {
-        console.error('🔍 Database search error:', err);
+        console.error('Error searching appointments:', err);
         reject(err);
         return;
-      }
-      
-      console.log('🔍 Search results:', rows.length, 'appointments found');
-      if (rows.length > 0) {
-        console.log('🔍 First result:', rows[0]);
       }
       resolve(rows);
     });
@@ -319,7 +317,7 @@ const searchAppointments = (db, clientName, time, dateString, completed = 'false
  */
 const getAppointmentById = (db, id) => {
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM appointments WHERE id = ?', [id], (err, row) => {
+    db.get('SELECT * FROM appointments WHERE id = ? AND status != "cancelled"', [id], (err, row) => {
       if (err) {
         console.error('Error fetching appointment:', err);
         reject(err);
@@ -496,7 +494,7 @@ const deleteExpense = (db, id) => {
  */
 const getAppointmentsInDateRange = (db, startDate, endDate) => {
   return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM appointments WHERE date BETWEEN ? AND ? ORDER BY date ASC', [startDate, endDate], (err, rows) => {
+    db.all('SELECT * FROM appointments WHERE date BETWEEN ? AND ? AND status != "cancelled" ORDER BY date ASC', [startDate, endDate], (err, rows) => {
       if (err) {
         console.error('Error fetching appointments in date range:', err);
         reject(err);
@@ -513,7 +511,7 @@ const getAppointmentsInDateRange = (db, startDate, endDate) => {
 const getTodaysAppointments = (db) => {
   return new Promise((resolve, reject) => {
     const today = moment().format('YYYY-MM-DD');
-    db.all('SELECT * FROM appointments WHERE date = ? ORDER BY time ASC', [today], (err, rows) => {
+    db.all('SELECT * FROM appointments WHERE date = ? AND status != "cancelled" ORDER BY time ASC', [today], (err, rows) => {
       if (err) {
         console.error('Error fetching today\'s appointments:', err);
         reject(err);
@@ -529,7 +527,7 @@ const getTodaysAppointments = (db) => {
  */
 const getTotalAppointmentsCount = (db) => {
   return new Promise((resolve, reject) => {
-    db.get('SELECT COUNT(*) as count FROM appointments', (err, row) => {
+    db.get('SELECT COUNT(*) as count FROM appointments WHERE status != "cancelled"', (err, row) => {
       if (err) {
         console.error('Error getting total appointments count:', err);
         reject(err);
@@ -545,7 +543,7 @@ const getTotalAppointmentsCount = (db) => {
  */
 const getTotalRevenue = (db) => {
   return new Promise((resolve, reject) => {
-    db.get('SELECT SUM(payment) as total FROM appointments WHERE completed = 1', (err, row) => {
+    db.get('SELECT SUM(payment) as total FROM appointments WHERE status = "completed"', (err, row) => {
       if (err) {
         console.error('Error getting total revenue:', err);
         reject(err);
@@ -561,7 +559,7 @@ const getTotalRevenue = (db) => {
  */
 const getTotalClientsCount = (db) => {
   return new Promise((resolve, reject) => {
-    db.get('SELECT COUNT(DISTINCT client) as count FROM appointments', (err, row) => {
+    db.get('SELECT COUNT(DISTINCT client) as count FROM appointments WHERE status != "cancelled"', (err, row) => {
       if (err) {
         console.error('Error getting total clients count:', err);
         reject(err);

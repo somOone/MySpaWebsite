@@ -1215,15 +1215,388 @@ body {
   }
 }
 
-/* Appointments page specific - hide Payment column on small screens */
-.appointments-page .table th:nth-child(4), /* Payment column */
-.appointments-page .table td:nth-child(4) {
-  display: none;
-}
+/* Payment column is now visible for editing functionality */
 
 /* Mobile cards - hidden by default */
 .mobile-cards {
   display: none;
+  margin-top: 1rem;
+}
+
+/* Base mobile card styling - applies to all mobile cards */
+.mobile-cards .appointment-card {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.mobile-cards .appointment-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Scoped inner styling for appointment cards used by Appointments and Expenses pages */
+.mobile-cards .appointment-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.mobile-cards .appointment-card .card-header .time {
+  font-weight: 700;
+  color: #333;
+  font-size: 1rem;
+}
+.mobile-cards .appointment-card .card-header .status {
+  margin-left: auto;
+  background: #e9f7ef;
+  color: #218838;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #c3e6cb;
+  border-radius: 9999px;
+}
+.mobile-cards .appointment-card .card-body {
+  margin-bottom: 0.75rem;
+}
+.mobile-cards .appointment-card .info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+.mobile-cards .appointment-card .info-row .label {
+  color: #6b7280;
+  font-weight: 600;
+}
+.mobile-cards .appointment-card .info-row .value {
+  color: #111827;
+  font-weight: 700;
+  text-align: right;
+}
+.mobile-cards .appointment-card .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.mobile-cards .appointment-card .action-btn {
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+.mobile-cards .appointment-card .action-btn.edit-btn {
+  background: #ffc107;
+  color: #212529;
+}
+.mobile-cards .appointment-card .action-btn.edit-btn:hover {
+  background: #e0a800;
+}
+.mobile-cards .appointment-card .action-btn.save-btn {
+  background: #28a745;
+  color: #fff;
+}
+.mobile-cards .appointment-card .action-btn.save-btn:hover {
+  background: #1e7e34;
+}
+.mobile-cards .appointment-card .action-btn.delete-btn,
+.mobile-cards .appointment-card .action-btn.cancel-btn {
+  background: #dc3545;
+  color: #fff;
+}
+.mobile-cards .appointment-card .action-btn.delete-btn:hover,
+.mobile-cards .appointment-card .action-btn.cancel-btn:hover {
+  background: #c82333;
+}
+
+/* Mobile Card Layouts - Restore Responsive Design */
+@media (max-width: 480px) {
+  /* Hide tables on mobile - use !important to override conflicting rules */
+  .appointments-page .table-container .table,
+  .expenses-page .table-container .table,
+  .reports-page .table-container .table {
+    display: none !important;
+  }
+  
+  /* Show mobile cards on mobile */
+  .appointments-page .mobile-cards,
+  .expenses-page .mobile-cards,
+  .reports-page .mobile-cards {
+    display: block !important;
+  }
+  
+  /* Mobile card styling - Generic classes */
+  .mobile-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .mobile-card-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+  }
+  
+  .mobile-card-time {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .mobile-card-details {
+    margin-bottom: 0.75rem;
+  }
+  
+  .mobile-card-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .mobile-card-detail-label {
+    color: #666;
+    font-weight: 500;
+  }
+  
+  .mobile-card-detail-value {
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .mobile-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .mobile-card-btn {
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .mobile-card-btn.edit {
+    background: #007bff;
+    color: white;
+  }
+  
+  .mobile-card-btn.edit:hover {
+    background: #0056b3;
+  }
+  
+  .mobile-card-btn.complete {
+    background: #28a745;
+    color: white;
+  }
+  
+  .mobile-card-btn.complete:hover {
+    background: #1e7e34;
+  }
+  
+  .mobile-card-btn.cancel {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .mobile-card-btn.cancel:hover {
+    background: #c82333;
+  }
+  
+  /* Mobile card styling - Actual classes used by JavaScript */
+  .appointment-card,
+  .expense-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+  
+  .appointment-card:hover,
+  .expense-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .card-header .time {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+  }
+  
+  .card-header .status {
+    color: #666;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+  }
+  
+  .card-body {
+    margin-bottom: 0.75rem;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .info-row .label {
+    color: #666;
+    font-weight: 500;
+  }
+  
+  .info-row .value {
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .action-btn {
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .action-btn.edit-btn {
+    background: #007bff;
+    color: white;
+  }
+  
+  .action-btn.edit-btn:hover {
+    background: #0056b3;
+  }
+  
+  .action-btn.save-btn {
+    background: #28a745;
+    color: white;
+  }
+  
+  .action-btn.save-btn:hover {
+    background: #1e7e34;
+  }
+  
+  .action-btn.delete-btn,
+  .action-btn.cancel-btn {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .action-btn.delete-btn:hover,
+  .action-btn.cancel-btn:hover {
+    background: #c82333;
+  }
+  
+  .completed-status {
+    color: #28a745;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 0.5rem;
+    background: #d4edda;
+    border-radius: 4px;
+    border: 1px solid #c3e6cb;
+  }
+  
+
+  
+  /* Form elements within mobile cards */
+  .form-select,
+  .form-input {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.25rem;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  
+  .form-select:focus,
+  .form-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+}
+
+/* Tablet Layout (481-768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  /* Prefer cards on tablet as well */
+  .appointments-page .table-container .table,
+  .expenses-page .table-container .table,
+  .reports-page .table-container .table {
+    display: none !important;
+  }
+  
+  /* Show mobile cards on tablet */
+  .appointments-page .mobile-cards,
+  .expenses-page .mobile-cards,
+  .reports-page .mobile-cards {
+    display: block !important;
+  }
+  
+  /* Ensure table is scrollable (for any remaining tables) */
+  .table-container {
+    overflow-x: auto;
+  }
 }
 
 /* Home Page Statistics Section - Missing CSS */
@@ -1526,4 +1899,47 @@ body {
   .feature-description {
     font-size: 0.9rem;
   }
+}
+
+
+
+/* Strongly-scoped mobile card switches (end-of-file, override earlier rules) */
+@media (max-width: 480px) {
+	/* Appointments: hide tables, show cards */
+	.appointments-page .date-content .table,
+	.appointments-page .month-content .table,
+	.appointments-page .year-content .table {
+		display: none !important;
+	}
+	.appointments-page .date-content .mobile-cards,
+	.appointments-page .month-content .mobile-cards,
+	.appointments-page .year-content .mobile-cards {
+		display: block !important;
+	}
+
+	/* Expenses: hide tables, show cards */
+	.expenses-page .date-content .table,
+	.expenses-page .month-content .table,
+	.expenses-page .year-content .table {
+		display: none !important;
+	}
+	.expenses-page .date-content .mobile-cards,
+	.expenses-page .month-content .mobile-cards,
+	.expenses-page .year-content .mobile-cards {
+		display: block !important;
+	}
+}
+
+/* Final override: Use cards for ≤768px across pages */
+@media (max-width: 768px) {
+	.appointments-page .table,
+	.expenses-page .table,
+	.reports-page .table {
+		display: none !important;
+	}
+	.appointments-page .mobile-cards,
+	.expenses-page .mobile-cards,
+	.reports-page .mobile-cards {
+		display: block !important;
+	}
 }

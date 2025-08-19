@@ -37,7 +37,7 @@ const CompletionWorkflow = ({
         clientName: completionDetails.clientName,
         time: standardizedTime,
         date: completionDetails.date,
-        completed: 'false' // Only find open appointments
+        status: 'pending' // Only find open appointments
       });
       
       // Add year parameter if available

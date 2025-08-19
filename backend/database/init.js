@@ -32,6 +32,10 @@ function initializeDatabase() {
         })
         .then(() => {
           console.log('✅ Expenses table migration completed');
+          return migrateToStatusBased();
+        })
+        .then(() => {
+          console.log('✅ Status-based appointments migration completed');
           return importExistingData();
         })
         .then(() => {
@@ -54,8 +58,8 @@ function createTables() {
         category TEXT NOT NULL,
         payment REAL NOT NULL,
         tip REAL DEFAULT 0,
-        completed BOOLEAN DEFAULT 0,
-        completed_at DATETIME,
+        status VARCHAR(20) DEFAULT 'pending',
+        update_reason VARCHAR(500) NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
@@ -91,46 +95,142 @@ function createTables() {
 function migrateExpensesTable() {
   return new Promise((resolve, reject) => {
     // Check if updated_at column exists in expenses table
-    db.get("PRAGMA table_info(expenses)", (err, rows) => {
+    db.all("PRAGMA table_info(expenses)", (err, rows) => {
       if (err) {
         console.error('Error checking expenses table structure:', err.message);
         reject(err);
         return;
       }
       
-      db.all("PRAGMA table_info(expenses)", (err, columns) => {
-        if (err) {
-          console.error('Error getting expenses table columns:', err.message);
-          reject(err);
-          return;
-        }
-        
-        const hasUpdatedAt = columns.some(col => col.name === 'updated_at');
-        
-        if (!hasUpdatedAt) {
-          console.log('Adding updated_at column to expenses table...');
-          db.run('ALTER TABLE expenses ADD COLUMN updated_at DATETIME', (err) => {
+      const hasUpdatedAt = rows.some(row => row.name === 'updated_at');
+      
+      if (!hasUpdatedAt) {
+        // Add updated_at column
+        db.run('ALTER TABLE expenses ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP', (err) => {
+          if (err) {
+            console.error('Error adding updated_at column:', err.message);
+            reject(err);
+            return;
+          }
+          
+          // Update existing records to have current timestamp
+          db.run('UPDATE expenses SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL', (err) => {
             if (err) {
-              console.error('Error adding updated_at column:', err.message);
+              console.error('Error updating existing expenses:', err.message);
               reject(err);
               return;
             }
-            
-            // Update existing records to have current timestamp
-            db.run('UPDATE expenses SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL', (err) => {
-              if (err) {
-                console.error('Error updating existing expenses:', err.message);
-                reject(err);
-                return;
-              }
-              console.log('✅ Expenses table migration completed');
-              resolve();
-            });
+            console.log('✅ Expenses table migration completed');
+            resolve();
           });
+        });
+      } else {
+        console.log('✅ Expenses table already has updated_at column');
+        resolve();
+      }
+    });
+  });
+}
+
+function migrateToStatusBased() {
+  return new Promise((resolve, reject) => {
+    console.log('🔄 Starting migration to status-based appointments...');
+    
+    // Check if status column already exists
+    db.all("PRAGMA table_info(appointments)", (err, columns) => {
+      if (err) {
+        console.error('Error checking table structure:', err.message);
+        reject(err);
+        return;
+      }
+      
+      const hasStatus = columns.some(col => col.name === 'status');
+      const hasCompleted = columns.some(col => col.name === 'completed');
+      const hasCompletedAt = columns.some(col => col.name === 'completed_at');
+      const hasUpdateReason = columns.some(col => col.name === 'update_reason');
+      
+      console.log('📋 Current schema:', {
+        hasStatus,
+        hasCompleted,
+        hasCompletedAt,
+        hasUpdateReason
+      });
+      
+      if (hasStatus && !hasCompleted && !hasCompletedAt && hasUpdateReason) {
+        console.log('✅ Migration already completed!');
+        resolve();
+        return;
+      }
+      
+      // Since the data is already migrated, just complete the schema changes
+      console.log('🔄 Completing schema migration...');
+      
+      // 1. Add status column if it doesn't exist
+      if (!hasStatus) {
+        db.run(`ALTER TABLE appointments ADD COLUMN status VARCHAR(20) DEFAULT 'pending'`, (err) => {
+          if (err) {
+            console.error('Error adding status column:', err.message);
+            reject(err);
+            return;
+          }
+          console.log('✅ Added status column');
+        });
+      } else {
+        console.log('✅ Status column already exists');
+      }
+      
+      // 2. Remove old columns
+      if (hasCompleted) {
+        db.run(`ALTER TABLE appointments DROP COLUMN completed`, (err) => {
+          if (err) {
+            console.error('Error dropping completed column:', err.message);
+            reject(err);
+            return;
+          }
+          console.log('✅ Dropped completed column');
+        });
+      } else {
+        console.log('✅ Completed column already dropped');
+      }
+      
+      if (hasCompletedAt) {
+        db.run(`ALTER TABLE appointments DROP COLUMN completed_at`, (err) => {
+          if (err) {
+            console.error('Error dropping completed_at column:', err.message);
+            reject(err);
+            return;
+          }
+          console.log('✅ Dropped completed_at column');
+        });
+      } else {
+        console.log('✅ Completed_at column already dropped');
+      }
+      
+      // 3. Add update_reason column if it doesn't exist
+      if (!hasUpdateReason) {
+        db.run(`ALTER TABLE appointments ADD COLUMN update_reason VARCHAR(500) NULL`, (err) => {
+          if (err) {
+            console.error('Error adding update_reason column:', err.message);
+            reject(err);
+            return;
+          }
+          console.log('✅ Added update_reason column');
+        });
+      } else {
+        console.log('✅ Update_reason column already exists');
+      }
+      
+      // 4. Add constraint if it doesn't exist
+      db.run(`ALTER TABLE appointments ADD CONSTRAINT valid_status CHECK (status IN ('pending', 'completed', 'cancelled'))`, (err) => {
+        if (err) {
+          // Constraint might already exist, that's okay
+          console.log('ℹ️ Status constraint already exists or not needed');
         } else {
-          console.log('✅ Expenses table already has updated_at column');
-          resolve();
+          console.log('✅ Added status constraint');
         }
+        
+        console.log('🎉 Migration to status-based appointments completed successfully!');
+        resolve();
       });
     });
   });
@@ -153,11 +253,11 @@ function importExistingData() {
 
       // Import sample data
       const sampleAppointments = [
-        ['2025-08-16', '10:00 AM', 'Sarah Johnson', 'Facial', 100.00, 15.00, 0],
-        ['2025-08-16', '2:00 PM', 'Mike Chen', 'Massage', 120.00, 20.00, 0],
-        ['2025-08-17', '11:00 AM', 'Emily Davis', 'Facial + Massage', 200.00, 25.00, 0],
-        ['2025-08-18', '3:00 PM', 'David Wilson', 'Facial', 100.00, 18.00, 0],
-        ['2025-08-19', '1:00 PM', 'Lisa Brown', 'Massage', 120.00, 22.00, 0]
+        ['2025-08-16', '10:00 AM', 'Sarah Johnson', 'Facial', 100.00, 15.00, 'pending'],
+        ['2025-08-16', '2:00 PM', 'Mike Chen', 'Massage', 120.00, 20.00, 'pending'],
+        ['2025-08-17', '11:00 AM', 'Emily Davis', 'Facial + Massage', 200.00, 25.00, 'pending'],
+        ['2025-08-18', '3:00 PM', 'David Wilson', 'Facial', 100.00, 18.00, 'pending'],
+        ['2025-08-19', '1:00 PM', 'Lisa Brown', 'Massage', 120.00, 22.00, 'pending']
       ];
 
       const sampleExpenses = [
@@ -173,7 +273,7 @@ function importExistingData() {
       // Insert appointments
       sampleAppointments.forEach((appt, index) => {
         db.run(
-          'INSERT INTO appointments (date, time, client, category, payment, tip, completed) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO appointments (date, time, client, category, payment, tip, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
           appt,
           (err) => {
             if (err) {
@@ -189,6 +289,7 @@ function importExistingData() {
       sampleExpenses.forEach((exp, index) => {
         db.run(
           'INSERT INTO expenses (date, description, amount, category) VALUES (?, ?, ?, ?)',
+          exp,
           (err) => {
             if (err) {
               console.error('Error inserting expense:', err.message);

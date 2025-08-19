@@ -24,12 +24,12 @@ const useAppointmentActions = () => {
       const standardizedTime = standardizeTimeForBackend(pendingCancellation.time);
       // console.log('🔍 [CANCELLATION] Standardized time for backend:', standardizedTime);
       
-      // Search for the appointment in the backend (only open appointments)
+      // Search for appointments
       const searchParams = new URLSearchParams({
         clientName: pendingCancellation.clientName,
         time: standardizedTime,
         date: pendingCancellation.date,
-        completed: 'false' // Only find open appointments
+        status: 'pending' // Only find open appointments
       });
       
       // Add year parameter if available

@@ -191,14 +191,18 @@ const Appointments = () => {
     setEditingId(appointment.id);
     setEditForm({
       category: appointment.category,
-      payment: appointment.payment,
-      tip: appointment.tip || 0
+      payment: appointment.payment
     });
   };
 
   const handleSave = async (appointmentId) => {
     try {
-      await axios.put(`/api/appointments/${appointmentId}`, editForm);
+      // Only send category and payment for updates
+      const updateData = {
+        category: editForm.category,
+        payment: editForm.payment
+      };
+      await axios.put(`/api/appointments/${appointmentId}`, updateData);
       setEditingId(null);
       setEditForm({});
       fetchAppointments(); // Refresh data
@@ -322,6 +326,9 @@ const Appointments = () => {
 
   const renderAppointmentRow = (appointment) => {
     const isEditing = editingId === appointment.id;
+    const isCompleted = appointment.status === 'completed';
+    const isCancelled = appointment.status === 'cancelled';
+    const canCancel = appointment.status === 'pending';
 
     return (
       <tr key={appointment.id}>
@@ -333,6 +340,7 @@ const Appointments = () => {
               value={editForm.category}
               onChange={(e) => updatePrice(e.target.value)}
               className="form-select"
+              style={{ width: '120px' }}
             >
               <option value="Facial">Facial</option>
               <option value="Massage">Massage</option>
@@ -344,28 +352,23 @@ const Appointments = () => {
         </td>
         <td>
           {isEditing ? (
-            <input
-              type="number"
-              step="0.01"
-              value={editForm.payment}
-              onChange={(e) => setEditForm(prev => ({ ...prev, payment: parseFloat(e.target.value) }))}
-              className="form-input"
-              style={{ width: '100px' }}
-            />
+            <span className="payment-display" style={{ 
+              color: '#666', 
+              backgroundColor: '#f5f5f5',
+              padding: '2px 6px',
+              borderRadius: '3px'
+            }}>
+              ${editForm.payment.toFixed(2)}
+            </span>
           ) : (
             `$${appointment.payment.toFixed(2)}`
           )}
         </td>
         <td>
           {isEditing ? (
-            <input
-              type="number"
-              step="0.01"
-              value={editForm.tip}
-              onChange={(e) => setEditForm(prev => ({ ...prev, tip: parseFloat(e.target.value) || 0 }))}
-              className="form-input"
-              style={{ width: '100px' }}
-            />
+            <span className="tip-display">
+              ${(appointment.tip || 0).toFixed(2)}
+            </span>
           ) : (
             `$${(appointment.tip || 0).toFixed(2)}`
           )}
@@ -388,7 +391,7 @@ const Appointments = () => {
             </div>
           ) : (
             <div className="action-buttons">
-              {!appointment.completed ? (
+              {!isCompleted && !isCancelled ? (
                 <>
                   <button
                     className="action-btn edit-btn"
@@ -410,7 +413,9 @@ const Appointments = () => {
                   </button>
                 </>
               ) : (
-                <span className="completed-status">Completed</span>
+                <span className="completed-status">
+                  {isCompleted ? 'Completed' : 'Cancelled'}
+                </span>
               )}
             </div>
           )}
@@ -421,13 +426,15 @@ const Appointments = () => {
 
   const renderMobileAppointmentCard = (appointment) => {
     const isEditing = editingId === appointment.id;
+    const isCompleted = appointment.status === 'completed';
+    const isCancelled = appointment.status === 'cancelled';
 
     return (
       <div key={appointment.id} className="appointment-card">
         <div className="card-header">
           <span className="time">{appointment.time}</span>
           <span className="status">
-            {appointment.completed ? 'Completed' : 'Active'}
+            {isCompleted ? 'Completed' : isCancelled ? 'Cancelled' : 'Active'}
           </span>
         </div>
         
@@ -458,20 +465,27 @@ const Appointments = () => {
           </div>
           
           <div className="info-row">
-            <span className="label">Tip:</span>
+            <span className="label">Payment:</span>
             <span className="value">
               {isEditing ? (
-                <input
-                  type="number"
-                  step="0.01"
-                  value={editForm.tip}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, tip: parseFloat(e.target.value) || 0 }))}
-                  className="form-input"
-                  style={{ fontSize: '0.9rem', padding: '0.25rem', width: '80px' }}
-                />
+                <span className="payment-display" style={{ 
+                  color: '#666', 
+                  backgroundColor: '#f5f5f5',
+                  padding: '2px 6px',
+                  borderRadius: '3px'
+                }}>
+                  ${editForm.payment.toFixed(2)}
+                </span>
               ) : (
-                `$${(appointment.tip || 0).toFixed(2)}`
+                `$${appointment.payment.toFixed(2)}`
               )}
+            </span>
+          </div>
+          
+          <div className="info-row">
+            <span className="label">Tip:</span>
+            <span className="value">
+              ${(appointment.tip || 0).toFixed(2)}
             </span>
           </div>
         </div>
@@ -494,7 +508,7 @@ const Appointments = () => {
             </>
           ) : (
             <>
-              {!appointment.completed ? (
+              {!isCompleted && !isCancelled ? (
                 <>
                   <button
                     className="action-btn edit-btn"
@@ -516,7 +530,9 @@ const Appointments = () => {
                   </button>
                 </>
               ) : (
-                <span className="completed-status">Completed</span>
+                <span className="completed-status">
+                  {isCompleted ? 'Completed' : 'Cancelled'}
+                </span>
               )}
             </>
           )}

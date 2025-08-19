@@ -23,7 +23,7 @@ router.get('/', (req, res) => {
   // Get appointments in date range
   db.all(`
     SELECT * FROM appointments 
-    WHERE date BETWEEN ? AND ? AND completed = 1
+    WHERE date BETWEEN ? AND ? AND status = 'completed'
     ORDER BY date ASC
   `, [start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')], (err, appointments) => {
     if (err) {
@@ -141,8 +141,8 @@ router.get('/dashboard', (req, res) => {
   // Get today's date
   const today = moment().format('YYYY-MM-DD');
   
-  // Get today's appointments
-  db.all('SELECT * FROM appointments WHERE date = ?', [today], (err, todayAppointments) => {
+  // Get today's appointments (excluding cancelled)
+  db.all('SELECT * FROM appointments WHERE date = ? AND status != "cancelled"', [today], (err, todayAppointments) => {
     if (err) {
       console.error('Error fetching today\'s appointments:', err);
       return res.status(500).json({ error: 'Failed to fetch today\'s appointments' });
@@ -156,7 +156,7 @@ router.get('/dashboard', (req, res) => {
       }
         
       // Get total revenue
-      db.get('SELECT SUM(payment) as total FROM appointments WHERE completed = 1', (err, totalRevenue) => {
+      db.get('SELECT SUM(payment) as total FROM appointments WHERE status = \'completed\'', (err, totalRevenue) => {
         if (err) {
           console.error('Error fetching total revenue:', err);
           return res.status(500).json({ error: 'Failed to fetch total revenue' });
@@ -170,7 +170,7 @@ router.get('/dashboard', (req, res) => {
           }
             
           // Get spa service statistics - all time
-          db.all('SELECT category, COUNT(*) as count FROM appointments WHERE completed = 1 GROUP BY category', (err, serviceStats) => {
+          db.all('SELECT category, COUNT(*) as count FROM appointments WHERE status = \'completed\' GROUP BY category', (err, serviceStats) => {
             if (err) {
               console.error('Error fetching service statistics:', err);
               return res.status(500).json({ error: 'Failed to fetch service statistics' });
@@ -178,7 +178,7 @@ router.get('/dashboard', (req, res) => {
             
             // Get spa service statistics - current year
             const currentYear = moment().format('YYYY');
-            db.all('SELECT category, COUNT(*) as count FROM appointments WHERE completed = 1 AND strftime("%Y", date) = ? GROUP BY category', [currentYear], (err, currentYearServiceStats) => {
+            db.all('SELECT category, COUNT(*) as count FROM appointments WHERE status = \'completed\' AND strftime("%Y", date) = ? GROUP BY category', [currentYear], (err, currentYearServiceStats) => {
               if (err) {
                 console.error('Error fetching current year service statistics:', err);
                 return res.status(500).json({ error: 'Failed to fetch current year service statistics' });

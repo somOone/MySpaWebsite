@@ -83,7 +83,7 @@ const CancellationWorkflow = ({
       
       if (!appointments || appointments.length === 0) {
         // console.log('🔍 [VALIDATION] No open appointments found in search results');
-        const notFoundMsg = "Sorry, I couldn't find an open appointment for that client at that time. It may have already been cancelled or doesn't exist.";
+        const notFoundMsg = "Sorry, I couldn't find an open appointment for that client at that time. It may have already been cancelled, completed, or doesn't exist.";
         addBotMessage(notFoundMsg);
         return;
       }
@@ -141,7 +141,7 @@ const CancellationWorkflow = ({
         clientName: pendingCancellation.clientName,
         time: standardizedTime,
         date: pendingCancellation.date,
-        completed: 'false' // Only find open appointments
+        status: 'pending' // Only find open appointments
       });
       
       // Add year parameter if available
@@ -189,7 +189,7 @@ const CancellationWorkflow = ({
       
       if (!appointments || appointments.length === 0) {
         // console.log('🔍 [CANCELLATION] No open appointments found in search results');
-        const notFoundMsg = "Sorry, I couldn't find an open appointment for that client at that time. It may have already been cancelled or doesn't exist.";
+        const notFoundMsg = "Sorry, I couldn't find an open appointment for that client at that time. It may have already been cancelled, completed, or doesn't exist.";
         addBotMessage(notFoundMsg);
         return;
       }

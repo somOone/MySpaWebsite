@@ -156,7 +156,7 @@ const ChatBot = () => {
       
       if (!appointments || appointments.length === 0) {
         // console.log('🔍 [VALIDATION] No appointments found in search results');
-        const notFoundMsg = "Sorry, I couldn't find that appointment. It may have already been cancelled or doesn't exist.";
+        const notFoundMsg = "Sorry, I couldn't find that appointment. It may have already been cancelled, completed, or doesn't exist.";
         const botMsg = {
           id: Date.now() + 2,
           type: 'bot',
@@ -218,12 +218,12 @@ const ChatBot = () => {
       };
       setMessages(prev => [...prev, checkingMsg]);
       
-      // Search for the appointment in the backend (only open appointments)
+      // Search for appointments
       const searchParams = new URLSearchParams({
         clientName: completionDetails.clientName,
         time: standardizedTime,
         date: completionDetails.date,
-        completed: 'false' // Only find open appointments
+        status: 'pending' // Only find open appointments
       });
       
       // Add year parameter if available
