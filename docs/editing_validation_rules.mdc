@@ -1,7 +1,7 @@
 # Appointment Editing Validation Rules
 
 ## General Instruction
-Always enforce and test these validation rules across all appointment editing code, including controllers, services, models, and test suites.  
+Always enforce and test these validation rules across all appointment editing code, including controllers, services, models, test suites, and ChatBot workflows.  
 Do not skip or bypass these rules unless explicitly instructed.
 
 ---
@@ -12,24 +12,27 @@ alwaysApply: true
 - **Appointment ID**: Must be a valid, existing appointment ID
 - **Category**: Must be one of: 'Facial', 'Massage', 'Facial + Massage'
 - **Payment**: Automatically calculated based on category selection
+- **Client identification**: User must specify which appointment to edit (client name, date, time)
 
 ---
 
-## Status-Based Validation (Currently Implemented)
+## Status-Based Validation (CRITICAL - NOT CURRENTLY IMPLEMENTED)
 - **Can only edit pending appointments**: Only appointments with status = 'pending' can be edited
 - **Cannot edit completed appointments**: Appointments with status = 'completed' cannot be edited
 - **Cannot edit cancelled appointments**: Appointments with status = 'cancelled' cannot be edited
 
+**⚠️ IMPLEMENTATION GAP**: The backend PUT /:id endpoint currently lacks status validation. This is a security vulnerability that must be fixed.
+
 ---
 
-## Editable Fields (Currently Implemented)
+## Editable Fields
 - **Category**: User can change service category via dropdown selection
 - **Payment**: Automatically updates when category changes (read-only display)
 - **Tip**: Not editable (tips are only collected during completion)
 
 ---
 
-## Automatic Price Updates (Currently Implemented)
+## Automatic Price Updates
 - **Facial**: Automatically sets payment to $100.00
 - **Massage**: Automatically sets payment to $120.00
 - **Facial + Massage**: Automatically sets payment to $200.00
@@ -37,8 +40,8 @@ alwaysApply: true
 
 ---
 
-## User Interface Behavior (Currently Implemented)
-- **Edit button**: Only visible for pending appointments
+## User Interface Behavior
+- **Edit button**: Only visible for pending appointments (✅ IMPLEMENTED)
 - **Category dropdown**: Shows current selection with all available options
 - **Payment display**: Shows current amount with subtle gray styling to indicate read-only status
 - **Tip display**: Shows current tip amount (read-only)
@@ -46,14 +49,14 @@ alwaysApply: true
 
 ---
 
-## Confirmation Methods (Currently Implemented)
+## Confirmation Methods
 - **Save button**: User must click to confirm changes
 - **Cancel button**: User can cancel editing and revert to original values
 - **No auto-save**: Changes are only applied when Save is clicked
 
 ---
 
-## Business Logic (Currently Implemented)
+## Business Logic
 - **Status unchanged**: Editing does not modify appointment status
 - **Timestamp update**: updated_at field is set to current timestamp when saved
 - **Data integrity**: Only category and payment are updated, other fields remain unchanged
@@ -61,11 +64,39 @@ alwaysApply: true
 
 ---
 
-## Error Handling (Currently Implemented)
+## Error Handling
 - **Invalid category**: Returns 400 if category is not one of the allowed values
 - **System errors**: Returns 500 for database or system failures
 - **Appointment not found**: Returns 404 if appointment ID doesn't exist
 - **Frontend validation**: Prevents saving with invalid data
+
+---
+
+## ChatBot-Specific Validation
+- **Edit intent recognition**: ChatBot must recognize user's intent to edit an appointment
+- **Natural language processing**: ChatBot must understand requests like "change to massage" or "switch to facial"
+- **Payment update notification**: ChatBot must inform user that payment will automatically update
+
+---
+
+## ChatBot Workflow
+- **Step-by-step confirmation**: Each change must be confirmed before proceeding
+- **Change preview**: ChatBot must show what will change before applying
+- **Rollback capability**: User can cancel edit process until they confirm with "yes" or save
+- **Session persistence**: Edit session persists across multiple chat messages
+
+---
+
+## Security & Audit
+- **Client verification**: Verify user is authorized to edit the specific appointment
+- **Change reason tracking**: Capture why edit was requested (for business analytics)
+- **Audit trail**: Log all edit attempts and changes made via ChatBot
+
+---
+
+## Post-Edit Communication
+- **Edit confirmation**: ChatBot must notify user of specific edits made after applying changes
+- **Updated details display**: Show new category and payment amount to confirm the change
 
 ---
 
@@ -79,7 +110,21 @@ When writing tests:
 - Test error conditions and edge cases
 - Verify that editing does not change appointment status
 - Verify that updated_at timestamp is updated when changes are saved
-description:
-globs:
-alwaysApply: false
+- Test ChatBot edit workflows (intent recognition, confirmation, rollback)
+- Test natural language processing for category changes
+- Test post-edit communication and confirmation messages
+
+---
+
+## Implementation Status Summary
+- ✅ **Frontend UI**: Edit button visibility, form handling, price updates
+- ✅ **Backend Updates**: Category validation, payment calculation, database updates
+- ❌ **Status Validation**: Backend lacks status checks (CRITICAL GAP)
+- ❌ **Security**: Completed/cancelled appointments can be edited (VULNERABILITY)
+- ✅ **ChatBot Integration**: Edit workflow exists but needs status validation
+
+---
+description: Appointment editing validation rules that must always be enforced
+globs: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+alwaysApply: true
 ---

@@ -18,6 +18,7 @@ const BookingModal = ({ onClose, onSuccess }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [bookedAppointment, setBookedAppointment] = useState(null);
   const [dailyAvailability, setDailyAvailability] = useState({});
+  const [calendarPosition, setCalendarPosition] = useState('below');
 
   const categories = {
     'Facial': 100,
@@ -162,6 +163,31 @@ const BookingModal = ({ onClose, onSuccess }) => {
       fetchMonthlyAvailability();
     }
   }, [currentMonth, showDatePicker, fetchMonthlyAvailability]);
+
+  // Calculate optimal calendar position when date picker opens
+  useEffect(() => {
+    if (showDatePicker) {
+      const dateInput = document.querySelector('.date-input');
+      if (dateInput) {
+        const rect = dateInput.getBoundingClientRect();
+        const modalRect = document.querySelector('.modal-content')?.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        
+        if (modalRect) {
+          const spaceBelow = viewportHeight - rect.bottom;
+          const spaceAbove = rect.top;
+          const calendarHeight = 400; // Wider calendar height
+          
+          // If there's not enough space below and more space above, position above
+          if (spaceBelow < calendarHeight && spaceAbove > calendarHeight) {
+            setCalendarPosition('above');
+          } else {
+            setCalendarPosition('below');
+          }
+        }
+      }
+    }
+  }, [showDatePicker]);
 
   const fetchAvailableTimes = async (date) => {
     try {
@@ -354,7 +380,7 @@ const BookingModal = ({ onClose, onSuccess }) => {
                       📅
                     </button>
                     {showDatePicker && !isSuccess && (
-                      <div className="date-picker-dropdown">
+                      <div className={`date-picker-dropdown ${calendarPosition === 'above' ? 'above' : ''}`}>
                         {renderCalendar()}
                       </div>
                     )}

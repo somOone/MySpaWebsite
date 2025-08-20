@@ -1,7 +1,7 @@
 // Shared constants and regex patterns for both frontend and backend
 
 // Regex tokens for reusability across chat components
-const REGEX_TOKENS = {
+export const REGEX_TOKENS = {
   CLIENT_NAME: '([a-zA-Z0-9\\-\\\'\\s]+)', // Allows letters, digits, spaces, hyphens, apostrophes
   TIME: '(\\d{1,2}(?::\\d{2})?\\s*(?:a\\.?m\\.?|p\\.?m\\.?)|\\d{1,2}(?::\\d{2})?\\s*hours?)', // 12-hour or military (e.g., "1900 hours", "19:00 hours")
   DATE: '([a-zA-Z]+\\s+\\d+(?:st|nd|rd|th)?)', // Date format: "August 16th", "March 3rd", etc.
@@ -10,8 +10,61 @@ const REGEX_TOKENS = {
   APPOINTMENT_KEYWORDS: '(?:appointment|booking)'
 };
 
+// Category patterns for service types
+export const CATEGORY_PATTERNS = '(?:facial|massage|combo|facial\\s*\\+\\s*massage|facial\\s*and\\s*massage)';
+
+// Category translation utilities
+export const CATEGORY_TRANSLATIONS = {
+  // User-friendly terms → Database terms
+  'combo': 'Facial + Massage',
+  'facial': 'Facial',
+  'massage': 'Massage',
+  'facial + massage': 'Facial + Massage',
+  'facial and massage': 'Facial + Massage'
+};
+
+export const REVERSE_CATEGORY_TRANSLATIONS = {
+  // Database terms → User-friendly terms
+  'Facial + Massage': 'combo',
+  'Facial': 'facial',
+  'Massage': 'massage'
+};
+
+// Category utility functions
+export const calculatePayment = (category) => {
+  const prices = {
+    'Facial': 100.00,
+    'Massage': 120.00,
+    'Facial + Massage': 200.00
+  };
+  return prices[category] || 0;
+};
+
+export const translateCategoryToDatabase = (userCategory) => {
+  const normalized = userCategory.toLowerCase().trim();
+  const translations = {
+    'combo': 'Facial + Massage',
+    'facial': 'Facial',
+    'massage': 'Massage',
+    'facial + massage': 'Facial + Massage',
+    'facial and massage': 'Facial + Massage'
+  };
+  
+  return translations[normalized] || userCategory;
+};
+
+export const translateCategoryToUser = (dbCategory) => {
+  const translations = {
+    'Facial + Massage': 'combo',
+    'Facial': 'facial',
+    'Massage': 'massage'
+  };
+  
+  return translations[dbCategory] || dbCategory;
+};
+
 // Command patterns for appointment cancellation
-const APPOINTMENT_PATTERNS = {
+export const APPOINTMENT_PATTERNS = {
   clientDateTimeFull: {
     regex: new RegExp(`cancel\\s+${REGEX_TOKENS.OPTIONAL_THE}${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+for\\s+${REGEX_TOKENS.CLIENT_NAME}\\s+at\\s+${REGEX_TOKENS.TIME}\\s+on\\s+${REGEX_TOKENS.DATE}${REGEX_TOKENS.YEAR}`, 'i'),
     confidence: 1.0,
@@ -97,6 +150,49 @@ const APPOINTMENT_PATTERNS = {
     type: 'complete',
     groups: ['clientName']
   },
+  // Edit patterns - mirror cancellation patterns but for editing
+  editClientDateTimeFull: {
+    regex: new RegExp(`change\\s+${REGEX_TOKENS.OPTIONAL_THE}${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+for\\s+${REGEX_TOKENS.CLIENT_NAME}\\s+at\\s+${REGEX_TOKENS.TIME}\\s+on\\s+${REGEX_TOKENS.DATE}${REGEX_TOKENS.YEAR}`, 'i'),
+    confidence: 1.0,
+    type: 'edit',
+    groups: ['clientName', 'time', 'date', 'year']
+  },
+  editCategoryDateTimeFull: {
+    regex: new RegExp(`change\\s+${REGEX_TOKENS.CLIENT_NAME}\\s+${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+at\\s+${REGEX_TOKENS.TIME}\\s+on\\s+${REGEX_TOKENS.DATE}${REGEX_TOKENS.YEAR}`, 'i'),
+    confidence: 0.9,
+    type: 'edit',
+    groups: ['clientName', 'time', 'date', 'year']
+  },
+  editFirstNameDateTimeFull: {
+    regex: new RegExp(`change\\s+${REGEX_TOKENS.OPTIONAL_THE}${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+for\\s+${REGEX_TOKENS.CLIENT_NAME}\\s+at\\s+${REGEX_TOKENS.TIME}\\s+on\\s+${REGEX_TOKENS.DATE}${REGEX_TOKENS.YEAR}`, 'i'),
+    confidence: 0.8,
+    type: 'edit',
+    groups: ['clientName', 'time', 'date', 'year']
+  },
+  editLastNameDateTimeFull: {
+    regex: new RegExp(`change\\s+${REGEX_TOKENS.OPTIONAL_THE}${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+for\\s+${REGEX_TOKENS.CLIENT_NAME}\\s+at\\s+${REGEX_TOKENS.TIME}\\s+on\\s+${REGEX_TOKENS.DATE}${REGEX_TOKENS.YEAR}`, 'i'),
+    confidence: 0.8,
+    type: 'edit',
+    groups: ['clientName', 'time', 'date', 'year']
+  },
+  editClientDateTime: {
+    regex: new RegExp(`change\\s+${REGEX_TOKENS.OPTIONAL_THE}${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+(?:for\\s+)?${REGEX_TOKENS.CLIENT_NAME}\\s+at\\s+${REGEX_TOKENS.TIME}$`, 'i'),
+    confidence: 0.7,
+    type: 'edit',
+    groups: ['clientName', 'time']
+  },
+  editClientDate: {
+    regex: new RegExp(`change\\s+${REGEX_TOKENS.OPTIONAL_THE}${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+(?:for\\s+)?${REGEX_TOKENS.CLIENT_NAME}\\s+(?:on\\s+)?${REGEX_TOKENS.DATE}${REGEX_TOKENS.YEAR}`, 'i'),
+    confidence: 0.6,
+    type: 'edit',
+    groups: ['clientName', 'date', 'year']
+  },
+  editClientOnly: {
+    regex: new RegExp(`change\\s+${REGEX_TOKENS.OPTIONAL_THE}${REGEX_TOKENS.APPOINTMENT_KEYWORDS}\\s+(?:for\\s+)?${REGEX_TOKENS.CLIENT_NAME}$`, 'i'),
+    confidence: 0.5,
+    type: 'edit',
+    groups: ['clientName']
+  },
   stopTalking: {
     regex: /(?:stop\s+talking|shut\s+up|be\s+quiet|that'?s?\s+all)/i,
     confidence: 1.0,
@@ -109,9 +205,4 @@ const APPOINTMENT_PATTERNS = {
     type: 'affirmative',
     groups: []
   }
-};
-
-export {
-  REGEX_TOKENS,
-  APPOINTMENT_PATTERNS
 };

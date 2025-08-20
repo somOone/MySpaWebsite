@@ -1,11 +1,11 @@
-// Shared Validation utility functions for both frontend and backend
+// Shared validation utility functions for both frontend and backend
 
 /**
- * Validate if a string contains only valid characters for client names
+ * Validate client name format
  * @param {string} clientName - Client name to validate
  * @returns {boolean} True if valid, false otherwise
  */
-const validateClientName = (clientName) => {
+export const validateClientName = (clientName) => {
   if (!clientName || typeof clientName !== 'string') {
     return false;
   }
@@ -20,7 +20,7 @@ const validateClientName = (clientName) => {
  * @param {string} timeString - Time string to validate
  * @returns {boolean} True if valid, false otherwise
  */
-const validateTimeFormat = (timeString) => {
+export const validateTimeFormat = (timeString) => {
   if (!timeString || typeof timeString !== 'string') {
     return false;
   }
@@ -39,7 +39,7 @@ const validateTimeFormat = (timeString) => {
  * @param {string} dateString - Date string to validate
  * @returns {boolean} True if valid, false otherwise
  */
-const validateDateFormat = (dateString) => {
+export const validateDateFormat = (dateString) => {
   if (!dateString || typeof dateString !== 'string') {
     return false;
   }
@@ -54,7 +54,7 @@ const validateDateFormat = (dateString) => {
  * @param {string|number} tipInput - Tip input to validate
  * @returns {Object} Validation result with isValid, amount, and message
  */
-const validateTipAmount = (tipInput) => {
+export const validateTipAmount = (tipInput) => {
   if (!tipInput) return { isValid: false, message: 'Tip amount is required' };
   
   const tipText = tipInput.toString().toLowerCase().trim();
@@ -93,18 +93,10 @@ const validateTipAmount = (tipInput) => {
  * @returns {number} Parsed tip amount
  * @throws {Error} If tip input is invalid
  */
-const parseTipInput = (tipInput) => {
+export const parseTipInput = (tipInput) => {
   const validation = validateTipAmount(tipInput);
   if (!validation.isValid) {
     throw new Error(validation.message);
   }
   return validation.amount;
-};
-
-export {
-  validateClientName,
-  validateTimeFormat,
-  validateDateFormat,
-  validateTipAmount,
-  parseTipInput
 };

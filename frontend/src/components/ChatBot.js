@@ -7,7 +7,7 @@ import {
   useAppointmentActions,
   useChatInput 
 } from './chatbot/hooks';
-import { convertMilitaryTo12Hour, standardizeTimeForBackend } from '../shared';
+import { convertMilitaryTo12Hour, standardizeTimeForBackend, calculatePayment, translateCategoryToDatabase, translateCategoryToUser, parseNaturalLanguageDate } from '../shared';
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,14 @@ const ChatBot = () => {
         completionTip,
         setCompletionTipState: setCompletionTip,
         completionStep,
-        setCompletionStepState: setCompletionStep
+        setCompletionStepState: setCompletionStep,
+        pendingEdit,
+        setPendingEdit,
+        editStep,
+        setEditStepState: setEditStep,
+        editReason,
+        setEditReasonState: setEditReason,
+        clearEdit
       } = useChatState();
   
     // Use different names to avoid conflicts with existing functions
@@ -35,7 +42,9 @@ const ChatBot = () => {
         const { 
         executeCancelAppointment: hookExecuteCancelAppointment,
         executeCompleteAppointment: hookExecuteCompleteAppointment,
-        collectTipAmount: hookCollectTipAmount
+        executeEditAppointment: hookExecuteEditAppointment,
+        collectTipAmount: hookCollectTipAmount,
+        searchAppointment: hookSearchAppointment
       } = useAppointmentActions();
   
   // Initial welcome message
@@ -54,9 +63,6 @@ const ChatBot = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // Use the extracted executeCancelAppointment from useAppointmentActions hook
-  // Old function removed - now using hookExecuteCancelAppointment
 
   // Function to validate cancellation request with backend before responding
   const validateAndRespondToCancellation = useCallback(async (cancellationDetails) => {
@@ -298,7 +304,7 @@ const ChatBot = () => {
       });
       
       // Move workflow to tip collection step
-      setCompletionStep(1);
+      setCompletionStep(2);
       
       // Convert time to 12-hour format for display
       const displayTime = convertMilitaryTo12Hour(appointment.time);
@@ -327,23 +333,314 @@ const ChatBot = () => {
     }
   }, [setMessages, setPendingCompletion, setCompletionStep]);
 
+  // Function to validate edit request with backend before responding
+  const validateAndRespondToEdit = useCallback(async (editDetails) => {
+    try {
+      // Show "checking" message first
+      const checkingMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: "Let me check if that appointment exists and can be edited...",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, checkingMsg]);
+      
+      // Use the single search function from useAppointmentActions
+      const appointment = await hookSearchAppointment(editDetails);
+      
+      // Appointment found! Store details and ask for new category
+      setPendingEdit({
+        ...editDetails,
+        currentCategory: appointment.category,
+        currentPayment: appointment.payment
+      });
+      
+      // Move workflow to category selection step
+      setEditStep(1);
+      
+      // Convert time to 12-hour format for display
+      const displayTime = convertMilitaryTo12Hour(appointment.time);
+      
+      // Ask for new category
+      const categoryMsg = `I found the appointment for ${appointment.client} at ${displayTime} on ${appointment.date} for a ${appointment.category.toLowerCase()} - $${appointment.payment.toFixed(2)}. What do you want to change it to?`;
+      const botMsg = {
+        id: Date.now() + 2,
+        type: 'bot',
+        text: categoryMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+      
+    } catch (error) {
+      console.error('🔍 [EDIT VALIDATION] Error during validation:', error);
+      
+      const errorMsg = "Sorry, I encountered an error while checking for the appointment. Please try again.";
+      const botMsg = {
+        id: Date.now() + 2,
+        type: 'bot',
+        text: errorMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+    }
+  }, [setMessages, setPendingEdit, setEditStep, hookSearchAppointment]);
+
   // Helper from tip collection step to store tip and advance step
   const setTipAndAdvance = useCallback((amount) => {
-    // Store tip on pendingCompletion object and advance to step 2
+    // Store tip on pendingCompletion object and advance to step 3 (confirmation)
     setPendingCompletion(prev => prev ? { ...prev, tip: amount } : prev);
-    setCompletionStep(2);
-  }, [setPendingCompletion, setCompletionStep]);
-
-  // Helper to clear completion state
-  const clearCompletionState = useCallback(() => {
-    setPendingCompletion(null);
-    setCompletionStep(0);
+    setCompletionStep(3);
   }, [setPendingCompletion, setCompletionStep]);
 
   // Helper to clear cancellation state
   const clearCancellationState = useCallback(() => {
     setPendingCancellation(null);
   }, [setPendingCancellation]);
+
+  // Helper to handle redirect after successful operations
+  const handleSuccessfulRedirect = useCallback((date) => {
+    // Show redirecting message
+    const redirectMsg = `Redirecting to appointments page for ${date}...`;
+    const redirectBotMsg = {
+      id: Date.now() + 1,
+      type: 'bot',
+      text: redirectMsg,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, redirectBotMsg]);
+    
+    // Navigate to Manage Appointments page after 2.5 seconds
+    setTimeout(() => {
+      // Convert natural language date to proper date format for URL
+      let formattedDate = date;
+      try {
+        const parsedDate = parseNaturalLanguageDate(date);
+        formattedDate = parsedDate.formattedDate; // This will be YYYY-MM-DD format
+      } catch (error) {
+        console.warn('Could not parse date for redirect, using original:', date);
+      }
+      
+      const appointmentsUrl = `/appointments?date=${formattedDate}`;
+      window.location.href = appointmentsUrl;
+    }, 2500);
+  }, [setMessages]);
+
+  // Helper to handle successful cancellation confirmation
+  const handleCancellationSuccess = useCallback(async (isConfirmed) => {
+    if (!isConfirmed) {
+      const cancelMsg = "Cancellation cancelled. The appointment remains unchanged.";
+      const botMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: cancelMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+      clearCancellationState();
+      return;
+    }
+    
+    try {
+      // Execute the cancellation
+      const result = await hookExecuteCancelAppointment(pendingCancellation);
+      
+      // Show success message
+      const successMsg = result.message;
+      const successBotMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: successMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, successBotMsg]);
+      
+      // Handle redirect after successful cancellation
+      handleSuccessfulRedirect(pendingCancellation.date);
+      
+      clearCancellationState();
+      
+    } catch (error) {
+      console.error('Cancellation execution error:', error);
+      
+      const errorMsg = `Sorry, I couldn't cancel the appointment: ${error.message}`;
+      const errorBotMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: errorMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorBotMsg]);
+      
+      clearCancellationState();
+    }
+  }, [pendingCancellation, setMessages, clearCancellationState, hookExecuteCancelAppointment, handleSuccessfulRedirect]);
+
+  // Helper to clear completion state
+  const clearCompletionState = useCallback(() => {
+    setPendingCompletion(null);
+    setCompletionTip(null);
+    setCompletionStep(0);
+  }, [setPendingCompletion, setCompletionTip, setCompletionStep]);
+
+  // Helper to handle successful completion confirmation
+  const handleCompletionSuccess = useCallback(async (isConfirmed) => {
+    if (!isConfirmed) {
+      const cancelMsg = "Completion cancelled. The appointment remains unchanged.";
+      const botMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: cancelMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+      clearCompletionState();
+      return;
+    }
+    
+    try {
+      // Execute the completion
+      const result = await hookExecuteCompleteAppointment(pendingCompletion, pendingCompletion?.tip);
+      
+      // Show success message
+      const successMsg = result.message;
+      const successBotMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: successMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, successBotMsg]);
+      
+      // Handle redirect after successful completion
+      handleSuccessfulRedirect(pendingCompletion.date);
+      
+      clearCompletionState();
+      
+    } catch (error) {
+      console.error('Completion execution error:', error);
+      
+      const errorMsg = `Sorry, I couldn't complete the appointment: ${error.message}`;
+      const errorBotMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: errorMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorBotMsg]);
+      
+      clearCompletionState();
+    }
+  }, [pendingCompletion, setMessages, clearCompletionState, hookExecuteCompleteAppointment, handleSuccessfulRedirect]);
+
+  // Helper to clear edit state
+  const clearEditState = useCallback(() => {
+    setPendingEdit(null);
+    setEditStep(0);
+    setEditReason('');
+  }, [setPendingEdit, setEditStep, setEditReason]);
+
+  // Helper to handle category input and advance to reason step
+  const handleCategoryInput = useCallback((category) => {
+    setPendingEdit(prev => prev ? { ...prev, newCategory: category } : prev);
+    setEditStep(2);
+    
+    // Ask for cancellation reason
+    const reasonMsg = "Is there a change reason? You can say 'no' or 'none', or enter a reason.";
+    const botMsg = {
+      id: Date.now() + 1,
+      type: 'bot',
+      text: reasonMsg,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, botMsg]);
+  }, [setPendingEdit, setEditStep, setMessages]);
+
+  // Helper to handle reason input and advance to confirmation step
+  const handleReasonInput = useCallback((reason) => {
+    setEditReason(reason);
+    setEditStep(3);
+    
+    // Calculate new payment and show confirmation
+    const dbCategory = translateCategoryToDatabase(pendingEdit?.newCategory);
+    const newPayment = calculatePayment(dbCategory);
+    
+    setPendingEdit(prev => prev ? { ...prev, newPayment, reason } : prev);
+    
+    const oldCategory = translateCategoryToUser(pendingEdit?.currentCategory);
+    const newCategory = pendingEdit?.newCategory;
+    const oldPayment = pendingEdit?.currentPayment;
+    
+    const confirmationMsg = `Perfect! I'll change ${pendingEdit?.clientName}'s appointment from ${oldCategory} to ${newCategory}. The payment will automatically update from $${oldPayment?.toFixed(2)} to $${newPayment.toFixed(2)}.
+
+Type 'yes' to confirm this change, or 'no' to cancel.`;
+    
+    const botMsg = {
+      id: Date.now() + 1,
+      type: 'bot',
+      text: confirmationMsg,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, botMsg]);
+  }, [setEditReason, setEditStep, setMessages, setPendingEdit, pendingEdit]);
+
+  // Helper to handle edit confirmation and execute
+  const handleEditConfirmation = useCallback(async (isConfirmed) => {
+    if (!isConfirmed) {
+      const cancelMsg = "Edit cancelled. The appointment remains unchanged.";
+      const botMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: cancelMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+      clearEditState();
+      return;
+    }
+    
+    try {
+      setEditStep(4); // Move to execution step
+      
+      const executingMsg = "Updating the appointment...";
+      const botMsg = {
+        id: Date.now() + 1,
+        type: 'bot',
+        text: executingMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+      
+      const result = await hookExecuteEditAppointment(pendingEdit);
+      
+      const successMsg = result.message;
+      const successBotMsg = {
+        id: Date.now() + 2,
+        type: 'bot',
+        text: successMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, successBotMsg]);
+      
+      // Handle redirect after successful edit
+      handleSuccessfulRedirect(pendingEdit.date);
+      
+      clearEditState();
+      
+    } catch (error) {
+      console.error('Edit execution error:', error);
+      
+      const errorMsg = `Sorry, I couldn't update the appointment: ${error.message}`;
+      const errorBotMsg = {
+        id: Date.now() + 2,
+        type: 'bot',
+        text: errorMsg,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorBotMsg]);
+      
+      clearEditState();
+    }
+  }, [pendingEdit, setEditStep, setMessages, clearEditState, hookExecuteEditAppointment, handleSuccessfulRedirect]);
 
   // Add the useChatInput hook after all functions are defined
       const { handleSubmit: hookHandleSubmit } = useChatInput({
@@ -356,15 +653,22 @@ const ChatBot = () => {
         setPendingCompletion,
         completionStep,
         setCompletionStep,
+        pendingEdit,
+        editStep,
         executeCancelAppointment: hookExecuteCancelAppointment,
         executeCompleteAppointment: hookExecuteCompleteAppointment,
+        executeEditAppointment: hookExecuteEditAppointment,
         collectTipAmount: hookCollectTipAmount,
         validateAndRespondToCancellation,
         validateAndRespondToCompletion,
+        validateAndRespondToEdit,
         classifyIntent: hookClassifyIntent,
         onTipCollected: setTipAndAdvance,
-        onCompletionSuccess: clearCompletionState,
-        onCancellationSuccess: clearCancellationState
+        onCompletionSuccess: handleCompletionSuccess,
+        onCancellationSuccess: handleCancellationSuccess,
+        onEditCategoryInput: handleCategoryInput,
+        onEditReasonInput: handleReasonInput,
+        onEditConfirmation: handleEditConfirmation
       });
 
 

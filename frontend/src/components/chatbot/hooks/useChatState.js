@@ -19,6 +19,11 @@ const useChatState = () => {
   const [completionTip, setCompletionTip] = useState(null);
   const [completionStep, setCompletionStep] = useState(0); // 0=validate, 1=collect tip, 2=confirm
 
+  // Edit workflow state
+  const [pendingEdit, setPendingEdit] = useState(null);
+  const [editStep, setEditStep] = useState(0); // 0=validate, 1=get category, 2=get reason, 3=confirm
+  const [editReason, setEditReason] = useState('');
+
   // Add a new message to the chat
   const addMessage = useCallback((message) => {
     setMessages(prev => [...prev, message]);
@@ -68,6 +73,23 @@ const useChatState = () => {
     setCompletionTip(tip);
   }, []);
 
+  // Clear edit state
+  const clearEdit = useCallback(() => {
+    setPendingEdit(null);
+    setEditStep(0);
+    setEditReason('');
+  }, []);
+
+  // Set edit step
+  const setEditStepState = useCallback((step) => {
+    setEditStep(step);
+  }, []);
+
+  // Set edit reason
+  const setEditReasonState = useCallback((reason) => {
+    setEditReason(reason);
+  }, []);
+
   return {
     // State
     messages,
@@ -78,6 +100,9 @@ const useChatState = () => {
     pendingCompletion,
     completionTip,
     completionStep,
+    pendingEdit,
+    editStep,
+    editReason,
     
     // Setters
     setMessages,
@@ -88,13 +113,17 @@ const useChatState = () => {
     setPendingCompletion,
     setCompletionTipState,
     setCompletionStepState,
+    setPendingEdit,
+    setEditStepState,
+    setEditReasonState,
     
     // Actions
     addMessage,
     addUserMessage,
     addBotMessage,
     clearCancellation,
-    clearCompletion
+    clearCompletion,
+    clearEdit
   };
 };
 

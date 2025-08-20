@@ -98,13 +98,44 @@ const useAppointmentActions = () => {
       }
 
       console.log('🔍 [COMPLETION] Pending completion details:', pendingCompletion);
-      console.log('🔍 [COMPLETION] Tip amount:', completionTip);
       
-      // Find the appointment to complete
-      const appointment = pendingCompletion.appointment;
-      console.log('🔍 [COMPLETION] Appointment to complete:', appointment);
+      // Standardize time format for backend
+      const standardizedTime = standardizeTimeForBackend(pendingCompletion.time);
+      console.log('🔍 [COMPLETION] Standardized time for backend:', standardizedTime);
       
-      // Complete the appointment with tip
+      // Search for appointments
+      const searchParams = new URLSearchParams({
+        clientName: pendingCompletion.clientName,
+        time: standardizedTime,
+        date: pendingCompletion.date,
+        status: 'pending' // Only find open appointments
+      });
+      
+      // Add year parameter if available
+      if (pendingCompletion.year) {
+        searchParams.append('year', pendingCompletion.year);
+        console.log('🔍 [COMPLETION] Added year parameter:', pendingCompletion.year);
+      }
+      
+      const searchUrl = `/api/appointments/search?${searchParams}`;
+      console.log('🔍 [COMPLETION] Search URL:', searchUrl);
+      
+      const searchResponse = await fetch(searchUrl);
+      console.log('🔍 [COMPLETION] Search response status:', searchResponse.status);
+      
+      if (!searchResponse.ok) {
+        throw new Error(`Search failed with status: ${searchResponse.status}`);
+      }
+      
+      const appointments = await searchResponse.json();
+      console.log('🔍 [COMPLETION] Found appointments:', appointments);
+      
+      if (!appointments || appointments.length === 0) {
+        throw new Error('No open appointments found');
+      }
+      
+      // Complete the appointment
+      const appointment = appointments[0];
       const completeUrl = `/api/appointments/${appointment.id}/complete`;
       console.log('🔍 [COMPLETION] Complete URL:', completeUrl);
       
@@ -114,39 +145,180 @@ const useAppointmentActions = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          tip: completionTip
+          tip: completionTip || 0
         })
       });
       
-      console.log('🔍 [COMPLETION] Complete response status:', completeResponse.status);
-      
       if (!completeResponse.ok) {
-        const errorText = await completeResponse.text();
-        console.log('🔍 [COMPLETION] Complete error response:', errorText);
-        throw new Error('Failed to complete appointment');
+        throw new Error(`Complete failed with status: ${completeResponse.status}`);
       }
       
-      console.log('🔍 [COMPLETION] Complete request successful');
+      console.log('🔍 [COMPLETION] Appointment completed successfully');
       
       // Convert time to 12-hour format for display
       const displayTime = convertMilitaryTo12Hour(appointment.time);
       
-      // Success! Show success message
-      const tipText = completionTip === 0 ? 'no tip' : `tip: $${completionTip.toFixed(2)}`;
-      const successMessage = `I successfully completed the appointment for ${appointment.client} at ${displayTime} on ${appointment.date} with ${tipText}.`;
-      console.log('🔍 [COMPLETION] Success message:', successMessage);
-      
       return {
         success: true,
-        message: successMessage,
+        message: `I successfully completed the appointment for ${appointment.client} at ${displayTime} on ${appointment.date}.`,
         appointment
       };
       
     } catch (error) {
-      console.error('🔍 [COMPLETION] Error executing completion:', error);
+      console.error('🔍 [COMPLETION] Error during completion:', error);
       throw error;
     }
   }, []);
+
+  /**
+   * Execute appointment editing
+   */
+  const executeEditAppointment = useCallback(async (pendingEdit) => {
+    try {
+      console.log('🔍 [EDIT] Starting appointment edit process');
+      
+      if (!pendingEdit) {
+        console.log('🔍 [EDIT] No pending edit details found');
+        throw new Error('No appointment details to edit');
+      }
+
+      console.log('🔍 [EDIT] Pending edit details:', pendingEdit);
+      
+      // 1. Validate appointment exists and is editable
+      const appointment = await validateAppointmentForEdit(pendingEdit);
+      
+      // 2. Translate user-friendly category to database format
+      const dbCategory = translateCategoryToDatabase(pendingEdit.newCategory);
+      
+      // 3. Calculate new payment based on translated category
+      const newPayment = calculatePayment(dbCategory);
+      
+      // 4. Execute the edit via existing PUT endpoint
+      const editResponse = await fetch(`/api/appointments/${appointment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: dbCategory,
+          payment: newPayment,
+          update_reason: pendingEdit.reason || 'Edited via ChatBot'
+        })
+      });
+      
+      if (!editResponse.ok) {
+        throw new Error(`Edit failed: ${editResponse.status}`);
+      }
+      
+      // 5. Return success with updated details (using user-friendly terms)
+      const userFriendlyCategory = translateCategoryToUser(dbCategory);
+      return {
+        success: true,
+        message: `I successfully updated the appointment for ${appointment.client} from ${translateCategoryToUser(appointment.category)} to ${userFriendlyCategory}. The payment has been updated to $${newPayment.toFixed(2)}.`,
+        appointment: { ...appointment, category: dbCategory, payment: newPayment }
+      };
+      
+    } catch (error) {
+      console.error('🔍 [EDIT] Error during edit:', error);
+      throw error;
+    }
+  }, []);
+
+  /**
+   * Single search function for appointments - used by both validation and execution
+   */
+  const searchAppointment = async (searchDetails) => {
+    console.log('🔍 [SEARCH] Input time:', searchDetails.time);
+    
+    // Test the function directly
+    console.log('🔍 [SEARCH] Function test - standardizeTimeForBackend("2 PM"):', standardizeTimeForBackend("2 PM"));
+    
+    // Standardize time format for backend (convert 12-hour to 24-hour)
+    const standardizedTime = standardizeTimeForBackend(searchDetails.time);
+    console.log('🔍 [SEARCH] Standardized time:', standardizedTime);
+    
+    const searchParams = new URLSearchParams({
+      clientName: searchDetails.clientName,
+      time: standardizedTime,
+      date: searchDetails.date,
+      status: 'pending' // Only pending appointments can be edited
+    });
+    
+    console.log('🔍 [SEARCH] Search params:', Object.fromEntries(searchParams));
+    
+    // Add year parameter if available
+    if (searchDetails.year) {
+      searchParams.append('year', searchDetails.year);
+    }
+    
+    const searchResponse = await fetch(`/api/appointments/search?${searchParams}`);
+    if (!searchResponse.ok) {
+      throw new Error('Failed to search for appointment');
+    }
+    
+    const appointments = await searchResponse.json();
+    if (!appointments || appointments.length === 0) {
+      throw new Error('No pending appointment found for editing');
+    }
+    
+    return appointments[0];
+  };
+
+  /**
+   * Validate appointment for editing
+   */
+  const validateAppointmentForEdit = async (pendingEdit) => {
+    // Use the single search function
+    const appointment = await searchAppointment(pendingEdit);
+    
+    // Validate category change is valid (using translated category)
+    const dbCategory = translateCategoryToDatabase(pendingEdit.newCategory);
+    const validCategories = ['Facial', 'Massage', 'Facial + Massage'];
+    if (!validCategories.includes(dbCategory)) {
+      throw new Error(`Invalid category: ${pendingEdit.newCategory}`);
+    }
+    
+    return appointment;
+  };
+
+  /**
+   * Calculate payment based on category
+   */
+  const calculatePayment = (category) => {
+    const prices = {
+      'Facial': 100.00,
+      'Massage': 120.00,
+      'Facial + Massage': 200.00
+    };
+    return prices[category] || 0;
+  };
+
+  /**
+   * Translate user-friendly category to database format
+   */
+  const translateCategoryToDatabase = (userCategory) => {
+    const normalized = userCategory.toLowerCase().trim();
+    const translations = {
+      'combo': 'Facial + Massage',
+      'facial': 'Facial',
+      'massage': 'Massage',
+      'facial + massage': 'Facial + Massage',
+      'facial and massage': 'Facial + Massage'
+    };
+    
+    return translations[normalized] || userCategory;
+  };
+
+  /**
+   * Translate database category to user-friendly format
+   */
+  const translateCategoryToUser = (dbCategory) => {
+    const translations = {
+      'Facial + Massage': 'combo',
+      'Facial': 'facial',
+      'Massage': 'massage'
+    };
+    
+    return translations[dbCategory] || dbCategory;
+  };
 
   /**
    * Collect and validate tip amount
@@ -181,7 +353,9 @@ const useAppointmentActions = () => {
   return {
     executeCancelAppointment,
     executeCompleteAppointment,
-    collectTipAmount
+    executeEditAppointment,
+    collectTipAmount,
+    searchAppointment
   };
 };
 

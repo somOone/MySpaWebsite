@@ -5,7 +5,7 @@
  * @param {string} timeString - Time string in military or 12-hour format
  * @returns {string} Time in 12-hour format (e.g., "7:00 PM")
  */
-const convertMilitaryTo12Hour = (timeString) => {
+export const convertMilitaryTo12Hour = (timeString) => {
   if (timeString.includes('hours')) {
     // Military time format: "1900 hours" or "19:00 hours" → "7:00 PM"
     const militaryTime = timeString.replace(/\s*hours?/i, '');
@@ -42,7 +42,7 @@ const convertMilitaryTo12Hour = (timeString) => {
  * @param {string} timeString - Time string in various formats
  * @returns {string} Standardized time format for backend
  */
-const standardizeTimeForBackend = (timeString) => {
+export const standardizeTimeForBackend = (timeString) => {
   if (timeString.includes('hours')) {
     // Military time: "1730 hours" or "17:30 hours" → "5:30 PM"
     const militaryTime = timeString.replace(/\s*hours?/i, '');
@@ -109,7 +109,7 @@ const standardizeTimeForBackend = (timeString) => {
  * - "August 16th" + "2025" → Uses 2025
  * - "March 3rd" + null → Uses current year, or next year if past
  */
-const parseNaturalLanguageDate = (dateStr, yearParam = null) => {
+export const parseNaturalLanguageDate = (dateStr, yearParam = null) => {
   try {
     // Handle formats like "august 19th", "August 19th", etc.
     const dateStrLower = dateStr.toLowerCase().replace(/\s+/g, ' ');
@@ -130,12 +130,12 @@ const parseNaturalLanguageDate = (dateStr, yearParam = null) => {
         if (yearParam) {
           // Use the explicitly provided year
           targetYear = parseInt(yearParam);
-          // console.log('🔍 [DATE UTILS] Using explicitly provided year:', targetYear);
+          console.log('🔍 [DATE UTILS] Using explicitly provided year:', targetYear);
         } else {
           // Fall back to existing logic: current year, or next year if past
           const currentYear = new Date().getFullYear();
           targetYear = currentYear;
-          // console.log('🔍 [DATE UTILS] No year specified, using current year:', targetYear);
+          console.log('🔍 [DATE UTILS] No year specified, using current year:', targetYear);
         }
         
         const parsedDate = new Date(targetYear, monthIndex, parseInt(dayStr));
@@ -143,7 +143,7 @@ const parseNaturalLanguageDate = (dateStr, yearParam = null) => {
         // Only apply "next year" logic if no explicit year was provided
         if (!yearParam && parsedDate < new Date()) {
           parsedDate.setFullYear(targetYear + 1);
-          // console.log('🔍 [DATE UTILS] Date is in the past, assuming next year:', parsedDate.getFullYear());
+          console.log('🔍 [DATE UTILS] Date is in the past, assuming next year:', parsedDate.getFullYear());
         }
         
         // Format date as YYYY-MM-DD string without timezone issues
@@ -152,8 +152,8 @@ const parseNaturalLanguageDate = (dateStr, yearParam = null) => {
         const day = String(parsedDate.getDate()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
         
-        // console.log('🔍 [DATE UTILS] Parsed date object:', parsedDate);
-        // console.log('🔍 [DATE UTILS] Formatted date string:', formattedDate);
+        console.log('🔍 [DATE UTILS] Parsed date object:', parsedDate);
+        console.log('🔍 [DATE UTILS] Formatted date string:', formattedDate);
         
         return {
           parsedDate,
@@ -170,10 +170,4 @@ const parseNaturalLanguageDate = (dateStr, yearParam = null) => {
     console.error('🔍 [DATE UTILS] Date parsing error:', error);
     throw new Error(`Failed to parse date: ${dateStr}`);
   }
-};
-
-export {
-  convertMilitaryTo12Hour,
-  standardizeTimeForBackend,
-  parseNaturalLanguageDate
 };

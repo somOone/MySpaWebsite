@@ -1,27 +1,44 @@
-/* Tip Modal Styles */
+/* Tip Modal Styles - Beautiful Teal Spa Theme */
+
+/* CSS Variables for Teal Spa Theme */
+:root {
+  --spa-teal: #7FB3B3;
+  --spa-teal-light: #A8D1D1;
+  --spa-teal-dark: #5A8A8A;
+  --spa-teal-muted: #B8D4D4;
+  --spa-white: #FFFFFF;
+  --spa-cream: #F8F9FA;
+  --spa-grey: #6C757D;
+  --spa-grey-light: #ADB5BD;
+  --spa-accent: #E8F4F4;
+  --spa-shadow: rgba(127, 179, 179, 0.15);
+}
+
 .tip-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(127, 179, 179, 0.3);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   padding: 1rem;
+  backdrop-filter: blur(4px);
 }
 
 .tip-modal {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  box-shadow: 0 20px 40px rgba(127, 179, 179, 0.25);
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
   animation: modalSlideIn 0.3s ease-out;
+  border: 2px solid var(--spa-accent);
 }
 
 @keyframes modalSlideIn {
@@ -40,12 +57,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 1.5rem 1rem;
-  border-bottom: 1px solid #e1e5e9;
+  border-bottom: 2px solid var(--spa-accent);
+  background: linear-gradient(135deg, var(--spa-accent) 0%, white 100%);
+  border-radius: 15px 15px 0 0;
 }
 
 .tip-modal-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--spa-teal-dark);
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -54,16 +73,22 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #666;
+  color: var(--spa-grey-light);
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.2s;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .close-btn:hover {
-  background: #f8f9fa;
-  color: #333;
+  background: var(--spa-accent);
+  color: var(--spa-teal);
+  transform: scale(1.1);
 }
 
 .tip-modal-body {
@@ -71,16 +96,18 @@
 }
 
 .appointment-info {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 1rem;
+  background: var(--spa-accent);
+  border-radius: 10px;
+  padding: 1.25rem;
   margin-bottom: 1.5rem;
+  border: 1px solid var(--spa-teal);
+  box-shadow: 0 2px 8px var(--spa-shadow);
 }
 
 .appointment-info p {
   margin: 0.5rem 0;
   font-size: 0.95rem;
-  color: #555;
+  color: var(--spa-grey);
 }
 
 .appointment-info p:first-child {
@@ -99,7 +126,7 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--spa-grey);
   font-size: 1rem;
 }
 
@@ -113,25 +140,26 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #666;
-  font-weight: 500;
+  color: var(--spa-teal);
+  font-weight: 600;
   font-size: 1rem;
 }
 
 .tip-input {
   width: 100%;
   padding: 0.75rem 0.75rem 0.75rem 2rem;
-  border: 2px solid #e1e5e9;
-  border-radius: 8px;
+  border: 2px solid var(--spa-accent);
+  border-radius: 10px;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  background: white;
 }
 
 .tip-input:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  border-color: var(--spa-teal);
+  box-shadow: 0 0 0 3px var(--spa-shadow);
 }
 
 .tip-input::-webkit-outer-spin-button,
@@ -145,13 +173,14 @@
 }
 
 .error-message {
-  color: #dc3545;
+  color: var(--spa-grey);
   font-size: 0.875rem;
   margin-bottom: 1rem;
-  padding: 0.5rem;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
+  padding: 0.75rem;
+  background: var(--spa-accent);
+  border: 1px solid var(--spa-teal);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--spa-shadow);
 }
 
 .quick-tips {
@@ -161,7 +190,7 @@
 .quick-tips p {
   margin: 0 0 0.75rem 0;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--spa-grey-light);
   font-weight: 500;
 }
 
@@ -172,66 +201,120 @@
 }
 
 .quick-tip-btn {
-  background: #f8f9fa;
-  border: 1px solid #e1e5e9;
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
+  background: white;
+  border: 2px solid var(--spa-accent);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
-  color: #555;
+  color: var(--spa-grey);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   flex: 1;
   min-width: 60px;
+  font-weight: 500;
 }
 
 .quick-tip-btn:hover {
-  background: #e9ecef;
-  border-color: #adb5bd;
+  background: var(--spa-accent);
+  border-color: var(--spa-teal);
+  color: var(--spa-teal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--spa-shadow);
 }
 
 .quick-tip-btn:active {
-  background: #dee2e6;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px var(--spa-shadow);
 }
 
 .tip-modal-footer {
   display: flex;
   gap: 1rem;
   padding: 1rem 1.5rem 1.5rem;
-  border-top: 1px solid #e1e5e9;
+  border-top: 2px solid var(--spa-accent);
+  background: linear-gradient(135deg, white 0%, var(--spa-accent) 100%);
+  border-radius: 0 0 15px 15px;
 }
 
 .btn {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1.25rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   text-align: center;
+  box-shadow: 0 2px 4px var(--spa-shadow);
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: var(--spa-grey);
   color: white;
 }
 
 .btn-secondary:hover {
-  background: #5a6268;
+  background: var(--spa-grey-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--spa-shadow);
 }
 
 .btn-primary {
-  background: #007bff;
+  background: var(--spa-teal);
   color: white;
 }
 
 .btn-primary:hover {
-  background: #0056b3;
+  background: var(--spa-teal-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--spa-shadow);
 }
 
 .btn:active {
-  transform: translateY(1px);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px var(--spa-shadow);
+}
+
+/* More specific selectors to ensure styles are applied */
+.tip-modal .btn {
+  flex: 1;
+  padding: 0.875rem 1.25rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 2px 4px var(--spa-shadow);
+}
+
+.tip-modal .btn-secondary {
+  background: var(--spa-grey);
+  color: white;
+}
+
+.tip-modal .btn-secondary:hover {
+  background: var(--spa-grey-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--spa-shadow);
+}
+
+.tip-modal .btn-primary {
+  background: var(--spa-teal);
+  color: white;
+}
+
+.tip-modal .btn-primary:hover {
+  background: var(--spa-teal-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px var(--spa-shadow);
+}
+
+.tip-modal .btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px var(--spa-shadow);
 }
 
 /* Mobile-first responsive adjustments */

@@ -1,4 +1,4 @@
-// Shared utilities index file - exports all shared utilities and constants
+// Shared utilities index file - exports all shared functions and constants
 
 export * from './timeUtils';
 export * from './validationUtils';

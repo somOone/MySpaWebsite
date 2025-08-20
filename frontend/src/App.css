@@ -1,3 +1,27 @@
+/* Spa Color Scheme - Based on teal/seafoam green business card */
+:root {
+  /* Primary Colors - Inspired by the business card */
+  --spa-teal: #7FB3B3;           /* Main teal/seafoam green */
+  --spa-teal-light: #A8D1D1;     /* Lighter teal for accents */
+  --spa-teal-dark: #5A8A8A;      /* Darker teal for depth */
+  --spa-teal-muted: #B8D4D4;     /* Muted teal for backgrounds */
+  
+  /* Supporting Colors */
+  --spa-white: #FFFFFF;          /* Clean white from card */
+  --spa-cream: #F8F9FA;          /* Soft cream for subtle backgrounds */
+  --spa-grey: #6C757D;           /* Dark grey for text */
+  --spa-grey-light: #ADB5BD;     /* Light grey for secondary text */
+  
+  /* Accent Colors */
+  --spa-accent: #E8F4F4;         /* Very light teal for highlights */
+  --spa-shadow: rgba(127, 179, 179, 0.15); /* Teal-tinted shadows */
+  
+  /* Legacy Colors (keeping for compatibility) */
+  --legacy-blue: #667eea;
+  --legacy-purple: #764ba2;
+  --legacy-red: #ff6b6b;
+}
+
 /* Reset and base styles */
 * {
   margin: 0;
@@ -8,8 +32,8 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  color: #333;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: var(--spa-grey);
+  background: linear-gradient(135deg, var(--spa-cream) 0%, var(--spa-teal-muted) 100%);
   min-height: 100vh;
 }
 
@@ -21,9 +45,9 @@ body {
 
 /* Navigation */
 .navigation {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--spa-teal) 0%, var(--spa-teal-dark) 100%);
   padding: 1rem 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--spa-shadow);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -88,7 +112,7 @@ body {
 .expenses-page h1,
 .reports-page h1 {
   font-size: 2.5rem;
-  color: #333;
+  color: var(--spa-teal-dark);
   margin-bottom: 2rem;
   text-align: center;
 }
@@ -97,7 +121,7 @@ body {
 .hero-section {
   text-align: center;
   padding: 4rem 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--spa-teal) 0%, var(--spa-teal-dark) 100%);
   border-radius: 20px;
   color: white;
   margin-bottom: 3rem;
@@ -116,7 +140,7 @@ body {
 }
 
 .cta-button {
-  background: #ff6b6b;
+  background: var(--spa-teal);
   color: white;
   padding: 1rem 2rem;
   border: none;
@@ -129,9 +153,9 @@ body {
 }
 
 .cta-button:hover {
-  background: #ff5252;
+  background: var(--spa-teal-dark);
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 10px 20px var(--spa-shadow);
 }
 
 .features-grid {
@@ -145,7 +169,7 @@ body {
   background: white;
   padding: 2rem;
   border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px var(--spa-shadow);
   text-align: center;
   transition: transform 0.3s ease;
 }
@@ -157,17 +181,17 @@ body {
 .feature-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: #667eea;
+  color: var(--spa-teal);
 }
 
 .feature-title {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--spa-grey);
 }
 
 .feature-description {
-  color: #666;
+  color: var(--spa-grey-light);
   line-height: 1.6;
 }
 
@@ -175,14 +199,14 @@ body {
   background: white;
   padding: 2rem;
   border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px var(--spa-shadow);
 }
 
 .stats-title {
   text-align: center;
   font-size: 2rem;
   margin-bottom: 2rem;
-  color: #333;
+  color: var(--spa-teal-dark);
 }
 
 .stats-grid {
@@ -198,12 +222,12 @@ body {
 .stat-number {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #667eea;
+  color: var(--spa-teal);
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  color: #666;
+  color: var(--spa-grey-light);
   font-size: 1.1rem;
 }
 
@@ -230,7 +254,7 @@ body {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 40px var(--spa-shadow);
 }
 
 .modal-header {
@@ -239,12 +263,12 @@ body {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--spa-accent);
 }
 
 .modal-header h2 {
   font-size: 2rem;
-  color: #333;
+  color: var(--spa-teal-dark);
   margin: 0;
   font-weight: 600;
 }
@@ -254,7 +278,7 @@ body {
   border: none;
   font-size: 2rem;
   cursor: pointer;
-  color: #666;
+  color: var(--spa-grey-light);
   padding: 0.5rem;
   border-radius: 50%;
   transition: all 0.3s ease;
@@ -266,8 +290,8 @@ body {
 }
 
 .close-button:hover {
-  color: #333;
-  background: #f0f0f0;
+  color: var(--spa-grey);
+  background: var(--spa-accent);
 }
 
 /* Form styles */
@@ -285,7 +309,7 @@ body {
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--spa-grey);
   font-size: 1rem;
 }
 
@@ -293,7 +317,7 @@ body {
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--spa-grey);
   font-size: 1rem;
 }
 
@@ -302,7 +326,7 @@ body {
   width: 100%;
   min-width: 0; /* Prevent flex items from overflowing */
   padding: 1rem;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--spa-accent);
   border-radius: 10px;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -313,8 +337,8 @@ body {
 .form-input:focus,
 .form-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--spa-teal);
+  box-shadow: 0 0 0 3px var(--spa-shadow);
 }
 
 .form-row {
@@ -330,7 +354,7 @@ body {
 }
 
 .form-button {
-  background: #667eea;
+  background: var(--spa-teal);
   color: white;
   padding: 0.75rem 1.5rem;
   border: none;
@@ -342,21 +366,21 @@ body {
 }
 
 .form-button:hover {
-  background: #5a6fd8;
+  background: var(--spa-teal-dark);
   transform: translateY(-2px);
 }
 
 .form-button.secondary {
-  background: #6c757d;
+  background: var(--spa-grey);
 }
 
 .form-button.secondary:hover {
-  background: #5a6268;
+  background: var(--spa-grey-light);
 }
 
 /* Book button specific styling */
 .book-button {
-  background: #28a745;
+  background: var(--spa-teal);
   color: white;
   padding: 1rem 2rem;
   border: none;
@@ -372,13 +396,13 @@ body {
 }
 
 .book-button:hover {
-  background: #218838;
+  background: var(--spa-teal-dark);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 10px 20px var(--spa-shadow);
 }
 
 .book-button:disabled {
-  background: #6c757d;
+  background: var(--spa-grey);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -386,9 +410,9 @@ body {
 
 /* Error message */
 .error-message {
-  color: #dc3545;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
+  color: var(--spa-grey);
+  background: var(--spa-accent);
+  border: 1px solid var(--spa-teal);
   border-radius: 10px;
   padding: 1rem;
   margin-top: 1.5rem;
@@ -399,9 +423,9 @@ body {
 
 /* Success message */
 .success-message {
-  color: #155724;
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
+  color: var(--spa-grey);
+  background: var(--spa-accent);
+  border: 1px solid var(--spa-teal);
   border-radius: 10px;
   padding: 1rem;
   margin-top: 1.5rem;
@@ -412,9 +436,9 @@ body {
 
 /* Warning message */
 .warning-message {
-  color: #856404;
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
+  color: var(--spa-grey);
+  background: var(--spa-accent);
+  border: 1px solid var(--spa-teal);
   border-radius: 10px;
   padding: 1rem;
   margin-top: 1.5rem;
@@ -513,15 +537,15 @@ body {
 }
 
 .table th {
-  background: #f8f9fa;
+  background: var(--spa-accent);
   font-weight: 600;
-  color: #333;
+  color: var(--spa-grey);
   font-size: 0.8rem;
   padding: 0.3rem 0.6rem;
 }
 
 .table tr:hover {
-  background: #f8f9fa;
+  background: var(--spa-accent);
 }
 
 /* Action buttons */
@@ -542,39 +566,39 @@ body {
 }
 
 .save-btn {
-  background: #28a745;
+  background: var(--spa-teal);
   color: white;
 }
 
 .save-btn:hover {
-  background: #218838;
+  background: var(--spa-teal-dark);
 }
 
 .cancel-btn {
-  background: #dc3545;
+  background: var(--spa-grey);
   color: white;
 }
 
 .cancel-btn:hover {
-  background: #c82333;
+  background: var(--spa-grey-light);
 }
 
 .edit-btn {
-  background: #ffc107;
-  color: #212529;
+  background: var(--spa-teal-light);
+  color: var(--spa-grey);
 }
 
 .edit-btn:hover {
-  background: #e0a800;
+  background: var(--spa-teal);
 }
 
 .delete-btn {
-  background: #dc3545;
+  background: var(--spa-grey);
   color: white;
 }
 
 .delete-btn:hover {
-  background: #c82333;
+  background: var(--spa-grey-light);
 }
 
 /* Collapsible sections */
@@ -587,7 +611,7 @@ body {
 .year-header,
 .month-header,
 .date-header {
-  background: #f8f9fa;
+  background: var(--spa-accent);
   padding: 0.25rem 0.5rem;
   border: none;
   width: 100%;
@@ -619,14 +643,14 @@ body {
 .year-header.expanded,
 .month-header.expanded,
 .date-header.expanded {
-  background: #e3f2fd;
-  border-left: 4px solid #2196f3;
+  background: var(--spa-accent);
+  border-left: 4px solid var(--spa-teal);
 }
 
 .arrow {
   font-size: 0.7rem;
   transition: transform 0.3s ease;
-  color: #666;
+  color: var(--spa-grey-light);
 }
 
 .accordion-controls {
@@ -647,31 +671,31 @@ body {
 }
 
 .expand-all-btn {
-  background: #28a745;
+  background: var(--spa-teal);
   color: white;
 }
 
 .expand-all-btn:hover {
-  background: #218838;
+  background: var(--spa-teal-dark);
 }
 
 .collapse-all-btn {
-  background: #6c757d;
+  background: var(--spa-grey);
   color: white;
 }
 
 .collapse-all-btn:hover {
-  background: #5a6268;
+  background: var(--spa-grey-light);
 }
 
 .completed-status {
-  color: #28a745;
+  color: var(--spa-grey);
   font-weight: 600;
   font-size: 0.8rem;
   padding: 0.3rem 0.6rem;
-  background: #d4edda;
+  background: var(--spa-accent);
   border-radius: 4px;
-  border: 1px solid #c3e6cb;
+  border: 1px solid var(--spa-teal);
 }
 
 /* Expense page specific styles */
@@ -679,12 +703,12 @@ body {
 .month-total,
 .date-total {
   font-weight: 600;
-  color: #28a745;
+  color: var(--spa-grey);
   font-size: 0.85rem;
-  background: #d4edda;
+  background: var(--spa-accent);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  border: 1px solid #c3e6cb;
+  border: 1px solid var(--spa-teal);
 }
 
 .year-header,
@@ -710,7 +734,7 @@ body {
 .year-header:hover,
 .month-header:hover,
 .date-header:hover {
-  background: #e9ecef;
+  background: var(--spa-teal-muted);
 }
 
 .year-content,
@@ -718,7 +742,7 @@ body {
 .date-content {
   margin-left: 0.5rem;
   padding: 0.5rem;
-  border-left: 2px solid #667eea;
+  border-left: 2px solid var(--spa-teal);
 }
 
 /* Loading and error states */
@@ -726,16 +750,17 @@ body {
   text-align: center;
   padding: 2rem;
   font-size: 1.2rem;
-  color: #666;
+  color: var(--spa-grey-light);
 }
 
 .error {
   text-align: center;
   padding: 2rem;
-  color: #dc3545;
-  background: #f8d7da;
+  color: var(--spa-grey);
+  background: var(--spa-accent);
   border-radius: 8px;
   margin: 1rem 0;
+  border: 1px solid var(--spa-teal);
 }
 
 /* Responsive design */
@@ -841,7 +866,7 @@ body {
 
 .form-input[type="date"]::-webkit-datetime-edit,
 .form-input[type="time"]::-webkit-datetime-edit {
-  color: #333;
+  color: var(--spa-grey);
 }
 
 .form-input[type="date"]::-webkit-datetime-edit-fields-wrapper,
@@ -851,43 +876,206 @@ body {
 
 .form-input[type="date"]::-webkit-datetime-edit-text,
 .form-input[type="time"]::-webkit-datetime-edit-text {
-  color: #666;
+  color: var(--spa-grey-light);
 }
 
-/* Select dropdown styling */
+/* Select dropdown styling - GLOBAL OVERRIDE */
 .form-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
-  padding-right: 2.5rem;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237FB3B3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 1rem center !important;
+  background-size: 1em !important;
+  padding-right: 2.5rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  background-color: white !important;
+  border: 2px solid var(--spa-accent) !important;
+  border-radius: 10px !important;
+  padding: 1rem !important;
+  font-size: 1rem !important;
+  color: var(--spa-grey) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.form-select:hover {
+  border-color: var(--spa-teal) !important;
+  background-color: var(--spa-accent) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px var(--spa-shadow) !important;
+}
+
+.form-select:focus {
+  outline: none !important;
+  border-color: var(--spa-teal) !important;
+  box-shadow: 0 0 0 3px var(--spa-shadow) !important;
+  background-color: white !important;
+}
+
+.form-select:disabled {
+  background-color: var(--spa-accent);
+  color: var(--spa-grey-light);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Dropdown options styling */
+.form-select option {
+  background: white;
+  color: var(--spa-grey);
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: none;
+}
+
+.form-select option:hover {
+  background: var(--spa-accent);
+  color: var(--spa-teal);
+}
+
+.form-select option:checked {
+  background: var(--spa-teal);
+  color: white;
+}
+
+/* Enhanced styling for edit mode dropdowns */
+.appointments-page .form-select {
+  min-width: 120px;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  padding-right: 2rem;
+}
+
+.appointments-page .form-select:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px var(--spa-shadow);
+}
+
+/* Mobile card edit mode dropdowns - More specific and forceful */
+.appointment-card .form-select,
+.mobile-cards .form-select,
+.appointments-page .mobile-cards .form-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237FB3B3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 0.8em !important;
+  background-color: white !important;
+  border: 1px solid var(--spa-accent) !important;
+  border-radius: 6px !important;
+  padding: 0.4rem 0.6rem !important;
+  padding-right: 1.75rem !important;
+  font-size: 0.85rem !important;
+  color: var(--spa-grey) !important;
+  min-width: 100px !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.appointment-card .form-select:hover,
+.mobile-cards .form-select:hover,
+.appointments-page .mobile-cards .form-select:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px var(--spa-shadow) !important;
+  border-color: var(--spa-teal) !important;
+}
+
+/* BookingModal specific dropdown styling - MOST AGGRESSIVE POSSIBLE */
+.modal-content .form-select,
+.booking-form .form-select,
+.modal .form-select,
+.booking-modal .form-select,
+.modal-overlay .form-select,
+.modal-overlay .modal-content .form-select,
+.modal-overlay .booking-form .form-select,
+.modal-overlay .modal .form-select,
+.modal-overlay .booking-modal .form-select,
+body .modal-content .form-select,
+body .booking-form .form-select,
+body .modal .form-select,
+body .booking-modal .form-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237FB3B3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 1rem center !important;
+  background-size: 1em !important;
+  background-color: white !important;
+  border: 2px solid var(--spa-accent) !important;
+  border-radius: 10px !important;
+  padding: 1rem !important;
+  padding-right: 2.5rem !important;
+  font-size: 1rem !important;
+  color: var(--spa-grey) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.modal-content .form-select:hover,
+.booking-form .form-select:hover {
+  border-color: var(--spa-teal);
+  background-color: var(--spa-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--spa-shadow);
+}
+
+.modal-content .form-select:focus,
+.booking-form .form-select:focus {
+  outline: none;
+  border-color: var(--spa-teal);
+  box-shadow: 0 0 0 3px var(--spa-shadow);
+  background-color: white;
+}
+
+.modal-content .form-select:disabled,
+.booking-form .form-select:disabled {
+  background-color: var(--spa-accent);
+  color: var(--spa-grey-light);
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* Price input styling */
 .form-input[readonly] {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--spa-accent);
+  color: var(--spa-grey);
   cursor: not-allowed;
 }
 
 /* Disabled state styling */
 .form-input:disabled,
 .form-select:disabled {
-  background-color: #e9ecef;
-  color: #6c757d;
+  background-color: var(--spa-accent);
+  color: var(--spa-grey-light);
   cursor: not-allowed;
 }
 
 /* Time slot validation */
 .time-slot-unavailable {
-  color: #6c757d;
+  color: var(--spa-grey-light);
   font-style: italic;
+  background: var(--spa-cream);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--spa-accent);
 }
 
 .time-slot-available {
-  color: #28a745;
+  color: var(--spa-teal);
   font-weight: 500;
+  background: var(--spa-accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--spa-teal);
 }
 
 /* Calendar styles */
@@ -899,7 +1087,7 @@ body {
 .date-input {
   width: 100%;
   padding: 1rem;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--spa-accent);
   border-radius: 10px;
   font-size: 1rem;
   background: white;
@@ -909,8 +1097,8 @@ body {
 
 .date-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--spa-teal);
+  box-shadow: 0 0 0 3px var(--spa-shadow);
 }
 
 .calendar-toggle-btn {
@@ -928,7 +1116,7 @@ body {
 }
 
 .calendar-toggle-btn:hover {
-  background: #f0f0f0;
+  background: var(--spa-accent);
 }
 
 .date-picker-dropdown {
@@ -937,13 +1125,113 @@ body {
   left: 0;
   right: 0;
   background: white;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--spa-accent);
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px var(--spa-shadow);
   z-index: 1000;
   margin-top: 5px;
   padding: 1rem;
   min-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Smart positioning for calendar dropdown in modals */
+.modal-content .date-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+/* Smart positioning - check if there's enough space below, if not, position above */
+.modal-content .date-picker-container {
+  position: relative;
+}
+
+/* When there's not enough space below, position above the input */
+.modal-content .date-picker-dropdown.above {
+  top: auto;
+  bottom: 100%;
+  margin-bottom: 5px;
+  margin-top: 0;
+}
+
+/* Force calendar to always be visible within modal bounds */
+.modal-content .date-picker-dropdown {
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  background: white !important;
+  border: 2px solid var(--spa-accent) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px var(--spa-shadow) !important;
+  padding: 1rem !important;
+  min-width: 320px !important;
+}
+
+/* Ensure modal can handle calendar overflow properly */
+.modal-content {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+.modal-overlay {
+  overflow: visible !important;
+}
+
+/* Ensure the calendar is always visible within the modal */
+.modal-content .date-picker-dropdown {
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 2px solid var(--spa-accent);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px var(--spa-shadow);
+  padding: 1rem;
+}
+
+/* Enhanced calendar positioning and scrolling */
+.modal-content .date-picker-dropdown.above {
+  top: auto;
+  bottom: 100%;
+  margin-bottom: 5px;
+  margin-top: 0;
+}
+
+/* Ensure calendar content is always accessible */
+.modal-content .date-picker-dropdown .calendar-grid {
+  min-height: 280px;
+}
+
+.modal-content .date-picker-dropdown .calendar-days {
+  min-height: 200px;
+}
+
+/* Smooth scrolling for calendar */
+.modal-content .date-picker-dropdown {
+  scrollbar-width: thin;
+  scrollbar-color: var(--spa-teal) var(--spa-accent);
+}
+
+.modal-content .date-picker-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content .date-picker-dropdown::-webkit-scrollbar-track {
+  background: var(--spa-accent);
+  border-radius: 4px;
+}
+
+.modal-content .date-picker-dropdown::-webkit-scrollbar-thumb {
+  background: var(--spa-teal);
+  border-radius: 4px;
+}
+
+.modal-content .date-picker-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--spa-teal-dark);
 }
 
 .calendar-grid {
@@ -956,7 +1244,7 @@ body {
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e1e5e9;
+  border-bottom: 1px solid var(--spa-accent);
 }
 
 .calendar-nav-btn {
@@ -967,17 +1255,17 @@ body {
   padding: 0.5rem;
   border-radius: 50%;
   transition: all 0.3s ease;
-  color: #667eea;
+  color: var(--spa-teal);
 }
 
 .calendar-nav-btn:hover {
-  background: #f0f0f0;
+  background: var(--spa-accent);
 }
 
 .calendar-month-year {
   font-weight: 600;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--spa-grey);
 }
 
 .calendar-weekdays {
@@ -991,7 +1279,7 @@ body {
   text-align: center;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--spa-grey-light);
   padding: 0.5rem 0;
 }
 
@@ -1003,7 +1291,7 @@ body {
 
 .calendar-day {
   background: white;
-  border: 1px solid #e1e5e9;
+  border: 1px solid var(--spa-accent);
   padding: 0.75rem 0.5rem;
   text-align: center;
   cursor: pointer;
@@ -1017,39 +1305,39 @@ body {
 }
 
 .calendar-day:hover:not(:disabled) {
-  background: #f8f9fa;
-  border-color: #667eea;
+  background: var(--spa-accent);
+  border-color: var(--spa-teal);
 }
 
 .calendar-day.selected {
-  background: #667eea;
+  background: var(--spa-teal);
   color: white;
-  border-color: #667eea;
+  border-color: var(--spa-teal);
   font-weight: 600;
 }
 
 .calendar-day.unavailable {
-  background: #f8f9fa;
-  color: #ccc;
+  background: var(--spa-accent);
+  color: var(--spa-grey-light);
   cursor: not-allowed;
-  border-color: #e9ecef;
+  border-color: var(--spa-accent);
 }
 
 .calendar-day.unavailable:hover {
-  background: #f8f9fa;
-  border-color: #e9ecef;
+  background: var(--spa-accent);
+  border-color: var(--spa-accent);
 }
 
 .calendar-day.other-month {
-  color: #ccc;
-  background: #fafafa;
+  color: var(--spa-grey-light);
+  background: var(--spa-cream);
 }
 
 .calendar-day:disabled {
-  background: #f8f9fa;
-  color: #ccc;
+  background: var(--spa-accent);
+  color: var(--spa-grey-light);
   cursor: not-allowed;
-  border-color: #e9ecef;
+  border-color: var(--spa-accent);
 }
 
 /* Responsive calendar */
@@ -1246,7 +1534,7 @@ body {
   align-items: center;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--spa-accent);
 }
 .mobile-cards .appointment-card .card-header .time {
   font-weight: 700;
@@ -1365,31 +1653,31 @@ body {
   }
   
   .mobile-card-time {
-    color: #666;
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-  
-  .mobile-card-details {
-    margin-bottom: 0.75rem;
-  }
-  
-  .mobile-card-detail {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
-  }
-  
-  .mobile-card-detail-label {
-    color: #666;
-    font-weight: 500;
-  }
-  
-  .mobile-card-detail-value {
-    color: #333;
-    font-weight: 600;
-  }
+  color: var(--spa-grey-light);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.mobile-card-details {
+  margin-bottom: 0.75rem;
+}
+
+.mobile-card-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.mobile-card-detail-label {
+  color: var(--spa-grey-light);
+  font-weight: 500;
+}
+
+.mobile-card-detail-value {
+  color: var(--spa-grey);
+  font-weight: 600;
+}
   
   .mobile-card-actions {
     display: flex;
@@ -1410,43 +1698,43 @@ body {
   }
   
   .mobile-card-btn.edit {
-    background: #007bff;
-    color: white;
-  }
-  
-  .mobile-card-btn.edit:hover {
-    background: #0056b3;
-  }
-  
-  .mobile-card-btn.complete {
-    background: #28a745;
-    color: white;
-  }
-  
-  .mobile-card-btn.complete:hover {
-    background: #1e7e34;
-  }
-  
-  .mobile-card-btn.cancel {
-    background: #dc3545;
-    color: white;
-  }
-  
-  .mobile-card-btn.cancel:hover {
-    background: #c82333;
-  }
+  background: var(--spa-teal);
+  color: white;
+}
+
+.mobile-card-btn.edit:hover {
+  background: var(--spa-teal-dark);
+}
+
+.mobile-card-btn.complete {
+  background: var(--spa-teal);
+  color: white;
+}
+
+.mobile-card-btn.complete:hover {
+  background: var(--spa-teal-dark);
+}
+
+.mobile-card-btn.cancel {
+  background: var(--spa-grey);
+  color: white;
+}
+
+.mobile-card-btn.cancel:hover {
+  background: var(--spa-grey-light);
+}
   
   /* Mobile card styling - Actual classes used by JavaScript */
   .appointment-card,
-  .expense-card {
-    background: white;
-    border: 1px solid #e1e5e9;
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-  }
+.expense-card {
+  background: white;
+  border: 1px solid var(--spa-accent);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px var(--spa-shadow);
+  transition: all 0.3s ease;
+}
   
   .appointment-card:hover,
   .expense-card:hover {
@@ -1490,14 +1778,14 @@ body {
   }
   
   .info-row .label {
-    color: #666;
-    font-weight: 500;
-  }
-  
-  .info-row .value {
-    color: #333;
-    font-weight: 600;
-  }
+  color: var(--spa-grey-light);
+  font-weight: 500;
+}
+
+.info-row .value {
+  color: var(--spa-grey);
+  font-weight: 600;
+}
   
   .actions {
     display: flex;
@@ -1518,44 +1806,44 @@ body {
   }
   
   .action-btn.edit-btn {
-    background: #007bff;
-    color: white;
-  }
-  
-  .action-btn.edit-btn:hover {
-    background: #0056b3;
-  }
-  
-  .action-btn.save-btn {
-    background: #28a745;
-    color: white;
-  }
-  
-  .action-btn.save-btn:hover {
-    background: #1e7e34;
-  }
-  
-  .action-btn.delete-btn,
-  .action-btn.cancel-btn {
-    background: #dc3545;
-    color: white;
-  }
-  
-  .action-btn.delete-btn:hover,
-  .action-btn.cancel-btn:hover {
-    background: #c82333;
-  }
+  background: var(--spa-teal);
+  color: white;
+}
+
+.action-btn.edit-btn:hover {
+  background: var(--spa-teal-dark);
+}
+
+.action-btn.save-btn {
+  background: var(--spa-teal);
+  color: white;
+}
+
+.action-btn.save-btn:hover {
+  background: var(--spa-teal-dark);
+}
+
+.action-btn.delete-btn,
+.action-btn.cancel-btn {
+  background: var(--spa-grey);
+  color: white;
+}
+
+.action-btn.delete-btn:hover,
+.action-btn.cancel-btn:hover {
+  background: var(--spa-grey-light);
+}
   
   .completed-status {
-    color: #28a745;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-align: center;
-    padding: 0.5rem;
-    background: #d4edda;
-    border-radius: 4px;
-    border: 1px solid #c3e6cb;
-  }
+  color: var(--spa-grey);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0.5rem;
+  background: var(--spa-accent);
+  border-radius: 4px;
+  border: 1px solid var(--spa-teal);
+}
   
 
   
