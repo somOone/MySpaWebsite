@@ -171,7 +171,7 @@ const createAppointment = (db, appointmentData) => {
  */
 const updateAppointment = (db, id, updates) => {
   return new Promise((resolve, reject) => {
-    const { date, time, client, category, payment, tip } = updates;
+    const { date, time, client, category, payment, tip, update_reason } = updates;
     
     let sql = 'UPDATE appointments SET';
     const values = [];
@@ -209,6 +209,12 @@ const updateAppointment = (db, id, updates) => {
       if (values.length > 0) sql += ',';
       sql += ' tip = ?';
       values.push(tip);
+    }
+    
+    if (update_reason !== undefined) {
+      if (values.length > 0) sql += ',';
+      sql += ' update_reason = ?';
+      values.push(update_reason);
     }
     
     if (values.length === 0) {
@@ -339,7 +345,22 @@ const getAppointmentById = (db, id) => {
  */
 const getAllExpenses = (db) => {
   return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM expenses ORDER BY date DESC', (err, rows) => {
+    db.all(`
+      SELECT 
+        e.id,
+        e.date,
+        e.description,
+        e.amount,
+        e.category_id,
+        e.created_at,
+        e.updated_at,
+        ec.name as category_name,
+        ec.description as category_description,
+        ec.color as category_color
+      FROM expenses e
+      LEFT JOIN expense_categories ec ON e.category_id = ec.id
+      ORDER BY e.date DESC
+    `, (err, rows) => {
       if (err) {
         console.error('Error fetching expenses:', err);
         reject(err);
@@ -355,7 +376,23 @@ const getAllExpenses = (db) => {
  */
 const getExpensesByDateRange = (db, startDate, endDate) => {
   return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM expenses WHERE date BETWEEN ? AND ? ORDER BY date DESC', [startDate, endDate], (err, rows) => {
+    db.all(`
+      SELECT 
+        e.id,
+        e.date,
+        e.description,
+        e.amount,
+        e.category_id,
+        e.created_at,
+        e.updated_at,
+        ec.name as category_name,
+        ec.description as category_description,
+        ec.color as category_color
+      FROM expenses e
+      LEFT JOIN expense_categories ec ON e.category_id = ec.id
+      WHERE e.date BETWEEN ? AND ?
+      ORDER BY e.date DESC
+    `, [startDate, endDate], (err, rows) => {
       if (err) {
         console.error('Error fetching expenses by date range:', err);
         reject(err);
@@ -371,7 +408,22 @@ const getExpensesByDateRange = (db, startDate, endDate) => {
  */
 const getExpenseById = (db, id) => {
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM expenses WHERE id = ?', [id], (err, row) => {
+    db.get(`
+      SELECT 
+        e.id,
+        e.date,
+        e.description,
+        e.amount,
+        e.category_id,
+        e.created_at,
+        e.updated_at,
+        ec.name as category_name,
+        ec.description as category_description,
+        ec.color as category_color
+      FROM expenses e
+      LEFT JOIN expense_categories ec ON e.category_id = ec.id
+      WHERE e.id = ?
+    `, [id], (err, row) => {
       if (err) {
         console.error('Error fetching expense:', err);
         reject(err);
@@ -393,12 +445,17 @@ const getExpenseById = (db, id) => {
  */
 const createExpense = (db, expenseData) => {
   return new Promise((resolve, reject) => {
-    const { date, description, amount, category } = expenseData;
+    const { date, description, amount, category_id } = expenseData;
+    
+    if (!category_id) {
+      reject(new Error('category_id is required'));
+      return;
+    }
     
     db.run(`
-      INSERT INTO expenses (date, description, amount, category)
-      VALUES (?, ?, ?, ?)
-    `, [date, description, amount, category], function(err) {
+      INSERT INTO expenses (date, description, amount, category_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    `, [date, description, amount, category_id], function(err) {
       if (err) {
         console.error('Error creating expense:', err);
         reject(err);
@@ -414,7 +471,7 @@ const createExpense = (db, expenseData) => {
  */
 const updateExpense = (db, id, updates) => {
   return new Promise((resolve, reject) => {
-    const { date, description, amount, category } = updates;
+    const { date, description, amount, category_id } = updates;
     
     let sql = 'UPDATE expenses SET';
     const values = [];
@@ -436,10 +493,10 @@ const updateExpense = (db, id, updates) => {
       values.push(amount);
     }
     
-    if (category !== undefined) {
+    if (category_id !== undefined) {
       if (values.length > 0) sql += ',';
-      sql += ' category = ?';
-      values.push(category);
+      sql += ' category_id = ?';
+      values.push(category_id);
     }
     
     if (values.length === 0) {
@@ -447,7 +504,7 @@ const updateExpense = (db, id, updates) => {
       return;
     }
     
-    sql += ' WHERE id = ?';
+    sql += ', updated_at = CURRENT_TIMESTAMP WHERE id = ?';
     values.push(id);
     
     db.run(sql, values, function(err) {

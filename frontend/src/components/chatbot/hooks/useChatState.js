@@ -23,6 +23,13 @@ const useChatState = () => {
   const [pendingEdit, setPendingEdit] = useState(null);
   const [editStep, setEditStep] = useState(0); // 0=validate, 1=get category, 2=get reason, 3=confirm
   const [editReason, setEditReason] = useState('');
+  
+  // Expense edit workflow state
+  const [pendingExpenseEdit, setPendingExpenseEdit] = useState(null);
+  const [expenseEditStep, setExpenseEditStep] = useState(0);
+  
+  // Expense delete workflow state
+  const [pendingExpenseDelete, setPendingExpenseDelete] = useState(null);
 
   // Add a new message to the chat
   const addMessage = useCallback((message) => {
@@ -79,6 +86,17 @@ const useChatState = () => {
     setEditStep(0);
     setEditReason('');
   }, []);
+  
+  // Clear expense edit state
+  const clearExpenseEdit = useCallback(() => {
+    setPendingExpenseEdit(null);
+    setExpenseEditStep(0);
+  }, []);
+  
+  // Clear expense delete state
+  const clearExpenseDelete = useCallback(() => {
+    setPendingExpenseDelete(null);
+  }, []);
 
   // Set edit step
   const setEditStepState = useCallback((step) => {
@@ -88,6 +106,11 @@ const useChatState = () => {
   // Set edit reason
   const setEditReasonState = useCallback((reason) => {
     setEditReason(reason);
+  }, []);
+  
+  // Set expense edit step
+  const setExpenseEditStepState = useCallback((step) => {
+    setExpenseEditStep(step);
   }, []);
 
   return {
@@ -103,6 +126,9 @@ const useChatState = () => {
     pendingEdit,
     editStep,
     editReason,
+    pendingExpenseEdit,
+    expenseEditStep,
+    pendingExpenseDelete,
     
     // Setters
     setMessages,
@@ -116,6 +142,9 @@ const useChatState = () => {
     setPendingEdit,
     setEditStepState,
     setEditReasonState,
+    setPendingExpenseEdit,
+    setExpenseEditStepState,
+    setPendingExpenseDelete,
     
     // Actions
     addMessage,
@@ -123,7 +152,9 @@ const useChatState = () => {
     addBotMessage,
     clearCancellation,
     clearCompletion,
-    clearEdit
+    clearEdit,
+    clearExpenseEdit,
+    clearExpenseDelete
   };
 };
 

@@ -1,6 +1,6 @@
 # MySpaWebsite
 
-A comprehensive spa management system built with React frontend and Node.js backend, featuring appointment booking, management, and an intelligent chatbot interface.
+A comprehensive spa management system built with React frontend and Node.js backend, featuring appointment booking, expense tracking, and an AI-powered chatbot interface with machine learning capabilities.
 
 ## 🚀 Features
 
@@ -11,25 +11,36 @@ A comprehensive spa management system built with React frontend and Node.js back
 - **Appointment Cancellation**: Soft-delete appointments with reason tracking
 - **Client Database**: Store and manage client information
 
-### Intelligent Chatbot Interface
-- **Natural Language Processing**: Understand appointment requests in plain English
-- **Multi-Workflow Support**: Handle booking, editing, completion, and cancellation
-- **Interactive Confirmation**: Step-by-step confirmation for all actions
-- **Smart Intent Recognition**: Automatically classify user requests
+### Comprehensive Expense Management
+- **Expense Tracking**: Add, edit, and delete business expenses with categories
+- **Expense Categories**: Supplies, Equipment, Services, Marketing, Other
+- **Inline Editing**: Quick edit amounts, dates, descriptions, and categories
+- **Search & Filter**: Find expenses by description, date, and year
+- **Financial Reports**: Integrated with appointment data for complete financial overview
+
+### AI-Powered Chatbot Interface
+- **Machine Learning**: Advanced intent classification with 1000+ training examples
+- **Natural Language Processing**: Understand requests in plain English
+- **Multi-Domain Support**: Handle appointments, expenses, and help requests
+- **Interactive Help System**: Guide users through available commands
+- **Smart Intent Recognition**: Keyword extraction and confidence scoring
+- **Training Engine**: Self-improving ML model with performance analytics
 
 ### Advanced Features
 - **Real-time Validation**: Business rule enforcement and conflict prevention
 - **Responsive Design**: Modern, mobile-friendly interface
 - **Accessibility**: WCAG compliant components and navigation
-- **Comprehensive Testing**: 218 tests covering all functionality
+- **Comprehensive Testing**: 291 tests covering all functionality
+- **Auto-Focus Features**: Smart page navigation and element focusing
 
 ## 🏗️ Architecture
 
 - **Frontend**: React.js with modern hooks and functional components
 - **Backend**: Node.js with Express.js framework and comprehensive validation
 - **Database**: SQLite with automatic initialization and data integrity
-- **Chat Interface**: Intelligent chatbot with natural language processing
+- **AI Interface**: ML-powered chatbot with training engine and intent classification
 - **Testing**: Jest with comprehensive coverage across all components
+- **Training System**: Custom ML model with 1000+ natural language examples
 
 ## 📁 Project Structure
 
@@ -39,6 +50,8 @@ MySpaWebsite/
 │   ├── src/
 │   │   ├── components/       # Reusable UI components
 │   │   │   ├── chatbot/      # ChatBot and workflow components
+│   │   │   │   ├── training/ # ML training engine and dataset
+│   │   │   │   └── hooks/    # Custom React hooks for AI
 │   │   │   └── __tests__/    # Component test suites
 │   │   ├── pages/            # Main application pages
 │   │   ├── shared/           # Utility functions and constants
@@ -46,6 +59,8 @@ MySpaWebsite/
 │   └── tests/                # Integration and E2E tests
 ├── backend/           # Node.js backend server
 │   ├── routes/        # API endpoint definitions
+│   │   ├── appointments.js   # Appointment management API
+│   │   └── expenses.js       # Expense management API
 │   ├── utils/         # Database and utility functions
 │   └── validation/    # Business rule validation
 ├── database/          # SQLite database files
@@ -118,28 +133,85 @@ MySpaWebsite/
 - **Edit Mode**: Inline editing for appointment details
 - **Tip Collection**: Modal for collecting tips during completion
 
-## 🤖 Chatbot Commands
+## 💰 Expense Management
 
-The intelligent chatbot supports natural language commands for all appointment operations:
+### Expense Tracking
+- **Add Expenses**: Create new business expenses with categories
+- **Edit Expenses**: Modify amounts, dates, descriptions, and categories
+- **Delete Expenses**: Remove expenses with confirmation workflow
+- **Search Functionality**: Find expenses by description and date
 
-### Appointment Cancellation
+### Expense Categories
+- **Supplies**: Cleaning products, spa materials, office supplies ($)
+- **Equipment**: Spa equipment, maintenance tools, technology ($)
+- **Services**: Professional services, maintenance, utilities ($)
+- **Marketing**: Advertising, promotions, social media ($)
+- **Other**: Miscellaneous business expenses ($)
+
+### Expense Interface
+- **Expenses Page**: View all expenses organized by date with expand/collapse
+- **Expense Modal**: Add new expenses with category selection
+- **Inline Editing**: Quick edit mode for all expense fields
+- **Search & Filter**: Real-time search with date and year filtering
+
+## 🤖 AI-Powered Chatbot Commands
+
+The AI-powered chatbot supports natural language commands for appointments, expenses, and help requests with machine learning intent recognition:
+
+### Appointment Management
+#### Booking Appointments
+- `"book a new appointment"` or `"I want to schedule an appointment"`
+- `"create a booking"` or `"make an appointment"`
+
+#### Cancelling Appointments
 - `"cancel appointment for Sarah at 10:00 AM on August 16th"`
 - `"cancel appointment for Sarah at 10:00 AM on August 16th 2025"`
 - `"yes"` (to confirm cancellation)
 
-### Appointment Completion
+#### Completing Appointments
 - `"complete appointment for Sarah at 10:00 AM on August 16th"`
 - `"tip amount: $25"` (when prompted)
 - `"yes"` (to confirm completion)
 
-### Appointment Editing
+#### Editing Appointments
 - `"edit appointment for Sarah at 10:00 AM on August 16th"`
 - `"change to massage"` (or "facial", "combo")
 - `"yes"` (to confirm changes)
 
-### General Commands
-- `"that's all"` (to stop the bot)
-- `"help"` (for assistance)
+#### Viewing Appointments
+- `"show my appointments for today"` or `"what appointments do I have today"`
+- `"show me today's schedule"`
+
+### Expense Management
+#### Adding Expenses
+- `"add a new expense"` or `"I want to add an expense"`
+- `"create a new cost"` or `"log an expense"`
+
+#### Editing Expenses
+- `"change expense cleaning supplies on August 21st to $50.00"` (direct amount change)
+- `"change expense cleaning supplies on August 21st"` (opens inline editor)
+
+#### Deleting Expenses
+- `"delete expense office supplies on March 15th"`
+- `"remove expense cleaning supplies on August 21st"`
+- `"yes"` (to confirm deletion)
+
+### Help & Guidance
+#### General Help
+- `"help"` or `"what can you do"`
+- `"what are your capabilities"`
+
+#### How-To Questions
+- `"How can I add a new appointment?"`
+- `"How can I change an expense?"`
+- `"How can I cancel an appointment?"`
+- `"How can I see today's appointments?"`
+
+### AI Features
+- **Natural Language Understanding**: Supports variations like "I need to...", "Can you...", "Please..."
+- **Smart Intent Recognition**: Automatically classifies requests using ML
+- **Context Awareness**: Remembers conversation state across multi-step workflows
+- **Training Data**: 1000+ examples for accurate intent classification
 
 ## 🔒 Business Rules & Validation
 
@@ -161,12 +233,21 @@ The intelligent chatbot supports natural language commands for all appointment o
 - **Completed**: Cannot be modified (locked status)
 - **Cancelled**: Cannot be modified (locked status)
 
+### Expense Business Rules
+- **Required Fields**: Date, description, amount, category
+- **Amount Validation**: Must be positive numbers with proper decimal formatting
+- **Date Restrictions**: Cannot be future dates beyond current day
+- **Category Validation**: Must select from predefined active categories
+- **Description Requirements**: Non-empty, meaningful descriptions required
+
 ## 🧪 Testing & Quality Assurance
 
 ### Test Coverage
-- **Total Tests**: 218 tests across all functionality
-- **Test Categories**: Accessibility, Visual, Responsive, Functional, Utility
-- **Coverage Areas**: Components, Pages, Shared utilities, ChatBot workflows
+- **Total Tests**: 291 tests across all functionality
+- **Frontend Tests**: 259 tests covering UI, components, and workflows
+- **Backend Tests**: 32 tests covering API endpoints and database operations
+- **Test Categories**: Accessibility, Visual, Responsive, Functional, Utility, AI/ML
+- **Coverage Areas**: Components, Pages, Shared utilities, ChatBot workflows, Training engine
 - **Quality Metrics**: All tests passing, comprehensive validation
 
 ### Test Suites
@@ -175,6 +256,8 @@ The intelligent chatbot supports natural language commands for all appointment o
 - **Responsive Tests**: Mobile and tablet compatibility
 - **Functional Tests**: Core business logic and user workflows
 - **Integration Tests**: Component interaction and data flow
+- **AI/ML Tests**: Intent classification, training engine, and ML model validation
+- **API Tests**: Backend validation, database operations, and endpoint testing
 
 ## 🔧 Configuration
 
@@ -191,6 +274,12 @@ The intelligent chatbot supports natural language commands for all appointment o
 - **`docs/editing_validation_rules.mdc`**: Appointment editing validation
 - **`docs/completion_validation_rules.mdc`**: Appointment completion rules
 - **`docs/cancellation_validation_rules.mdc`**: Cancellation business logic
+- **`docs/expense_validation_rules.mdc`**: Expense management validation rules
+
+### AI & Training
+- **`frontend/src/components/chatbot/training/training_dataset.js`**: 1000+ ML training examples
+- **`frontend/src/components/chatbot/training/trainingEngine.js`**: ML model training logic
+- **AI Training Dashboard**: Built-in interface for model performance monitoring
 
 ### Test Coverage
 - **`docs/test_coverage_report.md`**: Comprehensive testing analysis
@@ -205,8 +294,15 @@ The intelligent chatbot supports natural language commands for all appointment o
 
 ### Access Control
 - **Status-based Permissions**: Only pending appointments can be modified
+- **Expense Security**: Full CRUD validation with category verification
 - **Soft Deletion**: Cancelled appointments are preserved for audit trails
 - **Change Tracking**: All modifications are timestamped and logged
+- **Data Integrity**: Foreign key constraints and referential integrity
+
+### AI Security
+- **Input Sanitization**: All chatbot inputs validated and sanitized
+- **Intent Verification**: ML classifications verified before execution
+- **Training Data**: Secure storage of training examples with no sensitive data
 
 ## 📝 License
 

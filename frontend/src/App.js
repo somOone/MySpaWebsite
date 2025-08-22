@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
+import './styles/index.css';
 
 // Import components
 import Navigation from './components/Navigation';
@@ -9,6 +9,7 @@ import Appointments from './pages/Appointments';
 import Expenses from './pages/Expenses';
 import Reports from './pages/Reports';
 import ChatBot from './components/ChatBot';
+import TrainingDashboard from './components/chatbot/training/TrainingDashboard';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/expenses" element={<Expenses />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/training" element={<TrainingDashboard />} />
           </Routes>
         </main>
         <ChatBot />

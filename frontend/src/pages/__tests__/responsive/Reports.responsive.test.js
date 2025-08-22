@@ -39,20 +39,15 @@ describe('Reports responsive structure', () => {
 
     // Summary section
     expect(await screen.findByText('Financial Summary')).toBeInTheDocument();
-    expect(screen.getByText(/Total Revenue/)).toBeInTheDocument();
+    expect(screen.getByText(/Total Payments/)).toBeInTheDocument();
     expect(screen.getByText(/Total Tips/)).toBeInTheDocument();
     expect(screen.getByText(/Total Expenses/)).toBeInTheDocument();
     expect(screen.getByText(/Net Profit/)).toBeInTheDocument();
 
-    // Appointments table and mobile cards container present
-    expect(screen.getByText(/Appointments \(2\)/)).toBeInTheDocument();
-    expect(document.querySelector('table.table')).not.toBeNull();
-    expect(document.querySelectorAll('.mobile-cards .appointment-card').length).toBeGreaterThan(0);
-
-    // Expenses table and mobile cards container present
-    expect(screen.getByText(/Expenses \(2\)/)).toBeInTheDocument();
-    const tables = document.querySelectorAll('table.table');
-    expect(tables.length).toBeGreaterThan(1);
-    expect(document.querySelectorAll('.mobile-cards .appointment-card').length).toBeGreaterThan(0);
+    // Charts are present
+    expect(screen.getByText('Financial Trends')).toBeInTheDocument();
+    expect(screen.getByText('Revenue Breakdown')).toBeInTheDocument();
+    expect(screen.getByText('Appointments by Service')).toBeInTheDocument();
+    expect(screen.getByText('Expenses by Category')).toBeInTheDocument();
   });
 });

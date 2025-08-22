@@ -266,7 +266,7 @@ const Reports = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem' }}>
             <div className="feature-card" style={{ padding: '0.75rem', textAlign: 'center' }}>
               <div className="stat-number" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#667eea' }}>${summary.totalRevenue.toLocaleString()}</div>
-              <div className="stat-label" style={{ fontSize: '0.85rem', color: '#666' }}>Total Revenue</div>
+              <div className="stat-label" style={{ fontSize: '0.85rem', color: '#666' }}>Total Payments</div>
             </div>
             
             <div className="feature-card" style={{ padding: '0.75rem', textAlign: 'center' }}>
@@ -297,11 +297,16 @@ const Reports = () => {
         const daysDiff = endDate.diff(startDate, 'days');
         return daysDiff >= 28; // Show chart if range is at least ~1 month
       })() && (
-        <div className="charts-grid" style={{ marginBottom: '1.5rem' }}>
+        <div className="charts-grid" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '2rem', 
+          marginBottom: '1.5rem' 
+        }}>
           {/* Bar Chart */}
           <div className="chart-container">
             <h3 className="chart-title">Financial Trends</h3>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={400}>
               {(() => {
                 const startDate = moment(dateRange.start_date);
                 const endDate = moment(dateRange.end_date);
@@ -484,8 +489,8 @@ const Reports = () => {
           {/* Pie Chart */}
           <div className="chart-container">
             <h3 className="chart-title">Revenue Breakdown</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
+            <ResponsiveContainer width="100%" height={400}>
+              <PieChart margin={{ top: 20, right: 100, bottom: 20, left: 100 }}>
                 <Pie
                   data={[
                     { name: 'Payments', value: summary.totalRevenue, fill: '#667eea' },
@@ -494,10 +499,14 @@ const Reports = () => {
                   ]}
                   cx="50%"
                   cy="50%"
-                  outerRadius={70}
+                  outerRadius={100}
                   dataKey="value"
-                  label={({ name, value }) => `${name}: $${value.toFixed(0)}`}
-                  labelLine={false}
+                                  label={({ name, value }) => {
+                  // Hide labels on mobile for cleaner appearance
+                  if (window.innerWidth <= 768) return null;
+                  return `${name}: $${value.toFixed(0)}`;
+                }}
+                labelLine={window.innerWidth > 768}
                 >
                   {[
                     { name: 'Payments', value: summary.totalRevenue, fill: '#667eea' },
@@ -515,128 +524,158 @@ const Reports = () => {
         </div>
       )}
 
-      {/* Appointments Table */}
-      <div className="table-container" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ padding: '0.75rem' }}>
-          <h3 style={{ marginBottom: '0.75rem', color: '#333', fontSize: '1.1rem' }}>
-            Appointments ({summary.totalAppointments})
-          </h3>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Client</th>
-                <th>Service</th>
-                <th>Payment</th>
-                <th>Tip</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appt) => (
-                <tr key={appt.id}>
-                  <td>{moment(appt.date).format('MMM D, YYYY')}</td>
-                  <td>{appt.time}</td>
-                  <td>{appt.client}</td>
-                  <td>{appt.category}</td>
-                  <td>${appt.payment.toFixed(2)}</td>
-                  <td>${(appt.tip || 0).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {/* Mobile card layout for appointments */}
-          <div className="mobile-cards">
-            {appointments.map((appt) => (
-              <div key={appt.id} className="appointment-card">
-                <div className="card-header">
-                  <span className="time">{moment(appt.date).format('MMM D, YYYY')}</span>
-                  <span className="status">{appt.time}</span>
-                </div>
-                
-                <div className="card-body">
-                  <div className="info-row">
-                    <span className="label">Client:</span>
-                    <span className="value">{appt.client}</span>
-                  </div>
+      {/* Category Breakdown Pie Charts */}
+      <div className="charts-grid" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '2rem', 
+        marginTop: '2rem' 
+      }}>
+        {/* Appointments by Service Category */}
+        <div className="chart-container">
+          <h3 className="chart-title">Appointments by Service</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart margin={{ top: 20, right: 100, bottom: 20, left: 100 }}>
+              <Pie
+                data={(() => {
+                  // Group appointments by category and calculate totals
+                  const categoryData = {};
+                  appointments.forEach(appt => {
+                    const category = appt.category || 'Unknown';
+                    if (!categoryData[category]) {
+                      categoryData[category] = { count: 0, revenue: 0 };
+                    }
+                    categoryData[category].count++;
+                    categoryData[category].revenue += (appt.payment + (appt.tip || 0));
+                  });
                   
-                  <div className="info-row">
-                    <span className="label">Service:</span>
-                    <span className="value">{appt.category}</span>
-                  </div>
-                  
-                  <div className="info-row">
-                    <span className="label">Payment:</span>
-                    <span className="value">${appt.payment.toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="info-row">
-                    <span className="label">Tip:</span>
-                    <span className="value">${(appt.tip || 0).toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                  // Convert to array format for pie chart
+                  const colors = ['#667eea', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14'];
+                  return Object.entries(categoryData).map(([category, data], index) => ({
+                    name: category,
+                    value: data.count,
+                    revenue: data.revenue,
+                    fill: colors[index % colors.length]
+                  }));
+                })()}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                dataKey="value"
+                label={({ name, value, revenue }) => {
+                  // Hide labels on mobile for cleaner appearance
+                  if (window.innerWidth <= 768) return null;
+                  return `${name}: ${value} ($${revenue.toFixed(0)})`;
+                }}
+                labelLine={window.innerWidth > 768}
+              >
+                {(() => {
+                  const colors = ['#667eea', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14'];
+                  return Object.entries(appointments.reduce((acc, appt) => {
+                    const category = appt.category || 'Unknown';
+                    if (!acc[category]) acc[category] = { count: 0, revenue: 0 };
+                    acc[category].count++;
+                    acc[category].revenue += (appt.payment + (appt.tip || 0));
+                    return acc;
+                  }, {})).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  ));
+                })()}
+              </Pie>
+              <Tooltip formatter={(value, name, props) => [
+                `${props.payload.name}: ${value} appointments ($${props.payload.revenue.toFixed(2)})`,
+                'Count'
+              ]} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
-      </div>
 
-      {/* Expenses Table */}
-      <div className="table-container">
-        <div style={{ padding: '0.75rem' }}>
-          <h3 style={{ marginBottom: '0.75rem', color: '#333', fontSize: '1.1rem' }}>
-            Expenses ({summary.totalExpenseItems})
-          </h3>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expenses.map((exp) => (
-                <tr key={exp.id}>
-                  <td>{moment(exp.date).format('MMM D, YYYY')}</td>
-                  <td>{exp.description}</td>
-                  <td>{exp.category}</td>
-                  <td>${exp.amount.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {/* Mobile card layout for expenses */}
-          <div className="mobile-cards">
-            {expenses.map((exp) => (
-              <div key={exp.id} className="appointment-card">
-                <div className="card-header">
-                  <span className="time">{moment(exp.date).format('MMM D, YYYY')}</span>
-                  <span className="status">{exp.category}</span>
-                </div>
-                
-                <div className="card-body">
-                  <div className="info-row">
-                    <span className="label">Description:</span>
-                    <span className="value">{exp.description}</span>
-                  </div>
+        {/* Expenses by Category */}
+        <div className="chart-container">
+          <h3 className="chart-title">Expenses by Category</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart margin={{ top: 20, right: 100, bottom: 20, left: 100 }}>
+              <Pie
+                data={(() => {
+                  // Group expenses by category and calculate totals
+                  const categoryData = {};
+                  expenses.forEach(exp => {
+                    const category = exp.category_name || 'Unknown';
+                    if (!categoryData[category]) {
+                      categoryData[category] = { count: 0, amount: 0 };
+                    }
+                    categoryData[category].count++;
+                    categoryData[category].amount += exp.amount;
+                  });
                   
-                  <div className="info-row">
-                    <span className="label">Category:</span>
-                    <span className="value">{exp.category}</span>
-                  </div>
-                  
-                  <div className="info-row">
-                    <span className="label">Amount:</span>
-                    <span className="value">${exp.amount.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                  // Convert to array format for pie chart
+                  const colors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745', '#17a2b8', '#6f42c1'];
+                  return Object.entries(categoryData).map(([category, data], index) => {
+                    // More aggressive string shortening to fit legend in 2 rows
+                    let shortName = category;
+                    
+                    // Replace & with /
+                    shortName = shortName.replace(' & ', '/');
+                    
+                    // Aggressive replacements for all long words
+                    const replacements = {
+                      'Administrative': 'Admin',
+                      'Professional': 'Prof',
+                      'Services': 'Svc',
+                      'Operations': 'Ops',
+                      'Facilities': 'Fac',
+                      'Supplies': 'Sup',
+                      'Materials': 'Mat',
+                      'Marketing': 'Mktg',
+                      'Promotion': 'Promo',
+                      'Equipment': 'Equip',
+                      'Technology': 'Tech'
+                    };
+                    
+                    Object.entries(replacements).forEach(([long, short]) => {
+                      shortName = shortName.replace(long, short);
+                    });
+                    
+                    return {
+                      name: shortName,
+                      count: data.count,
+                      amount: data.amount,
+                      fill: colors[index % colors.length]
+                    };
+                  });
+                })()}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                dataKey="amount"
+                label={({ name, count, amount }) => {
+                  // Hide labels on mobile for cleaner appearance
+                  if (window.innerWidth <= 768) return null;
+                  return `${name}: ${count} ($${amount.toFixed(0)})`;
+                }}
+                labelLine={window.innerWidth > 768}
+              >
+                {(() => {
+                  const colors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745', '#17a2b8', '#6f42c1'];
+                  return Object.entries(expenses.reduce((acc, exp) => {
+                    const category = exp.category_name || 'Unknown';
+                    if (!acc[category]) acc[category] = { count: 0, amount: 0 };
+                    acc[category].count++;
+                    acc[category].amount += exp.amount;
+                    return acc;
+                  }, {})).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  ));
+                })()}
+              </Pie>
+              <Tooltip formatter={(value, name, props) => [
+                `${props.payload.name}: ${value} expenses ($${props.payload.amount.toFixed(2)})`,
+                'Count'
+              ]} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

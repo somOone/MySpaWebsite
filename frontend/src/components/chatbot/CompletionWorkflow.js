@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { convertMilitaryTo12Hour, standardizeTimeForBackend, validateTipAmount } from '../../shared';
 
 /**
@@ -67,9 +67,6 @@ const CompletionWorkflow = ({
             return;
           }
         } else {
-          const errorText = await searchResponse.text();
-          // console.log('🔍 [COMPLETION VALIDATION] Search error response:', errorText);
-          
           const errorMsg = "Sorry, I encountered an error while checking for the appointment. Please try again.";
           addBotMessage(errorMsg);
           return;
@@ -183,8 +180,6 @@ const CompletionWorkflow = ({
       
       if (!completeResponse.ok) {
         // console.log('🔍 [COMPLETION] Complete request failed with status:', completeResponse.status);
-        const errorText = await completeResponse.text();
-        // console.log('🔍 [COMPLETION] Complete error response:', errorText);
         throw new Error('Failed to complete appointment');
       }
       

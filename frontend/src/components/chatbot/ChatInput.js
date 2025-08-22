@@ -1,9 +1,10 @@
 import React from 'react';
 
-const ChatInput = ({ inputValue, onInputChange, onSubmit, disabled }) => {
+const ChatInput = ({ inputValue, onInputChange, onSubmit, disabled, inputRef }) => {
   return (
     <form onSubmit={onSubmit} className="chat-input-form">
       <input
+        ref={inputRef}
         type="text"
         value={inputValue}
         onChange={onInputChange}

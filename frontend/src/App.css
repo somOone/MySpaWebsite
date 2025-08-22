@@ -1,235 +1,18 @@
-/* Spa Color Scheme - Based on teal/seafoam green business card */
-:root {
-  /* Primary Colors - Inspired by the business card */
-  --spa-teal: #7FB3B3;           /* Main teal/seafoam green */
-  --spa-teal-light: #A8D1D1;     /* Lighter teal for accents */
-  --spa-teal-dark: #5A8A8A;      /* Darker teal for depth */
-  --spa-teal-muted: #B8D4D4;     /* Muted teal for backgrounds */
-  
-  /* Supporting Colors */
-  --spa-white: #FFFFFF;          /* Clean white from card */
-  --spa-cream: #F8F9FA;          /* Soft cream for subtle backgrounds */
-  --spa-grey: #6C757D;           /* Dark grey for text */
-  --spa-grey-light: #ADB5BD;     /* Light grey for secondary text */
-  
-  /* Accent Colors */
-  --spa-accent: #E8F4F4;         /* Very light teal for highlights */
-  --spa-shadow: rgba(127, 179, 179, 0.15); /* Teal-tinted shadows */
-  
-  /* Legacy Colors (keeping for compatibility) */
-  --legacy-blue: #667eea;
-  --legacy-purple: #764ba2;
-  --legacy-red: #ff6b6b;
-}
+/* Import modular CSS structure */
+@import './styles/themes/variables.css';
+@import './styles/global/base.css';
+@import './styles/components/Navigation.css';
+@import './styles/layouts/Home.css';
 
-/* Reset and base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Remaining styles from original App.css - will be progressively modularized */
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: var(--spa-grey);
-  background: linear-gradient(135deg, var(--spa-cream) 0%, var(--spa-teal-muted) 100%);
-  min-height: 100vh;
-}
+/* Base styles imported from modular structure above */
 
-.App {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+/* Navigation imported from modular structure above */
 
-/* Navigation */
-.navigation {
-  background: linear-gradient(135deg, var(--spa-teal) 0%, var(--spa-teal-dark) 100%);
-  padding: 1rem 0;
-  box-shadow: 0 2px 10px var(--spa-shadow);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
+/* Main content imported from base.css */
 
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  color: white;
-  font-size: 1.8rem;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.nav-tab {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.nav-tab:hover,
-.nav-tab.active {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-/* Main content */
-.main-content {
-  flex: 1;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
-}
-
-/* Page headers */
-.appointments-page,
-.expenses-page,
-.reports-page {
-  padding: 1rem 0;
-}
-
-.appointments-page h1,
-.expenses-page h1,
-.reports-page h1 {
-  font-size: 2.5rem;
-  color: var(--spa-teal-dark);
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-/* Home page */
-.hero-section {
-  text-align: center;
-  padding: 4rem 0;
-  background: linear-gradient(135deg, var(--spa-teal) 0%, var(--spa-teal-dark) 100%);
-  border-radius: 20px;
-  color: white;
-  margin-bottom: 3rem;
-}
-
-.hero-title {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  font-weight: 300;
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-}
-
-.cta-button {
-  background: var(--spa-teal);
-  color: white;
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.cta-button:hover {
-  background: var(--spa-teal-dark);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px var(--spa-shadow);
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.feature-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px var(--spa-shadow);
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-}
-
-.feature-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: var(--spa-teal);
-}
-
-.feature-title {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: var(--spa-grey);
-}
-
-.feature-description {
-  color: var(--spa-grey-light);
-  line-height: 1.6;
-}
-
-.stats-section {
-  background: white;
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px var(--spa-shadow);
-}
-
-.stats-title {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  color: var(--spa-teal-dark);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: var(--spa-teal);
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  color: var(--spa-grey-light);
-  font-size: 1.1rem;
-}
+/* Page headers and Home page styles imported from Home.css */
 
 /* Modal styles */
 .modal-overlay {
@@ -255,6 +38,67 @@ body {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px var(--spa-shadow);
+}
+
+/* Mobile modal responsiveness */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 0.75rem !important;
+    max-height: 90vh !important;
+    margin: 0.1rem !important;
+    width: calc(100% - 0.2rem) !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    /* Ensure all content fits within modal */
+    box-sizing: border-box !important;
+    min-height: auto !important;
+  }
+  
+  .modal-overlay {
+    padding: 0.1rem !important;
+    align-items: flex-start !important;
+    padding-top: 0.1rem !important;
+    /* Allow modal to scroll properly */
+    overflow: visible !important;
+    position: fixed !important;
+  }
+  
+  .modal-header {
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.25rem !important;
+    margin: 0 !important;
+  }
+  
+  .form-group {
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .book-button {
+    margin-top: 0.5rem !important;
+    height: 2rem !important;
+    padding: 0.25rem 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Ensure form content is properly contained within modal */
+  .booking-form {
+    overflow-y: visible !important;
+    max-height: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    /* Ensure form doesn't extend beyond modal */
+    position: relative !important;
+  }
 }
 
 .modal-header {
@@ -492,15 +336,22 @@ body {
 /* Column width constraints for consistent layout */
 .table th:nth-child(1), /* Time column */
 .table td:nth-child(1) {
-  width: 80px;
-  max-width: 80px;
+  width: 60px;
+  max-width: 60px;
   white-space: nowrap;
+}
+
+/* Ensure Actions column has enough width for 3 compact buttons */
+.table th:last-child,
+.table td:last-child {
+  min-width: 150px;
+  max-width: 170px;
 }
 
 .table th:nth-child(2), /* Client column */
 .table td:nth-child(2) {
-  width: 150px;
-  max-width: 150px;
+  width: 100px;
+  max-width: 100px;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: normal;
@@ -513,26 +364,43 @@ body {
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: normal;
+  text-align: left;
 }
 
 .table th:nth-child(4), /* Payment column */
 .table td:nth-child(4) {
-  width: 80px;
-  max-width: 80px;
+  width: 70px;
+  max-width: 70px;
   white-space: nowrap;
+  text-align: right;
+}
+
+/* Reports page specific - Service column should be left-aligned */
+.reports-page .table th:nth-child(4),
+.reports-page .table td:nth-child(4) {
+  text-align: left;
 }
 
 .table th:nth-child(5), /* Tip column */
 .table td:nth-child(5) {
-  width: 80px;
-  max-width: 80px;
+  width: 70px;
+  max-width: 70px;
   white-space: nowrap;
+  text-align: right;
 }
 
 .table th:nth-child(6), /* Actions column */
 .table td:nth-child(6) {
-  width: 200px;
+  width: 180px;
   max-width: 200px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.table th:nth-child(7), /* Total column */
+.table td:nth-child(7) {
+  width: 80px;
+  max-width: 80px;
   white-space: nowrap;
 }
 
@@ -568,6 +436,9 @@ body {
 .save-btn {
   background: var(--spa-teal);
   color: white;
+  display: inline-block !important;
+  position: relative;
+  z-index: 1;
 }
 
 .save-btn:hover {
@@ -599,6 +470,132 @@ body {
 
 .delete-btn:hover {
   background: var(--spa-grey-light);
+}
+
+/* Appointments table action buttons - compact horizontal layout */
+.appointments-page .action-buttons {
+  display: flex;
+  gap: 0.15rem;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative; /* Ensure proper positioning context */
+}
+
+.appointments-page .action-btn {
+  padding: 0.2rem 0.3rem;
+  font-size: 0.65rem;
+  min-width: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Ensure specific button types have consistent sizing */
+.appointments-page .action-btn.edit-btn,
+.appointments-page .action-btn.complete-btn,
+.appointments-page .action-btn.cancel-btn {
+  padding: 0.2rem 0.3rem;
+  font-size: 0.65rem;
+  min-width: 40px;
+}
+
+/* Ultra-compact button text for appointments table */
+.appointments-page .action-btn.edit-btn::after {
+  content: "Edit";
+}
+
+.appointments-page .action-btn.complete-btn::after {
+  content: "Done";
+}
+
+.appointments-page .action-btn.cancel-btn::after {
+  content: "Cancel";
+}
+
+/* Hide original button text and use ::after content instead */
+.appointments-page .action-btn.edit-btn,
+.appointments-page .action-btn.complete-btn,
+.appointments-page .action-btn.cancel-btn {
+  font-size: 0; /* Hide original text */
+}
+
+/* Completely separate button containers to prevent conflicts */
+.appointments-page .edit-mode-buttons {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.appointments-page .edit-mode-buttons .save-btn,
+.appointments-page .edit-mode-buttons .cancel-btn {
+  background: var(--spa-teal) !important;
+  color: white !important;
+  display: inline-block !important;
+}
+
+.appointments-page .normal-mode-buttons {
+  position: relative !important;
+}
+
+.appointments-page .normal-mode-buttons .edit-btn,
+.appointments-page .normal-mode-buttons .complete-btn,
+.appointments-page .normal-mode-buttons .delete-btn {
+  background: var(--spa-teal) !important;
+  color: white !important;
+  display: inline-block !important;
+}
+
+/* Mobile button containers */
+.appointments-page .edit-mode-actions {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.appointments-page .edit-mode-actions .save-btn,
+.appointments-page .edit-mode-actions .cancel-btn {
+  background: var(--spa-teal) !important;
+  color: white !important;
+  display: inline-block !important;
+}
+
+.appointments-page .normal-mode-actions {
+  position: relative !important;
+}
+
+.appointments-page .normal-mode-actions .edit-btn,
+.appointments-page .normal-mode-actions .complete-btn,
+.appointments-page .normal-mode-actions .delete-btn {
+  background: var(--spa-teal) !important;
+  color: white !important;
+  display: inline-block !important;
+}
+
+/* Ensure Save and Cancel buttons in edit mode are properly positioned */
+.appointments-page .action-btn.save-btn,
+.appointments-page .action-btn.cancel-btn {
+  display: inline-block !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure proper button sizing and prevent overlap */
+.appointments-page .action-btn {
+  box-sizing: border-box !important;
+}
+
+/* Prevent button overlap by ensuring proper container sizing */
+.appointments-page .action-buttons {
+  min-width: 160px !important;
+}
+
+/* Let save button use normal styling */
+
+.appointments-page .action-btn.edit-btn::after,
+.appointments-page .action-btn.complete-btn::after,
+.appointments-page .action-btn.cancel-btn::after {
+  font-size: 0.65rem;
+  font-weight: 500;
 }
 
 /* Collapsible sections */
@@ -653,6 +650,52 @@ body {
   color: var(--spa-grey-light);
 }
 
+/* Fixed/floating headers - DESKTOP ONLY */
+@media (min-width: 769px) {
+  /* Fixed/floating page headers for appointments and expenses */
+  .appointments-page > h1,
+  .expenses-page > h1 {
+    position: fixed;
+    top: 80px; /* Position below the navigation bar */
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 50; /* Lower than navigation but above content */
+    padding: 1rem 2rem;
+    margin: 0;
+    border-bottom: 2px solid var(--spa-accent);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Fixed/floating accordion controls */
+  .appointments-page .accordion-controls,
+  .expenses-page .accordion-controls {
+    position: fixed;
+    top: 170px; /* Slightly lower to add gap from header */
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 49; /* Below header but above content */
+    padding: 1rem 2rem;
+    margin: 0;
+    border-bottom: 1px solid var(--spa-accent);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Add top padding to page content to account for fixed headers */
+  .appointments-page .table-container,
+  .expenses-page .table-container {
+    margin-top: 234px; /* Space for navigation (80px) + header (64px) + controls (90px) */
+  }
+
+  /* Ensure the "No appointments/expenses found" message has proper spacing */
+  .appointments-page > p,
+  .expenses-page > p {
+    margin-top: 234px;
+  }
+}
+
+/* Base accordion controls styling */
 .accordion-controls {
   display: flex;
   gap: 1rem;
@@ -702,13 +745,24 @@ body {
 .year-total,
 .month-total,
 .date-total {
-  font-weight: 600;
-  color: var(--spa-grey);
-  font-size: 0.85rem;
-  background: var(--spa-accent);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  border: 1px solid var(--spa-teal);
+  font-weight: 700;
+  color: white;
+  font-size: 0.9rem;
+  background: linear-gradient(135deg, var(--spa-teal) 0%, #0d7e6b 100%);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 2px solid var(--spa-teal);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.year-total:hover,
+.month-total:hover,
+.date-total:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .year-header,
@@ -848,25 +902,41 @@ body {
 .form-input[type="date"],
 .form-input[type="time"] {
   position: relative;
+  background: white;
+  border: 2px solid var(--spa-accent);
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input[type="date"]:focus,
+.form-input[type="time"]:focus {
+  border-color: var(--spa-teal);
+  box-shadow: 0 0 0 3px var(--spa-shadow);
+  outline: none;
 }
 
 .form-input[type="date"]::-webkit-calendar-picker-indicator,
 .form-input[type="time"]::-webkit-calendar-picker-indicator {
-  background: transparent;
-  bottom: 0;
-  color: transparent;
+  background: var(--spa-teal);
+  border-radius: 4px;
   cursor: pointer;
-  height: auto;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: auto;
+  padding: 4px;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.form-input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  background: var(--spa-teal-dark);
+  opacity: 1;
 }
 
 .form-input[type="date"]::-webkit-datetime-edit,
 .form-input[type="time"]::-webkit-datetime-edit {
   color: var(--spa-grey);
+  padding: 0;
 }
 
 .form-input[type="date"]::-webkit-datetime-edit-fields-wrapper,
@@ -877,6 +947,23 @@ body {
 .form-input[type="date"]::-webkit-datetime-edit-text,
 .form-input[type="time"]::-webkit-datetime-edit-text {
   color: var(--spa-grey-light);
+}
+
+.form-input[type="date"]::-webkit-datetime-edit-month-field,
+.form-input[type="date"]::-webkit-datetime-edit-day-field,
+.form-input[type="date"]::-webkit-datetime-edit-year-field,
+.form-input[type="time"]::-webkit-datetime-edit-hour-field,
+.form-input[type="time"]::-webkit-datetime-edit-minute-field {
+  color: var(--spa-grey);
+}
+
+.form-input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.form-input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.form-input[type="date"]::-webkit-datetime-edit-year-field:focus,
+.form-input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+.form-input[type="time"]::-webkit-datetime-edit-minute-field:focus {
+  background: var(--spa-accent);
+  color: var(--spa-teal);
 }
 
 /* Select dropdown styling - GLOBAL OVERRIDE */
@@ -1550,6 +1637,11 @@ body .booking-modal .form-select {
   padding: 0.25rem 0.6rem;
   border: 1px solid #c3e6cb;
   border-radius: 9999px;
+  max-width: 40%;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 .mobile-cards .appointment-card .card-body {
   margin-bottom: 0.75rem;
@@ -1806,32 +1898,32 @@ body .booking-modal .form-select {
   }
   
   .action-btn.edit-btn {
-  background: var(--spa-teal);
-  color: white;
+  background: var(--spa-teal) !important;
+  color: white !important;
 }
 
 .action-btn.edit-btn:hover {
-  background: var(--spa-teal-dark);
+  background: var(--spa-teal-dark) !important;
 }
 
 .action-btn.save-btn {
-  background: var(--spa-teal);
-  color: white;
+  background: var(--spa-teal) !important;
+  color: white !important;
 }
 
 .action-btn.save-btn:hover {
-  background: var(--spa-teal-dark);
+  background: var(--spa-teal-dark) !important;
 }
 
 .action-btn.delete-btn,
 .action-btn.cancel-btn {
-  background: var(--spa-grey);
-  color: white;
+  background: var(--spa-grey) !important;
+  color: white !important;
 }
 
 .action-btn.delete-btn:hover,
 .action-btn.cancel-btn:hover {
-  background: var(--spa-grey-light);
+  background: var(--spa-grey-light) !important;
 }
   
   .completed-status {
@@ -1872,6 +1964,15 @@ body .booking-modal .form-select {
   .expenses-page .table-container .table,
   .reports-page .table-container .table {
     display: none !important;
+    pointer-events: none !important;
+  }
+  
+  /* Ensure ALL table buttons are completely disabled on tablet */
+  .appointments-page .table .action-btn,
+  .appointments-page .table .edit-mode-buttons .action-btn,
+  .appointments-page .table .normal-mode-buttons .action-btn {
+    pointer-events: none !important;
+    display: none !important;
   }
   
   /* Show mobile cards on tablet */
@@ -1884,6 +1985,37 @@ body .booking-modal .form-select {
   /* Ensure table is scrollable (for any remaining tables) */
   .table-container {
     overflow-x: auto;
+  }
+  
+  /* Ensure mobile cards in intermediate view have proper button styling */
+  .mobile-cards .action-btn.edit-btn,
+  .mobile-cards .action-btn.save-btn,
+  .mobile-cards .edit-btn,
+  .mobile-cards .save-btn {
+    background: var(--spa-teal) !important;
+    color: white !important;
+  }
+  
+  .mobile-cards .action-btn.edit-btn:hover,
+  .mobile-cards .action-btn.save-btn:hover,
+  .mobile-cards .edit-btn:hover,
+  .mobile-cards .save-btn:hover {
+    background: var(--spa-teal-dark) !important;
+  }
+  
+  .mobile-cards .action-btn.delete-btn,
+  .mobile-cards .action-btn.cancel-btn,
+  .mobile-cards .delete-btn,
+  .mobile-cards .cancel-btn {
+    background: var(--spa-grey) !important;
+    color: white !important;
+  }
+  
+  .mobile-cards .action-btn.delete-btn:hover,
+  .mobile-cards .action-btn.cancel-btn:hover,
+  .mobile-cards .delete-btn:hover,
+  .mobile-cards .cancel-btn:hover {
+    background: var(--spa-grey-light) !important;
   }
 }
 
@@ -2021,16 +2153,48 @@ body .booking-modal .form-select {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Hero buttons container for dual CTA layout */
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cta-button.primary {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.cta-button.secondary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Responsive hero buttons */
+@media (max-width: 768px) {
+  .hero-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .cta-button {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+
+
 /* Ultra-Compact Features Grid */
 .features-grid.ultra-compact {
   padding: 0.5rem 0;
   background: #f8f9fa;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 1rem;
 }
 
 .feature-card.ultra-compact {
@@ -2068,6 +2232,12 @@ body .booking-modal .form-select {
 
 /* Responsive adjustments for home page stats */
 @media (max-width: 768px) {
+  .features-grid.ultra-compact {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    padding: 1rem;
+  }
+  
   .hero-stats-comprehensive {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -2110,7 +2280,9 @@ body .booking-modal .form-select {
   }
   
   .features-grid.ultra-compact {
-    padding: 1.5rem 0;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 1rem;
   }
   
   .feature-card.ultra-compact {
@@ -2169,7 +2341,9 @@ body .booking-modal .form-select {
   }
   
   .features-grid.ultra-compact {
-    padding: 1rem 0;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem 0.75rem;
   }
   
   .feature-card.ultra-compact {
@@ -2192,17 +2366,12 @@ body .booking-modal .form-select {
 
 
 /* Strongly-scoped mobile card switches (end-of-file, override earlier rules) */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
 	/* Appointments: hide tables, show cards */
 	.appointments-page .date-content .table,
 	.appointments-page .month-content .table,
 	.appointments-page .year-content .table {
 		display: none !important;
-	}
-	.appointments-page .date-content .mobile-cards,
-	.appointments-page .month-content .mobile-cards,
-	.appointments-page .year-content .mobile-cards {
-		display: block !important;
 	}
 
 	/* Expenses: hide tables, show cards */
@@ -2210,11 +2379,6 @@ body .booking-modal .form-select {
 	.expenses-page .month-content .table,
 	.expenses-page .year-content .table {
 		display: none !important;
-	}
-	.expenses-page .date-content .mobile-cards,
-	.expenses-page .month-content .mobile-cards,
-	.expenses-page .year-content .mobile-cards {
-		display: block !important;
 	}
 }
 
@@ -2224,10 +2388,196 @@ body .booking-modal .form-select {
 	.expenses-page .table,
 	.reports-page .table {
 		display: none !important;
+		pointer-events: none !important;
 	}
-	.appointments-page .mobile-cards,
-	.expenses-page .mobile-cards,
-	.reports-page .mobile-cards {
+	
+	/* Ensure ALL table buttons are completely disabled on mobile */
+	.appointments-page .table .action-btn,
+	.appointments-page .table .edit-mode-buttons .action-btn,
+	.appointments-page .table .normal-mode-buttons .action-btn {
+		pointer-events: none !important;
+		display: none !important;
+	}
+	
+	/* Force hide ALL table elements on mobile */
+	.expenses-page .expenses-table,
+	.expenses-page .expenses-table thead,
+	.expenses-page .expenses-table tbody,
+	.expenses-page .expenses-table tr,
+	.expenses-page .expenses-table th,
+	.expenses-page .expenses-table td {
+		display: none !important;
+	}
+	
+	/* Ensure mobile cards are visible */
+	.expenses-page .mobile-cards {
 		display: block !important;
 	}
+}
+
+/* Expenses table specific styling - 5 columns, full width utilization */
+.expenses-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.expenses-table th,
+.expenses-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e1e5e9;
+  font-size: 0.9rem;
+  vertical-align: middle;
+  min-height: 2.5rem;
+}
+
+.expenses-table th:nth-child(1), /* Date column */
+.expenses-table td:nth-child(1) {
+  width: 15%;
+  white-space: nowrap;
+}
+
+.expenses-table th:nth-child(2), /* Description column */
+.expenses-table td:nth-child(2) {
+  width: 35%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.expenses-table th:nth-child(3), /* Category column */
+.expenses-table td:nth-child(3) {
+  width: 20%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.expenses-table th:nth-child(4), /* Amount column */
+.expenses-table td:nth-child(4) {
+  width: 15%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.expenses-table th:nth-child(5), /* Actions column */
+.expenses-table td:nth-child(5) {
+  width: 15%;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.expenses-table th {
+  background: var(--spa-accent);
+  font-weight: 600;
+  color: var(--spa-grey);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.expenses-table tr:hover {
+  background: var(--spa-accent);
+}
+
+
+
+/* Category badge styling */
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Mobile card category badge styling - ensure full text visibility */
+.mobile-cards .category-badge {
+  max-width: none;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  min-width: fit-content;
+}
+
+/* Expense card specific styling for better category display */
+.expense-card .card-header .status,
+.mobile-cards .expense-card .card-header .status {
+  max-width: 45%;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+/* Ensure category badges in mobile cards have proper spacing */
+.mobile-cards .expense-card .card-header .status {
+  padding: 0.4rem 0.8rem;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Comprehensive action button styling - ensure all buttons use teal theme */
+.edit-btn,
+.delete-btn,
+.complete-btn,
+.cancel-btn,
+.save-btn {
+  background: var(--spa-teal);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0.25rem;
+}
+
+.edit-btn:hover,
+.complete-btn:hover,
+.save-btn:hover {
+  background: var(--spa-teal-dark);
+  transform: scale(1.05);
+}
+
+.delete-btn:hover,
+.cancel-btn:hover {
+  background: var(--spa-grey);
+  transform: scale(1.05);
+}
+
+/* Action button styling for expenses table */
+.expenses-table .edit-btn,
+.expenses-table .delete-btn {
+  background: var(--spa-teal);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.expenses-table .edit-btn:hover {
+  background: var(--spa-teal-dark);
+  transform: scale(1.05);
+}
+
+.expenses-table .delete-btn:hover {
+  background: var(--spa-grey);
+  transform: scale(1.05);
 }

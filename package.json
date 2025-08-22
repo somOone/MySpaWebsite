@@ -1,0 +1,28 @@
+{
+  "name": "myspawebsite",
+  "version": "1.0.0",
+  "description": "Serenity Spa Management System - Full Stack Application",
+  "scripts": {
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend:coverage": "cd backend && npm run test:coverage",
+    "test:frontend:coverage": "cd frontend && npm test -- --coverage",
+    "test:all:coverage": "npm run test:backend:coverage && npm run test:frontend:coverage",
+    "test:integration": "jest --config tests/jest.config.js",
+    "test:watch": "npm run test:backend:watch & npm run test:frontend:watch",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start"
+  },
+  "devDependencies": {
+    "jest": "^29.6.2"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
+

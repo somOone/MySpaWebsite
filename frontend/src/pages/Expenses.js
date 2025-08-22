@@ -1,43 +1,271 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import { useLocation } from 'react-router-dom';
+import ExpenseModal from '../components/ExpenseModal';
 
 const Expenses = () => {
+  const location = useLocation();
   const [groupedExpenses, setGroupedExpenses] = useState({});
+  const [expenseCategories, setExpenseCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     date: '',
     description: '',
     amount: '',
-    category: ''
+    category_id: ''
   });
+  
+  // Click outside detection for inline editing
+  const editingRowRef = useRef(null);
+
+
+  
+  // Handle click outside to close inline edit
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (editingId && editingRowRef.current && !editingRowRef.current.contains(event.target)) {
+        handleCancel();
+      }
+    };
+
+    if (editingId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingId]);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Modal state for adding new expenses
+  const [showModal, setShowModal] = useState(false);
 
   // Accordion state management
   const [expandedYears, setExpandedYears] = useState(new Set());
   const [expandedMonths, setExpandedMonths] = useState(new Set());
   const [expandedDates, setExpandedDates] = useState(new Set());
 
+  // Handle form submission for editing existing expenses
+  const handleSubmit = async (e) => {
+    // Handle both form submission and direct button clicks
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    
+    try {
+      const response = await axios.put(`/api/expenses/${editingId}`, formData);
+      
+      if (response.status === 200) {
+        setFormData({ date: '', description: '', amount: '', category_id: '' });
+        setEditingId(null);
+        fetchExpenses();
+      }
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      alert('Failed to update expense');
+    }
+  };
+
+  // Handle edit button click
+  const handleEdit = (expense) => {
+    setFormData({
+      date: expense.date,
+      description: expense.description,
+      amount: expense.amount.toString(),
+      category_id: expense.category_id ? expense.category_id.toString() : ''
+    });
+    setEditingId(expense.id);
+    
+    // Scroll the edited row into view after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      const expenseRow = document.querySelector(`tr[data-expense-id="${expense.id}"]`);
+      if (expenseRow) {
+        expenseRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
+  
+  const handleCancel = () => {
+    setEditingId(null);
+    setFormData({
+      date: '',
+      description: '',
+      amount: '',
+      category_id: ''
+    });
+  };
+
+  // Handle delete button click
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this expense?')) {
+      try {
+        await axios.delete(`/api/expenses/${id}`);
+        fetchExpenses();
+      } catch (error) {
+        console.error('Error deleting expense:', error);
+        alert('Failed to delete expense');
+      }
+    }
+  };
+
+
+
   useEffect(() => {
+    fetchExpenseCategories();
     fetchExpenses();
   }, []);
 
-  // Auto-expand current date on first load
+  // Handle URL parameters for expansion, scrolling, editing, and adding
   useEffect(() => {
-    if (Object.keys(groupedExpenses).length > 0 && expandedDates.size === 0) {
-      const today = moment().format('YYYY-MM-DD');
-      const todayKey = `${today}`;
-      setExpandedDates(new Set([todayKey]));
-      
-      // Also expand the current month and year
-      const currentMonth = moment().format('MMMM');
-      const currentYear = moment().format('YYYY');
-      setExpandedMonths(new Set([currentMonth]));
-      setExpandedYears(new Set([currentYear]));
+    const urlParams = new URLSearchParams(location.search);
+    const addExpense = urlParams.get('addExpense');
+    const expandExpenseId = urlParams.get('expandExpense');
+    const editExpenseId = urlParams.get('editExpense');
+    const expandYear = urlParams.get('expandYear');
+    const expandMonth = urlParams.get('expandMonth');
+    
+    // Handle add expense parameter - open the modal instead of inline form
+    if (addExpense === 'true') {
+      setShowModal(true);
+      return; // Don't process other parameters if adding
     }
-  }, [groupedExpenses, expandedDates.size]);
+    
+    if (Object.keys(groupedExpenses).length > 0) {
+      
+      if (editExpenseId) {
+        // Find the expense and put it in edit mode
+        let foundExpense = null;
+        let expenseYear = null;
+        let expenseMonth = null;
+        let expenseDate = null;
+        
+        Object.entries(groupedExpenses).forEach(([year, yearData]) => {
+          Object.entries(yearData).forEach(([month, monthData]) => {
+            Object.entries(monthData).forEach(([date, expenses]) => {
+              const expense = expenses.find(exp => exp.id === parseInt(editExpenseId));
+              if (expense) {
+                foundExpense = expense;
+                expenseYear = year;
+                expenseMonth = month;
+                expenseDate = date;
+              }
+            });
+          });
+        });
+        
+        if (foundExpense) {
+          // Expand the hierarchy and put expense in edit mode
+          setExpandedYears(new Set([expenseYear]));
+          setExpandedMonths(new Set([expenseMonth]));
+          setExpandedDates(new Set([expenseDate]));
+          
+          // Set the expense in edit mode
+          setFormData({
+            date: foundExpense.date,
+            description: foundExpense.description,
+            amount: foundExpense.amount.toString(),
+            category_id: foundExpense.category_id ? foundExpense.category_id.toString() : ''
+          });
+          setEditingId(foundExpense.id);
+          
+          // Scroll to the expense after a delay
+          setTimeout(() => {
+            const expenseRow = document.querySelector(`tr[data-expense-id="${editExpenseId}"]`);
+            if (expenseRow) {
+              expenseRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 500);
+        }
+      } else if (expandExpenseId) {
+        // Find the expense and expand its hierarchy
+        let foundExpense = null;
+        let expenseYear = null;
+        let expenseMonth = null;
+        let expenseDate = null;
+        
+        Object.entries(groupedExpenses).forEach(([year, yearData]) => {
+          Object.entries(yearData).forEach(([month, monthData]) => {
+            Object.entries(monthData).forEach(([date, expenses]) => {
+              const expense = expenses.find(exp => exp.id === parseInt(expandExpenseId));
+              if (expense) {
+                foundExpense = expense;
+                expenseYear = year;
+                expenseMonth = month;
+                expenseDate = date;
+              }
+            });
+          });
+        });
+        
+        if (foundExpense) {
+          setExpandedYears(new Set([expenseYear]));
+          setExpandedMonths(new Set([expenseMonth]));
+          setExpandedDates(new Set([expenseDate]));
+          
+          // Scroll to the expense after a delay
+          setTimeout(() => {
+            const expenseRow = document.querySelector(`tr[data-expense-id="${expandExpenseId}"]`);
+            if (expenseRow) {
+              expenseRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Highlight the expense briefly
+              expenseRow.style.backgroundColor = '#10B981';
+              expenseRow.style.transition = 'background-color 0.3s ease';
+              setTimeout(() => {
+                expenseRow.style.backgroundColor = '';
+              }, 2000);
+            }
+          }, 500);
+        }
+      } else if (expandYear && expandMonth) {
+        // Expand specific year and month
+        const monthName = moment().month(parseInt(expandMonth) - 1).format('MMMM');
+        if (groupedExpenses[expandYear]?.[monthName]) {
+          setExpandedYears(new Set([expandYear]));
+          setExpandedMonths(new Set([monthName]));
+        }
+      } else if (expandedYears.size === 0 && expandedMonths.size === 0) {
+        // Auto-expand current month and year on first load (default behavior)
+        const today = moment();
+        const currentYear = today.format('YYYY');
+        const currentMonth = today.format('MMMM');
+        
+        // Check if current month has expenses
+        if (groupedExpenses[currentYear]?.[currentMonth]) {
+          setExpandedYears(new Set([currentYear]));
+          setExpandedMonths(new Set([currentMonth]));
+        }
+      }
+    }
+  }, [groupedExpenses, location.search, expandedYears.size, expandedMonths.size]);
+
+  // Track screen size for responsive rendering
+  useEffect(() => {
+    const checkScreenSize = () => {
+      // Match the CSS breakpoint exactly - show mobile cards when tables are hidden
+      const mobile = window.innerWidth <= 768;
+      console.log('Screen size check:', { width: window.innerWidth, isMobile: mobile });
+      setIsMobile(mobile);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  const fetchExpenseCategories = async () => {
+    try {
+      const response = await axios.get('/api/expense-categories');
+      setExpenseCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching expense categories:', error);
+      // Don't fail the whole page if categories fail to load
+    }
+  };
 
   const fetchExpenses = async () => {
     try {
@@ -78,58 +306,21 @@ const Expenses = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      if (editingId) {
-        await axios.put(`/api/expenses/${editingId}`, formData);
-      } else {
-        await axios.post('/api/expenses', formData);
-      }
-      
-      setShowAddForm(false);
-      setEditingId(null);
-      setFormData({ date: '', description: '', amount: '', category: '' });
-      fetchExpenses();
-    } catch (error) {
-      console.error('Error saving expense:', error);
-      alert('Failed to save expense');
+  // Helper function to get category display info
+  const getCategoryDisplayInfo = (expense) => {
+    if (expense.category_id && expense.category_name) {
+      // New system with category metadata
+      return {
+        name: expense.category_name,
+        color: expense.category_color,
+        description: expense.category_description
+      };
     }
-  };
-
-  const handleEdit = (expense) => {
-    setEditingId(expense.id);
-    setFormData({
-      date: expense.date,
-      description: expense.description,
-      amount: expense.amount.toString(),
-      category: expense.category
-    });
-    setShowAddForm(true);
-  };
-
-  const handleDelete = async (expenseId) => {
-    if (window.confirm('Are you sure you want to delete this expense?')) {
-      try {
-        await axios.delete(`/api/expenses/${expenseId}`);
-        fetchExpenses();
-      } catch (error) {
-        console.error('Error deleting expense:', error);
-        alert('Failed to delete expense');
-      }
-    }
-  };
-
-  const handleCancel = () => {
-    setShowAddForm(false);
-    setEditingId(null);
-    setFormData({ date: '', description: '', amount: '', category: '' });
+    return {
+      name: 'Unknown',
+      color: '#6B7280',
+      description: 'Category not specified'
+    };
   };
 
   // Accordion toggle functions
@@ -169,152 +360,138 @@ const Expenses = () => {
     });
   };
 
-  const expandAll = () => {
-    const allYears = Object.keys(groupedExpenses);
-    const allMonths = new Set();
-    const allDates = new Set();
-    
-    Object.entries(groupedExpenses).forEach(([year, yearData]) => {
-      Object.entries(yearData).forEach(([month, monthData]) => {
-        allMonths.add(month);
-        Object.keys(monthData).forEach(date => {
-          allDates.add(date);
-        });
-      });
-    });
-    
-    setExpandedYears(new Set(allYears));
-    setExpandedMonths(allMonths);
-    setExpandedDates(allDates);
-  };
-
-  const collapseAll = () => {
-    setExpandedYears(new Set());
-    setExpandedMonths(new Set());
-    setExpandedDates(new Set());
-  };
-
   const renderExpenseRow = (expense) => {
-    return (
-      <tr key={expense.id}>
-        <td>{moment(expense.date).format('h:mm A')}</td>
-        <td>{expense.description}</td>
-        <td>${expense.amount.toFixed(2)}</td>
-        <td>{expense.category}</td>
+    const categoryInfo = getCategoryDisplayInfo(expense);
+    const isEditing = editingId === expense.id;
+    
+                   return (
+                 <tr 
+                   key={expense.id} 
+                   className="expense-row" 
+                   data-expense-id={expense.id}
+                   ref={isEditing ? editingRowRef : null}
+                 >
         <td>
-          <div className="action-buttons">
-            <button
-              className="action-btn edit-btn"
-              onClick={() => handleEdit(expense)}
+          {isEditing ? (
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+              className="form-input"
+              style={{ width: '120px', fontSize: '0.85rem', padding: '0.25rem' }}
+            />
+          ) : (
+            moment(expense.date).format('MMM D, YYYY')
+          )}
+        </td>
+        <td>
+          {isEditing ? (
+            <input
+              type="text"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              className="form-input"
+              style={{ width: '140px', fontSize: '0.85rem', padding: '0.25rem' }}
+              maxLength="255"
+            />
+          ) : (
+            expense.description
+          )}
+        </td>
+        <td>
+          {isEditing ? (
+            <select
+              value={formData.category_id}
+              onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
+              className="form-select"
+              style={{ width: '120px', fontSize: '0.85rem', padding: '0.25rem' }}
             >
-              Edit
-            </button>
-            <button
-              className="action-btn delete-btn"
-              onClick={() => handleDelete(expense.id)}
+              <option value="">Select category</option>
+              {expenseCategories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span 
+              className="category-badge"
+              style={{
+                backgroundColor: categoryInfo.color,
+                color: 'white',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}
+              title={categoryInfo.description}
             >
-              Delete
-            </button>
-          </div>
+              {categoryInfo.name}
+            </span>
+          )}
+        </td>
+        <td>
+          {isEditing ? (
+            <input
+              type="number"
+              value={formData.amount}
+              onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+              className="form-input"
+              step="0.01"
+              min="0.01"
+              style={{ width: '80px', fontSize: '0.85rem', padding: '0.25rem' }}
+            />
+          ) : (
+            `$${expense.amount.toFixed(2)}`
+          )}
+        </td>
+        <td>
+          {isEditing ? (
+            <div className="action-buttons">
+              <button
+                className="action-btn save-btn"
+                onClick={() => handleSubmit()}
+              >
+                Save
+              </button>
+              <button
+                className="action-btn cancel-btn"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                className="edit-btn"
+                onClick={() => handleEdit(expense)}
+                style={{ marginRight: '0.5rem' }}
+                title="Edit expense"
+              >
+                ✏️
+              </button>
+              <button
+                className="delete-btn"
+                onClick={() => handleDelete(expense.id)}
+                title="Delete expense"
+              >
+                🗑️
+              </button>
+            </>
+          )}
         </td>
       </tr>
     );
   };
 
-  const renderMobileExpenseCard = (expense) => {
-    return (
-      <div key={expense.id} className="appointment-card">
-        <div className="card-header">
-          <span className="time">{moment(expense.date).format('h:mm A')}</span>
-          <span className="status">{expense.category}</span>
-        </div>
-        
-        <div className="card-body">
-          <div className="info-row">
-            <span className="label">Description:</span>
-            <span className="value">{expense.description}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="label">Amount:</span>
-            <span className="value">${expense.amount.toFixed(2)}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="label">Category:</span>
-            <span className="value">{expense.category}</span>
-          </div>
-        </div>
-        
-        <div className="actions">
-          <button
-            className="action-btn edit-btn"
-            onClick={() => handleEdit(expense)}
-          >
-            Edit
-          </button>
-          <button
-            className="action-btn delete-btn"
-            onClick={() => handleDelete(expense.id)}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  const renderDateGroup = (date, expenses) => {
-    const dateKey = `${date}`;
-    const isExpanded = expandedDates.has(dateKey);
-    const dateObj = moment(date);
-    const dayName = dateObj.format('dddd');
-    const formattedDate = dateObj.format('MMMM D, YYYY');
-    const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    
-    return (
-      <div key={date} className="date-group">
-        <div 
-          className={`date-header ${isExpanded ? 'expanded' : ''}`}
-          onClick={() => toggleDate(dateKey)}
-        >
-          <span>{dayName}, {formattedDate}</span>
-          <span className="date-total">Total: ${totalAmount.toFixed(2)}</span>
-          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
-        </div>
-        {isExpanded && (
-          <div className="date-content">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Description</th>
-                  <th>Amount</th>
-                  <th>Category</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expenses.map(expense => renderExpenseRow(expense))}
-              </tbody>
-            </table>
-            
-            {/* Mobile card layout - hidden by default, shown on small screens */}
-            <div className="mobile-cards">
-              {expenses.map(expense => renderMobileExpenseCard(expense))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const renderMonthGroup = (month, monthData) => {
-    const monthKey = `${month}`;
-    const isExpanded = expandedMonths.has(monthKey);
     const monthTotal = Object.values(monthData).reduce((sum, dateExpenses) => 
       sum + dateExpenses.reduce((dateSum, expense) => dateSum + expense.amount, 0), 0
     );
+    
+    const monthKey = `${month}`;
+    const isExpanded = expandedMonths.has(monthKey);
     
     return (
       <div key={month} className="month-group">
@@ -342,11 +519,6 @@ const Expenses = () => {
   const renderYearGroup = (year, yearData) => {
     const yearKey = `${year}`;
     const isExpanded = expandedYears.has(yearKey);
-    const yearTotal = Object.values(yearData).reduce((sum, monthData) => 
-      sum + Object.values(monthData).reduce((monthSum, dateExpenses) => 
-        monthSum + dateExpenses.reduce((dateSum, expense) => dateSum + expense.amount, 0), 0
-      ), 0
-    );
     
     return (
       <div key={year} className="year-group">
@@ -354,8 +526,7 @@ const Expenses = () => {
           className={`year-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleYear(yearKey)}
         >
-          <span>{year}</span>
-          <span className="year-total">Total: ${yearTotal.toFixed(2)}</span>
+          {year} 
           <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
         </div>
         {isExpanded && (
@@ -375,6 +546,180 @@ const Expenses = () => {
     );
   };
 
+  const renderMobileExpenseCard = (expense) => {
+    const categoryInfo = getCategoryDisplayInfo(expense);
+    const isEditing = editingId === expense.id;
+    
+    return (
+      <div 
+        key={expense.id} 
+        className="appointment-card expense-card"
+        ref={isEditing ? editingRowRef : null}
+      >
+        <div className="card-header">
+          <span className="time">
+            {isEditing ? (
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                className="form-input"
+                style={{ width: '100px', fontSize: '0.85rem', padding: '0.25rem' }}
+              />
+            ) : (
+              moment(expense.date).format('MMM D, YYYY')
+            )}
+          </span>
+          <span 
+            className="status"
+            style={{
+              backgroundColor: categoryInfo.color,
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            {isEditing ? (
+              <select
+                value={formData.category_id}
+                onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
+                className="form-select"
+                style={{ width: '120px', fontSize: '0.85rem', padding: '0.25rem' }}
+              >
+                <option value="">Select category</option>
+                {expenseCategories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              categoryInfo.name
+            )}
+          </span>
+        </div>
+        <div className="card-body">
+          <div className="info-row">
+            <span className="label">Description:</span>
+            <span className="value">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  className="form-input"
+                  style={{ width: '100%', fontSize: '0.85rem', padding: '0.25rem' }}
+                  maxLength="255"
+                />
+              ) : (
+                expense.description
+              )}
+            </span>
+          </div>
+          <div className="info-row">
+            <span className="label">Amount:</span>
+            <span className="value">
+              {isEditing ? (
+                <input
+                  type="number"
+                  value={formData.amount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                  className="form-input"
+                  step="0.01"
+                  min="0.01"
+                  style={{ width: '100%', fontSize: '0.85rem', padding: '0.25rem' }}
+                />
+              ) : (
+                `$${expense.amount.toFixed(2)}`
+              )}
+            </span>
+          </div>
+        </div>
+        <div className="actions">
+          {isEditing ? (
+            <>
+              <button
+                className="action-btn save-btn"
+                onClick={() => handleSubmit()}
+              >
+                Save
+              </button>
+              <button
+                className="action-btn cancel-btn"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="action-btn edit-btn"
+                onClick={() => handleEdit(expense)}
+              >
+                ✏️ Edit
+              </button>
+              <button
+                className="action-btn delete-btn"
+                onClick={() => handleDelete(expense.id)}
+              >
+                🗑️ Delete
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderDateGroup = (date, expenses) => {
+    const dateKey = `${date}`;
+    const isExpanded = expandedDates.has(dateKey);
+    const dateTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    
+    return (
+      <div key={date} className="date-group">
+        <div 
+          className={`date-header ${isExpanded ? 'expanded' : ''}`}
+          onClick={() => toggleDate(dateKey)}
+        >
+          <span>{moment(date).format('dddd, MMMM Do')}</span>
+          <span className="date-total">Total: ${dateTotal.toFixed(2)}</span>
+          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
+        </div>
+        {isExpanded && (
+          <div className="date-content">
+            <table className="expenses-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expenses
+                  .sort((a, b) => moment(a.date).diff(moment(b.date)))
+                  .map(expense => renderExpenseRow(expense))
+                }
+              </tbody>
+            </table>
+            
+            {/* Mobile card layout - only render on small screens */}
+            {isMobile && (
+              <div className="mobile-cards">
+                {expenses.map(expense => renderMobileExpenseCard(expense))}
+              </div>
+            )}
+            
+
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return <div>Loading expenses...</div>;
   }
@@ -385,117 +730,11 @@ const Expenses = () => {
 
   return (
     <div className="expenses-page">
-      <h1>Track Expenses</h1>
-      
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div></div>
-        <button
-          className="form-button"
-          onClick={() => setShowAddForm(true)}
-          style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
-        >
-          + Add Expense
-        </button>
-      </div>
+      <h1>Manage Expenses</h1>
 
-      {/* Add/Edit Form */}
-      {showAddForm && (
-        <div className="table-container">
-          <div style={{ padding: '0.75rem' }}>
-            <h3 style={{ marginBottom: '0.75rem', color: '#333', fontSize: '1.1rem' }}>
-              {editingId ? 'Edit Expense' : 'Add New Expense'}
-            </h3>
-            <form onSubmit={handleSubmit}>
-              <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <label className="form-label" style={{ fontSize: '0.85rem', marginBottom: '0.3rem' }}>Date</label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    max={moment().format('YYYY-MM-DD')}
-                    required
-                    style={{ padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
-                  />
-                </div>
 
-                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <label className="form-label" style={{ fontSize: '0.85rem', marginBottom: '0.3rem' }}>Category</label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="form-select"
-                    required
-                    style={{ padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
-                  >
-                    <option value="">Select category</option>
-                    <option value="Supplies">Supplies</option>
-                    <option value="Products">Products</option>
-                    <option value="Utilities">Utilities</option>
-                    <option value="Rent">Rent</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
 
-              <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <label className="form-label" style={{ fontSize: '0.85rem', marginBottom: '0.3rem' }}>Description</label>
-                  <input
-                    type="text"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    placeholder="Enter expense description"
-                    required
-                    style={{ padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
-                  />
-                </div>
 
-                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <label className="form-label" style={{ fontSize: '0.85rem', marginBottom: '0.3rem' }}>Amount</label>
-                  <input
-                    type="number"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="0.00"
-                    required
-                    style={{ padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
-                  />
-                </div>
-              </div>
-
-              <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.25rem' }}>
-                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <button type="submit" className="form-button" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
-                    {editingId ? 'Update Expense' : 'Add Expense'}
-                  </button>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                  <button
-                    type="button"
-                    className="form-button secondary"
-                    onClick={handleCancel}
-                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Expenses Display */}
       {Object.keys(groupedExpenses).length === 0 ? (
@@ -505,13 +744,33 @@ const Expenses = () => {
           <div className="accordion-controls">
             <button 
               className="accordion-btn expand-all-btn"
-              onClick={expandAll}
+              onClick={() => {
+                const allYears = new Set();
+                const allMonths = new Set();
+                const allDates = new Set();
+                Object.entries(groupedExpenses).forEach(([year, yearData]) => {
+                  allYears.add(year);
+                  Object.entries(yearData).forEach(([month, monthData]) => {
+                    allMonths.add(month);
+                    Object.keys(monthData).forEach(date => {
+                      allDates.add(date);
+                    });
+                  });
+                });
+                setExpandedYears(allYears);
+                setExpandedMonths(allMonths);
+                setExpandedDates(allDates);
+              }}
             >
               📂 Expand All
             </button>
             <button 
               className="accordion-btn collapse-all-btn"
-              onClick={collapseAll}
+              onClick={() => {
+                setExpandedYears(new Set());
+                setExpandedMonths(new Set());
+                setExpandedDates(new Set());
+              }}
             >
               📁 Collapse All
             </button>
@@ -525,6 +784,17 @@ const Expenses = () => {
               )}
           </div>
         </>
+      )}
+      
+      {/* Expense Modal for adding new expenses */}
+      {showModal && (
+        <ExpenseModal 
+          onClose={() => setShowModal(false)}
+          onSuccess={() => {
+            setShowModal(false);
+            fetchExpenses(); // Refresh the expenses list
+          }}
+        />
       )}
     </div>
   );

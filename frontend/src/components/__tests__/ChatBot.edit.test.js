@@ -9,7 +9,7 @@ jest.mock('../chatbot/hooks', () => ({
       {
         id: 1,
         type: 'bot',
-        text: "Hi! I'm your spa assistant. I can help you manage appointments. Type your requests directly. For example: \"cancel appointment for test at 2:00 PM on August 19th\"",
+        text: "Hi! I'm your spa assistant. I can help you with many things. If you don't know how I can help, ask/type \"what can you do\" or \"help\"",
         timestamp: new Date()
       }
     ],
@@ -30,16 +30,26 @@ jest.mock('../chatbot/hooks', () => ({
     setEditStepState: jest.fn(),
     editReason: '',
     setEditReasonState: jest.fn(),
-    clearEdit: jest.fn()
+    clearEdit: jest.fn(),
+    pendingExpenseEdit: null,
+    setPendingExpenseEdit: jest.fn(),
+    pendingExpenseDelete: null,
+    setPendingExpenseDelete: jest.fn()
   }),
   useIntentClassification: () => ({
     classifyIntent: jest.fn()
+  }),
+  useMLIntentClassification: () => ({
+    classifyIntentML: jest.fn(),
+    classifyIntentWithTraining: jest.fn()
   }),
   useAppointmentActions: () => ({
     executeCancelAppointment: jest.fn(),
     executeCompleteAppointment: jest.fn(),
     executeEditAppointment: jest.fn(),
-    collectTipAmount: jest.fn()
+    collectTipAmount: jest.fn(),
+    onExpenseEditConfirmation: jest.fn(),
+    onExpenseDeleteConfirmation: jest.fn()
   }),
   useChatInput: () => ({
     handleSubmit: jest.fn()
@@ -133,7 +143,8 @@ describe('ChatBot Edit Functionality Tests', () => {
       
       // Should show welcome message
       expect(screen.getByText(/Hi! I'm your spa assistant/i)).toBeInTheDocument();
-      expect(screen.getByText(/I can help you manage appointments/i)).toBeInTheDocument();
+      expect(screen.getByText(/I can help you with many things/i)).toBeInTheDocument();
+      expect(screen.getByText(/ask\/type "what can you do" or "help"/i)).toBeInTheDocument();
     });
 
     test('should have input field and send button when open', () => {
@@ -174,6 +185,51 @@ describe('ChatBot Edit Functionality Tests', () => {
       
       // Just verify the input field exists and can accept text
       // The actual intent recognition will be tested in integration tests
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveAttribute('placeholder', 'Type your message...');
+    });
+  });
+
+  describe('Expense Management', () => {
+    test('should have input field for expense requests', () => {
+      render(<ChatBot />);
+      
+      // Open chat
+      const chatToggle = screen.getByRole('button', { name: /toggle chat/i });
+      fireEvent.click(chatToggle);
+      
+      // Should have input field for expense requests
+      const input = screen.getByPlaceholderText(/type your message/i);
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveAttribute('placeholder', 'Type your message...');
+    });
+  });
+
+  describe('Appointment Booking', () => {
+    test('should have input field for booking requests', () => {
+      render(<ChatBot />);
+      
+      // Open chat
+      const chatToggle = screen.getByRole('button', { name: /toggle chat/i });
+      fireEvent.click(chatToggle);
+      
+      // Should have input field for booking requests
+      const input = screen.getByPlaceholderText(/type your message/i);
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveAttribute('placeholder', 'Type your message...');
+    });
+  });
+
+  describe('Help System', () => {
+    test('should have input field for help requests', () => {
+      render(<ChatBot />);
+      
+      // Open chat
+      const chatToggle = screen.getByRole('button', { name: /toggle chat/i });
+      fireEvent.click(chatToggle);
+      
+      // Should have input field for help requests
+      const input = screen.getByPlaceholderText(/type your message/i);
       expect(input).toBeInTheDocument();
       expect(input).toHaveAttribute('placeholder', 'Type your message...');
     });

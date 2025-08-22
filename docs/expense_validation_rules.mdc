@@ -1,0 +1,242 @@
+# Expense Management Validation Rules
+
+## Overview
+This document defines the validation rules for expense management in the spa management system, based on the actual implementation in the codebase.
+
+## Database Schema Constraints
+
+### Expenses Table
+- **id**: INTEGER PRIMARY KEY AUTOINCREMENT
+- **date**: TEXT NOT NULL
+- **description**: TEXT NOT NULL  
+- **amount**: REAL NOT NULL
+- **category_id**: INTEGER (nullable, foreign key to expense_categories)
+- **created_at**: DATETIME DEFAULT CURRENT_TIMESTAMP
+- **updated_at**: DATETIME DEFAULT CURRENT_TIMESTAMP
+
+### Expense Categories Table
+- **id**: INTEGER PRIMARY KEY AUTOINCREMENT
+- **name**: TEXT UNIQUE NOT NULL
+- **description**: TEXT (nullable)
+- **color**: TEXT DEFAULT '#6B7280'
+- **is_active**: BOOLEAN DEFAULT 1
+- **created_at**: DATETIME DEFAULT CURRENT_TIMESTAMP
+
+## Backend Validation Rules
+
+### Create Expense (POST /api/expenses)
+```javascript
+[
+  body('date').notEmpty().withMessage('Date is required'),
+  body('description').notEmpty().withMessage('Description is required'),
+  body('amount').isFloat({ min: 0 }).withMessage('Amount must be a positive number'),
+  body('category_id').isInt({ min: 1 }).withMessage('Category ID is required and must be a positive integer')
+]
+```
+
+**Additional Business Logic:**
+- Category ID must exist in expense_categories table
+- Category must be active (is_active = 1)
+
+### Update Expense (PUT /api/expenses/:id)
+```javascript
+[
+  body('date').optional().notEmpty().withMessage('Date cannot be empty'),
+  body('description').optional().notEmpty().withMessage('Description cannot be empty'),
+  body('amount').optional().isFloat({ min: 0 }).withMessage('Amount must be a positive number'),
+  body('category_id').optional().isInt({ min: 1 }).withMessage('Category ID must be a positive integer if provided')
+]
+```
+
+**Additional Business Logic:**
+- If category_id is provided, it must exist and be active
+- All fields are optional during update
+
+## Frontend Validation Rules
+
+### Expense Modal Form
+**Required Fields:**
+- Date: Must be selected (cannot be empty)
+- Description: Must be entered (cannot be empty)
+- Amount: Must be entered and be a valid number
+- Category: Must be selected from dropdown (cannot be empty)
+
+**Form Submission Validation:**
+```javascript
+if (!formData.description || !formData.amount || !formData.category_id) {
+  setError('Please fill in all required fields');
+  return;
+}
+```
+
+### Date Validation
+**Calendar Restrictions:**
+- **Future dates are disabled**: Cannot select dates after today
+- **Past dates are allowed**: Can select any date up to and including today
+- **Date format**: YYYY-MM-DD for backend, "MMM DD, YYYY" for display
+
+**Date Availability Logic:**
+```javascript
+const isDateAvailable = (date) => {
+  const today = moment().startOf('day');
+  // Check if date is in the future (after today)
+  if (date.isAfter(today)) {
+    return false;
+  }
+  return true;
+};
+```
+
+### Amount Validation
+**Input Requirements:**
+- Must be a positive number (≥ 0)
+- Backend validates as float with minimum 0
+- Frontend parses as parseFloat()
+
+### Description Validation
+**Input Requirements:**
+- Cannot be empty
+- No length restrictions in current implementation
+- Plain text input
+
+### Category Validation
+**Selection Requirements:**
+- Must select from existing expense categories
+- Category must be active (is_active = 1)
+- Category ID must be a positive integer
+
+## Inline Editing Validation
+
+### Edit Mode Validation
+**Field Requirements:**
+- Date: Must be valid date format
+- Description: Cannot be empty
+- Amount: Must be positive number
+- Category: Must be valid category ID
+
+**Form Reset:**
+```javascript
+setFormData({
+  date: '',
+  description: '',
+  amount: '',
+  category_id: ''
+});
+```
+
+## Search Validation
+
+### Expense Search Parameters
+**Supported Search Fields:**
+- **description**: Text search (case-insensitive LIKE)
+- **amount**: Exact amount match
+- **category**: Category name search (case-insensitive LIKE)
+- **date**: Exact date match (YYYY-MM-DD format)
+- **year**: Year search using strftime('%Y', e.date)
+
+**Search Logic:**
+- All parameters are optional
+- Multiple parameters can be combined
+- Results ordered by date DESC, id DESC
+
+## Error Handling
+
+### Validation Errors
+**Backend Response Format:**
+```json
+{
+  "error": "Validation error message"
+}
+```
+
+**Frontend Error Display:**
+- Form-level errors shown above form
+- Field-level validation in current implementation is basic
+- Error messages displayed in error div
+
+### Database Errors
+**Common Error Scenarios:**
+- Category not found or inactive
+- Invalid expense ID for updates/deletes
+- Database connection issues
+- Constraint violations
+
+## Current Implementation Gaps
+
+### Missing Validations
+1. **Description length limits** - No maximum length validation
+2. **Amount upper limits** - No maximum amount validation
+3. **Date format validation** - Basic validation only
+4. **Category name uniqueness** - Only enforced at database level
+5. **Frontend field-level validation** - Basic required field checks only
+
+### Recommended Additions
+1. **Description**: Add maxLength validation (e.g., 255 characters)
+2. **Amount**: Add maximum amount validation (e.g., $10,000)
+3. **Date**: Add format validation for YYYY-MM-DD
+4. **Category**: Add name format validation (letters, numbers, spaces)
+5. **Real-time validation**: Add field-level validation feedback
+
+## Testing Coverage
+
+### Current Test Files
+- `frontend/src/pages/__tests__/Expenses.test.js`
+- `frontend/src/components/__tests__/ExpenseModal.test.js`
+- `frontend/tests/cross-browser/expenses.cross.spec.js`
+
+### Validation Test Scenarios
+- Required field validation
+- Date selection restrictions
+- Category selection validation
+- Amount input validation
+- Form submission with invalid data
+- Error message display
+
+## Integration Points
+
+### Chatbot Integration
+**Expense Commands:**
+- Add expense: Opens expense modal
+- Edit expense: Redirects to inline editing
+- Delete expense: Confirmation workflow
+- Search expense: Natural language search
+
+**Validation in Chatbot:**
+- Date parsing with natural language
+- Amount parsing from text
+- Category matching from description
+
+### Reports Integration
+**Expense Data Used In:**
+- Financial reports
+- Category breakdowns
+- Date range filtering
+- Profit calculations
+
+## Security Considerations
+
+### Input Sanitization
+- SQL injection prevention via parameterized queries
+- XSS prevention in description fields
+- Input length limits to prevent abuse
+
+### Access Control
+- No user authentication in current implementation
+- All expense operations available to any user
+- No audit trail for expense changes
+
+## Performance Considerations
+
+### Database Queries
+- Indexes on date, category_id, and description fields
+- Efficient category lookups for validation
+- Optimized search queries with multiple parameters
+
+### Frontend Performance
+- Debounced search input
+- Efficient form state management
+- Optimized re-renders for large expense lists
+description:
+globs:
+alwaysApply: false
+---

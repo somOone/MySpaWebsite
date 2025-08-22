@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import TipModal from '../components/TipModal';
@@ -10,7 +10,7 @@ const Appointments = () => {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   
-  // Tip modal state
+    // Tip modal state
   const [tipModalOpen, setTipModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   
@@ -18,7 +18,13 @@ const Appointments = () => {
   const [expandedYears, setExpandedYears] = useState(new Set());
   const [expandedMonths, setExpandedMonths] = useState(new Set());
   const [expandedDates, setExpandedDates] = useState(new Set());
-
+  
+  // Ref for auto-focusing on expanded date section
+  const expandedDateRef = useRef(null);
+  
+  // Track which date should get the ref for auto-focusing
+  const [autoFocusDate, setAutoFocusDate] = useState(null);
+  
   useEffect(() => {
     fetchAppointments();
   }, []);
@@ -52,6 +58,7 @@ const Appointments = () => {
         setExpandedYears(new Set([currentYear]));
         setExpandedMonths(new Set([currentMonth]));
         setExpandedDates(new Set([todayKey]));
+        setAutoFocusDate(todayKey);
         
         // Log what we're expanding
         // console.log('🔄 [DEFAULT EXPANSION] Expanding sections (today):', {
@@ -104,6 +111,7 @@ const Appointments = () => {
           setExpandedYears(new Set([foundYear]));
           setExpandedMonths(new Set([foundMonth]));
           setExpandedDates(new Set([foundDate]));
+          setAutoFocusDate(foundDate);
           
           // Log what we're expanding
           // console.log('🔄 [DEFAULT EXPANSION] Expanding sections:', {
@@ -117,6 +125,7 @@ const Appointments = () => {
           setExpandedYears(new Set([currentYear]));
           setExpandedMonths(new Set([currentMonth]));
           setExpandedDates(new Set([todayKey]));
+          setAutoFocusDate(todayKey);
           
           // Log what we're expanding
           // console.log('🔄 [DEFAULT EXPANSION] Expanding sections (fallback):', {
@@ -132,6 +141,19 @@ const Appointments = () => {
         //   months: Array.from(expandedMonths),
         //   dates: Array.from(expandedDates)
         // });
+        
+        // Auto-focus on the expanded date section after a short delay
+        setTimeout(() => {
+          if (expandedDateRef.current) {
+            // console.log('🔄 [DEFAULT EXPANSION] Auto-focusing on expanded date section');
+            expandedDateRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Clear the auto-focus date after scrolling to avoid re-render issues
+            setTimeout(() => {
+              setAutoFocusDate(null);
+            }, 500);
+          }
+        }, 200);
       }
     }
   }, [groupedAppointments, expandedDates.size]);
@@ -328,10 +350,12 @@ const Appointments = () => {
     const isEditing = editingId === appointment.id;
     const isCompleted = appointment.status === 'completed';
     const isCancelled = appointment.status === 'cancelled';
-    const canCancel = appointment.status === 'pending';
 
     return (
-      <tr key={appointment.id}>
+      <tr 
+        key={appointment.id}
+        className={isEditing ? 'editing-mode' : ''}
+      >
         <td>{appointment.time}</td>
         <td>{appointment.client}</td>
         <td>
@@ -375,7 +399,7 @@ const Appointments = () => {
         </td>
         <td>
           {isEditing ? (
-            <div className="action-buttons">
+            <div className="edit-mode-buttons">
               <button
                 className="action-btn save-btn"
                 onClick={() => handleSave(appointment.id)}
@@ -389,35 +413,31 @@ const Appointments = () => {
                 Cancel
               </button>
             </div>
+                      ) : !isCompleted && !isCancelled ? (
+              <div className="normal-mode-buttons">
+                <button
+                  className="action-btn edit-btn"
+                  onClick={() => handleEdit(appointment)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="action-btn complete-btn"
+                  onClick={() => handleComplete(appointment)}
+                >
+                  Complete
+                </button>
+                <button
+                  className="action-btn delete-btn"
+                  onClick={() => handleDelete(appointment.id)}
+                >
+                  Cancel
+                </button>
+              </div>
           ) : (
-            <div className="action-buttons">
-              {!isCompleted && !isCancelled ? (
-                <>
-                  <button
-                    className="action-btn edit-btn"
-                    onClick={() => handleEdit(appointment)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="action-btn save-btn"
-                    onClick={() => handleComplete(appointment)}
-                  >
-                    Complete
-                  </button>
-                  <button
-                    className="action-btn delete-btn"
-                    onClick={() => handleDelete(appointment.id)}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <span className="completed-status">
-                  {isCompleted ? 'Completed' : 'Cancelled'}
-                </span>
-              )}
-            </div>
+            <span className="completed-status">
+              {isCompleted ? 'Completed' : 'Cancelled'}
+            </span>
           )}
         </td>
       </tr>
@@ -430,7 +450,10 @@ const Appointments = () => {
     const isCancelled = appointment.status === 'cancelled';
 
     return (
-      <div key={appointment.id} className="appointment-card">
+      <div 
+        key={appointment.id} 
+        className="appointment-card"
+      >
         <div className="card-header">
           <span className="time">{appointment.time}</span>
           <span className="status">
@@ -490,7 +513,7 @@ const Appointments = () => {
           </div>
         </div>
         
-        <div className="actions">
+        <div className={isEditing ? 'edit-mode-actions' : 'normal-mode-actions'}>
           {isEditing ? (
             <>
               <button
@@ -506,35 +529,31 @@ const Appointments = () => {
                 Cancel
               </button>
             </>
-          ) : (
+          ) : !isCompleted && !isCancelled ? (
             <>
-              {!isCompleted && !isCancelled ? (
-                <>
-                  <button
-                    className="action-btn edit-btn"
-                    onClick={() => handleEdit(appointment)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="action-btn save-btn"
-                    onClick={() => handleComplete(appointment)}
-                  >
-                    Complete
-                  </button>
-                  <button
-                    className="action-btn delete-btn"
-                    onClick={() => handleDelete(appointment.id)}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <span className="completed-status">
-                  {isCompleted ? 'Completed' : 'Cancelled'}
-                </span>
-              )}
+              <button
+                className="action-btn edit-btn"
+                onClick={() => handleEdit(appointment)}
+              >
+                Edit
+              </button>
+              <button
+                className="action-btn complete-btn"
+                onClick={() => handleComplete(appointment)}
+              >
+                Complete
+              </button>
+              <button
+                className="action-btn delete-btn"
+                onClick={() => handleDelete(appointment.id)}
+              >
+                Cancel
+              </button>
             </>
+          ) : (
+            <span className="completed-status">
+              {isCompleted ? 'Completed' : 'Cancelled'}
+            </span>
           )}
         </div>
       </div>
@@ -544,9 +563,15 @@ const Appointments = () => {
   const renderDateGroup = (date, appointments) => {
     const dateKey = `${date}`;
     const isExpanded = expandedDates.has(dateKey);
+    const shouldAutoFocus = autoFocusDate === dateKey;
     
     return (
-      <div key={date} className="date-group" data-date={dateKey}>
+      <div 
+        key={date} 
+        className="date-group" 
+        data-date={dateKey}
+        ref={shouldAutoFocus ? expandedDateRef : null}
+      >
         <div 
           className={`date-header ${isExpanded ? 'expanded' : ''}`}
           onClick={() => toggleDate(dateKey)}

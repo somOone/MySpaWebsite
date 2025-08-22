@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { convertMilitaryTo12Hour, standardizeTimeForBackend } from '../../shared';
 
 /**
@@ -69,9 +69,6 @@ const CancellationWorkflow = ({
             return;
           }
         } else {
-          const errorText = await searchResponse.text();
-          // console.log('🔍 [VALIDATION] Search error response:', errorText);
-          
           const errorMsg = "Sorry, I encountered an error while checking for the appointment. Please try again.";
           addBotMessage(errorMsg);
           return;
@@ -175,9 +172,6 @@ const CancellationWorkflow = ({
             return;
           }
         } else {
-          const errorText = await searchResponse.text();
-          // console.log('🔍 [CANCELLATION] Search error response:', errorText);
-          
           const errorMsg = "Sorry, I encountered an error while checking for the appointment. Please try again.";
           addBotMessage(errorMsg);
           return;

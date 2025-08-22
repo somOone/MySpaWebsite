@@ -1,0 +1,8 @@
+/* Modular CSS Import Structure for Spa Website */
+
+/* 1. CSS Variables (Must be imported first) */
+@import './themes/variables.css';
+
+/* 2. Everything else from original App.css */
+/* Import the complete working CSS for now, will progressively modularize */
+@import '../App.css';

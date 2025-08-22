@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 
 jest.mock('axios', () => ({ get: jest.fn() }));
@@ -17,7 +18,11 @@ beforeEach(() => {
 
 describe('Home responsive structure', () => {
   test('renders compact hero and features sections', async () => {
-    render(<Home />);
+    render(
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    );
 
     expect(screen.getByText('Welcome to Serenity Spa')).toBeInTheDocument();
     expect(screen.getByText('Book New Appointment')).toBeInTheDocument();

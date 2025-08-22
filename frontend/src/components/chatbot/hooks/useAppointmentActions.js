@@ -220,6 +220,7 @@ const useAppointmentActions = () => {
       console.error('🔍 [EDIT] Error during edit:', error);
       throw error;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

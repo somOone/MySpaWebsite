@@ -194,10 +194,11 @@ router.post('/', [
 router.put('/:id', [
   body('category').optional().isIn(['Facial', 'Massage', 'Facial + Massage']),
   body('payment').optional().isFloat({ min: 0 }),
-  body('tip').optional().isFloat({ min: 0 })
+  body('tip').optional().isFloat({ min: 0 }),
+  body('update_reason').optional().isString().trim()
 ], (req, res) => {
   const { id } = req.params;
-  const { category, payment, tip } = req.body;
+  const { category, payment, tip, update_reason } = req.body;
   
   const db = getDatabase();
   
@@ -238,6 +239,11 @@ router.put('/:id', [
     if (tip !== undefined) {
       updates.push('tip = ?');
       values.push(tip);
+    }
+    
+    if (update_reason !== undefined) {
+      updates.push('update_reason = ?');
+      values.push(update_reason);
     }
     
     if (updates.length === 0) {

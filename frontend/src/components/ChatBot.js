@@ -12,6 +12,7 @@ import { convertMilitaryTo12Hour, standardizeTimeForBackend, calculatePayment, t
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
   
   // Use extracted hooks
         const { 
@@ -23,17 +24,18 @@ const ChatBot = () => {
         setPendingCancellation,
         pendingCompletion,
         setPendingCompletion,
-        completionTip,
-        setCompletionTipState: setCompletionTip,
         completionStep,
         setCompletionStepState: setCompletionStep,
         pendingEdit,
         setPendingEdit,
         editStep,
         setEditStepState: setEditStep,
-        editReason,
-        setEditReasonState: setEditReason,
-        clearEdit
+        pendingExpenseEdit,
+        setPendingExpenseEdit,
+        pendingExpenseDelete,
+        setPendingExpenseDelete,
+        setCompletionTipState: setCompletionTip,
+        setEditReasonState: setEditReason
       } = useChatState();
   
     // Use different names to avoid conflicts with existing functions
@@ -53,7 +55,7 @@ const ChatBot = () => {
       {
         id: 1,
         type: 'bot',
-        text: `Hi! I'm your spa assistant. I can help you manage appointments. Type your requests directly. For example: "cancel appointment for test at 2:00 PM on August 19th"`,
+        text: `Hi! I'm your spa assistant. I can help you with many things. If you don't know how I can help, ask/type "what can you do" or "help"`,
         timestamp: new Date()
       }
     ]);
@@ -140,9 +142,6 @@ const ChatBot = () => {
           }
         } else {
           // Handle other errors (500, etc.)
-          const errorText = await searchResponse.text();
-          // console.log('🔍 [VALIDATION] Search error response:', errorText);
-          
           const errorMsg = "Sorry, I encountered an error while checking for the appointment. Please try again.";
           const botMsg = {
             id: Date.now() + 2,
@@ -266,8 +265,6 @@ const ChatBot = () => {
             return;
           }
         } else {
-          const errorText = await searchResponse.text();
-          
           const errorMsg = "Sorry, I encountered an error while checking for the appointment. Please try again.";
           const botMsg = {
             id: Date.now() + 2,
@@ -655,6 +652,8 @@ Type 'yes' to confirm this change, or 'no' to cancel.`;
         setCompletionStep,
         pendingEdit,
         editStep,
+        pendingExpenseEdit,
+        pendingExpenseDelete,
         executeCancelAppointment: hookExecuteCancelAppointment,
         executeCompleteAppointment: hookExecuteCompleteAppointment,
         executeEditAppointment: hookExecuteEditAppointment,
@@ -668,10 +667,20 @@ Type 'yes' to confirm this change, or 'no' to cancel.`;
         onCancellationSuccess: handleCancellationSuccess,
         onEditCategoryInput: handleCategoryInput,
         onEditReasonInput: handleReasonInput,
-        onEditConfirmation: handleEditConfirmation
+        onEditConfirmation: handleEditConfirmation,
+        onExpenseEditConfirmation: setPendingExpenseEdit,
+        onExpenseDeleteConfirmation: setPendingExpenseDelete
       });
 
-
+  // Auto-focus the input when chat is opened
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      // Small delay to ensure the chat is fully rendered
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
 
   // All utility functions and patterns are now imported from shared utilities
 
@@ -701,6 +710,7 @@ Type 'yes' to confirm this change, or 'no' to cancel.`;
           onSubmit={hookHandleSubmit}
           onClose={() => setIsOpen(false)}
           messagesEndRef={messagesEndRef}
+          inputRef={inputRef}
         />
       )}
     </>

@@ -11,7 +11,7 @@ export const validateClientName = (clientName) => {
   }
   
   // Allow letters, digits, spaces, hyphens, and apostrophes
-  const validClientNameRegex = /^[a-zA-Z0-9\-\'\s]+$/;
+  const validClientNameRegex = /^[a-zA-Z0-9\-'\s]+$/;
   return validClientNameRegex.test(clientName);
 };
 

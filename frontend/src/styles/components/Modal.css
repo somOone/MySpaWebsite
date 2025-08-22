@@ -1,0 +1,145 @@
+/* Modal Base Styles - Shared across all modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+  overflow: visible !important;
+}
+
+.modal-content {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 15px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px var(--spa-shadow);
+  overflow: visible !important;
+  position: relative !important;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--spa-accent);
+}
+
+.modal-header h2 {
+  color: var(--spa-teal);
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--spa-grey-light);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background: var(--spa-accent);
+  color: var(--spa-teal);
+}
+
+/* Enhanced Date Input Styling for Modals */
+.modal-content .form-input[type="date"] {
+  background: white;
+  border: 2px solid var(--spa-accent);
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.modal-content .form-input[type="date"]:focus {
+  border-color: var(--spa-teal);
+  box-shadow: 0 0 0 3px var(--spa-shadow);
+  outline: none;
+}
+
+.modal-content .form-input[type="date"]::-webkit-calendar-picker-indicator {
+  background: var(--spa-teal);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.modal-content .form-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  background: var(--spa-teal-dark);
+  opacity: 1;
+}
+
+.modal-content .form-input[type="date"]::-webkit-datetime-edit {
+  color: var(--spa-grey);
+  padding: 0;
+}
+
+.modal-content .form-input[type="date"]::-webkit-datetime-edit-text {
+  color: var(--spa-grey-light);
+}
+
+.modal-content .form-input[type="date"]::-webkit-datetime-edit-month-field,
+.modal-content .form-input[type="date"]::-webkit-datetime-edit-day-field,
+.modal-content .form-input[type="date"]::-webkit-datetime-edit-year-field {
+  color: var(--spa-grey);
+}
+
+.modal-content .form-input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.modal-content .form-input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.modal-content .form-input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background: var(--spa-accent);
+  color: var(--spa-teal);
+}
+
+/* Mobile Modal Responsiveness */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 0.75rem !important;
+    max-height: 90vh !important;
+    margin: 0.1rem !important;
+    width: calc(100% - 0.2rem) !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-header {
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  .modal-header h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .close-button {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 1.5rem !important;
+  }
+}

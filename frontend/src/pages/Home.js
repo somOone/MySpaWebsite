@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import BookingModal from '../components/BookingModal';
+import ExpenseModal from '../components/ExpenseModal';
+import { useLocation } from 'react-router-dom';
 
 const Home = () => {
-  const [stats, setStats] = useState({
+  const location = useLocation();
+  const [, setStats] = useState({
     totalAppointments: 0,
     totalRevenue: 0,
     totalClients: 0
@@ -13,10 +16,26 @@ const Home = () => {
     currentYear: { massages: 0, facials: 0, combos: 0 }
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboardStats();
   }, []);
+
+  // Handle URL parameter for opening booking modal from chatbot
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const bookAppointment = urlParams.get('bookAppointment');
+    const addExpense = urlParams.get('addExpense');
+    
+    if (bookAppointment === 'true') {
+      setIsModalOpen(true);
+    }
+    
+    if (addExpense === 'true') {
+      setIsExpenseModalOpen(true);
+    }
+  }, [location.search]);
 
   const fetchDashboardStats = async () => {
     try {
@@ -55,6 +74,16 @@ const Home = () => {
     fetchDashboardStats();
   };
 
+  const openExpenseModal = () => {
+    setIsExpenseModalOpen(true);
+  };
+
+  const closeExpenseModal = () => {
+    setIsExpenseModalOpen(false);
+    // Refresh stats after adding expense
+    fetchDashboardStats();
+  };
+
   return (
     <div className="home-page">
       {/* Compact Hero Section with All Statistics */}
@@ -65,9 +94,14 @@ const Home = () => {
             <p className="hero-subtitle">
               Experience ultimate relaxation and rejuvenation in our tranquil oasis
             </p>
-            <button className="cta-button" onClick={openBookingModal}>
-              Book New Appointment
-            </button>
+            <div className="hero-buttons">
+              <button className="cta-button primary" onClick={openBookingModal}>
+                Book New Appointment
+              </button>
+              <button className="cta-button secondary" onClick={openExpenseModal}>
+                Add New Expense
+              </button>
+            </div>
           </div>
           
           {/* Comprehensive Statistics Grid */}
@@ -170,6 +204,14 @@ const Home = () => {
         <BookingModal 
           onClose={closeBookingModal}
           onSuccess={closeBookingModal}
+        />
+      )}
+
+      {/* Expense Modal */}
+      {isExpenseModalOpen && (
+        <ExpenseModal 
+          onClose={closeExpenseModal}
+          onSuccess={closeExpenseModal}
         />
       )}
     </div>

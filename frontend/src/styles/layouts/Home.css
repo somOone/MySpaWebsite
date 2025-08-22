@@ -1,0 +1,129 @@
+/* Page headers */
+.appointments-page,
+.expenses-page,
+.reports-page {
+  padding: 1rem 0;
+}
+
+.appointments-page h1,
+.expenses-page h1,
+.reports-page h1 {
+  font-size: 2.5rem;
+  color: var(--spa-teal-dark);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Home page */
+.hero-section {
+  text-align: center;
+  padding: 4rem 0;
+  background: linear-gradient(135deg, var(--spa-teal) 0%, var(--spa-teal-dark) 100%) !important;
+  border-radius: 20px;
+  color: white;
+  margin-bottom: 3rem;
+}
+
+.hero-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: 300;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.cta-button {
+  background: var(--spa-teal);
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.cta-button:hover {
+  background: var(--spa-teal-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px var(--spa-shadow);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px var(--spa-shadow);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--spa-teal);
+}
+
+.feature-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--spa-grey);
+}
+
+.feature-description {
+  color: var(--spa-grey-light);
+  line-height: 1.6;
+}
+
+.stats-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px var(--spa-shadow);
+}
+
+.stats-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--spa-teal-dark);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--spa-teal);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--spa-grey-light);
+  font-size: 1.1rem;
+}

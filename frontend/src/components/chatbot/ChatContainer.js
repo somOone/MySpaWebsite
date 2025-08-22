@@ -9,7 +9,8 @@ const ChatContainer = ({
   onInputChange, 
   onSubmit, 
   onClose, 
-  messagesEndRef 
+  messagesEndRef,
+  inputRef
 }) => {
   return (
     <div className="chat-container">
@@ -27,6 +28,7 @@ const ChatContainer = ({
         onInputChange={onInputChange}
         onSubmit={onSubmit}
         disabled={!inputValue.trim()}
+        inputRef={inputRef}
       />
     </div>
   );

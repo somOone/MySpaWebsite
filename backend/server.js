@@ -7,6 +7,7 @@ const path = require('path');
 // Import routes
 const appointmentsRoutes = require('./routes/appointments');
 const expensesRoutes = require('./routes/expenses');
+const expenseCategoriesRoutes = require('./routes/expenseCategories');
 const reportsRoutes = require('./routes/reports');
 
 const app = express();
@@ -26,6 +27,7 @@ initializeDatabase();
 // Routes
 app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/expenses', expensesRoutes);
+app.use('/api/expense-categories', expenseCategoriesRoutes);
 app.use('/api/reports', reportsRoutes);
 
 // Health check

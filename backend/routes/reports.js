@@ -31,11 +31,23 @@ router.get('/', (req, res) => {
       return res.status(500).json({ error: 'Failed to fetch appointments' });
     }
     
-    // Get expenses in date range
+    // Get expenses in date range with category metadata
     db.all(`
-      SELECT * FROM expenses 
-      WHERE date BETWEEN ? AND ?
-      ORDER BY date ASC
+      SELECT 
+        e.id,
+        e.date,
+        e.description,
+        e.amount,
+        e.category_id,
+        e.created_at,
+        e.updated_at,
+        ec.name as category_name,
+        ec.description as category_description,
+        ec.color as category_color
+      FROM expenses e
+      LEFT JOIN expense_categories ec ON e.category_id = ec.id
+      WHERE e.date BETWEEN ? AND ?
+      ORDER BY e.date ASC
     `, [start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')], (err, expenses) => {
       if (err) {
         console.error('Error fetching expenses:', err);
