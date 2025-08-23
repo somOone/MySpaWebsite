@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import moment from 'moment';
 import { convertMilitaryTo12Hour, standardizeTimeForBackend, validateTipAmount } from '../../../shared';
 
 /**
@@ -136,6 +137,21 @@ const useAppointmentActions = () => {
       
       // Complete the appointment
       const appointment = appointments[0];
+      
+      // Add time validation before allowing completion
+      const now = moment();
+      const appointmentDate = moment(appointment.date);
+      const appointmentTime = moment(`${appointment.date} ${appointment.time}`, 'YYYY-MM-DD h:mm A');
+      const appointmentEndTime = moment(appointmentTime).add(1, 'hour');
+      
+      if (appointmentDate.isAfter(now, 'day')) {
+        throw new Error('Future appointments cannot be completed');
+      }
+      
+      if (appointmentDate.isSame(now, 'day') && now.isBefore(appointmentEndTime)) {
+        throw new Error(`Appointment cannot be completed until it has finished (at ${appointmentEndTime.format('h:mm A')})`);
+      }
+      
       const completeUrl = `/api/appointments/${appointment.id}/complete`;
       console.log('🔍 [COMPLETION] Complete URL:', completeUrl);
       

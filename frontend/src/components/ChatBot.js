@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import moment from 'moment';
 import './ChatBot.css';
 import { ChatContainer } from './chatbot/index';
 import { 
@@ -293,6 +294,37 @@ const ChatBot = () => {
       
       // Appointment found! Store details and ask for tip
       const appointment = appointments[0];
+      
+      // Add time validation before allowing completion
+      const now = moment();
+      const appointmentDate = moment(appointment.date);
+      const appointmentTime = moment(`${appointment.date} ${appointment.time}`, 'YYYY-MM-DD h:mm A');
+      const appointmentEndTime = moment(appointmentTime).add(1, 'hour');
+      
+      if (appointmentDate.isAfter(now, 'day')) {
+        const futureMsg = `❌ I cannot complete future appointments. Please wait till the appointment is over to complete it.`;
+        const botMsg = {
+          id: Date.now() + 2,
+          type: 'bot',
+          text: futureMsg,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, botMsg]);
+        return;
+      }
+      
+      if (appointmentDate.isSame(now, 'day') && now.isBefore(appointmentEndTime)) {
+        const timeUntilCompletion = appointmentEndTime.diff(now, 'minutes');
+        const notReadyMsg = `⏰ This appointment cannot be completed yet. Please wait till the appointment is over to complete it. It will be available in ${timeUntilCompletion} minutes (at ${appointmentEndTime.format('h:mm A')}).`;
+        const botMsg = {
+          id: Date.now() + 2,
+          type: 'bot',
+          text: notReadyMsg,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, botMsg]);
+        return;
+      }
       
       // Store the completion details for later execution
       setPendingCompletion({

@@ -506,7 +506,7 @@ const Reports = () => {
                   if (window.innerWidth <= 768) return null;
                   return `${name}: $${value.toFixed(0)}`;
                 }}
-                labelLine={window.innerWidth > 768}
+                labelLine={false}
                 >
                   {[
                     { name: 'Payments', value: summary.totalRevenue, fill: '#667eea' },
@@ -567,7 +567,7 @@ const Reports = () => {
                   if (window.innerWidth <= 768) return null;
                   return `${name}: ${value} ($${revenue.toFixed(0)})`;
                 }}
-                labelLine={window.innerWidth > 768}
+                labelLine={false}
               >
                 {(() => {
                   const colors = ['#667eea', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14'];
@@ -654,7 +654,7 @@ const Reports = () => {
                   if (window.innerWidth <= 768) return null;
                   return `${name}: ${count} ($${amount.toFixed(0)})`;
                 }}
-                labelLine={window.innerWidth > 768}
+                labelLine={false}
               >
                 {(() => {
                   const colors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745', '#17a2b8', '#6f42c1'];

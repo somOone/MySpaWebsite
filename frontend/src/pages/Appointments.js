@@ -209,6 +209,28 @@ const Appointments = () => {
     }
   };
 
+  // Time validation function for appointment completion
+  const canCompleteAppointment = (appointment) => {
+    const now = moment();
+    const appointmentDate = moment(appointment.date);
+    const appointmentTime = moment(`${appointment.date} ${appointment.time}`, 'YYYY-MM-DD h:mm A');
+    const appointmentEndTime = moment(appointmentTime).add(1, 'hour'); // Appointments are 1 hour
+    
+    // If appointment is today, check if it's finished
+    if (appointmentDate.isSame(now, 'day')) {
+      // Appointment can only be completed after it ends (1 hour after start)
+      return now.isAfter(appointmentEndTime);
+    }
+    
+    // If appointment is in the future, it cannot be completed
+    if (appointmentDate.isAfter(now, 'day')) {
+      return false;
+    }
+    
+    // If appointment is in the past, it can be completed
+    return true;
+  };
+
   const handleEdit = (appointment) => {
     setEditingId(appointment.id);
     setEditForm({
@@ -421,12 +443,18 @@ const Appointments = () => {
                 >
                   Edit
                 </button>
-                <button
-                  className="action-btn complete-btn"
-                  onClick={() => handleComplete(appointment)}
-                >
-                  Complete
-                </button>
+                {canCompleteAppointment(appointment) ? (
+                  <button
+                    className="action-btn complete-btn"
+                    onClick={() => handleComplete(appointment)}
+                  >
+                    Complete
+                  </button>
+                ) : (
+                  <span className="completion-disabled" title="Appointment cannot be completed yet">
+                    Complete
+                  </span>
+                )}
                 <button
                   className="action-btn delete-btn"
                   onClick={() => handleDelete(appointment.id)}
@@ -537,12 +565,18 @@ const Appointments = () => {
               >
                 Edit
               </button>
-              <button
-                className="action-btn complete-btn"
-                onClick={() => handleComplete(appointment)}
-              >
-                Complete
-              </button>
+              {canCompleteAppointment(appointment) ? (
+                <button
+                  className="action-btn complete-btn"
+                  onClick={() => handleComplete(appointment)}
+                >
+                  Complete
+                </button>
+              ) : (
+                <span className="completion-disabled" title="Appointment cannot be completed yet">
+                  Complete
+                </span>
+              )}
               <button
                 className="action-btn delete-btn"
                 onClick={() => handleDelete(appointment.id)}

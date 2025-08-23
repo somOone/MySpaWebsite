@@ -266,8 +266,56 @@ router.put('/:id', [
   });
 });
 
+// Time validation middleware for appointment completion
+const validateCompletionTime = (req, res, next) => {
+  const { id } = req.params;
+  const db = getDatabase();
+  
+  db.get('SELECT date, time, status FROM appointments WHERE id = ?', [id], (err, row) => {
+    if (err) {
+      console.error('Error fetching appointment:', err);
+      return res.status(500).json({ error: 'Failed to fetch appointment' });
+    }
+    
+    if (!row) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+    
+    if (row.status !== 'pending') {
+      return res.status(400).json({ error: 'Only pending appointments can be completed' });
+    }
+    
+    const now = moment();
+    const appointmentDate = moment(row.date);
+    const appointmentTime = moment(`${row.date} ${row.time}`, 'YYYY-MM-DD h:mm A');
+    const appointmentEndTime = moment(appointmentTime).add(1, 'hour');
+    
+    // If appointment is today, check if it's finished
+    if (appointmentDate.isSame(now, 'day')) {
+      if (now.isBefore(appointmentEndTime)) {
+        return res.status(400).json({ 
+          error: 'Appointment cannot be completed until it has finished',
+          appointmentEndTime: appointmentEndTime.format('h:mm A'),
+          currentTime: now.format('h:mm A')
+        });
+      }
+    }
+    
+    // If appointment is in the future, it cannot be completed
+    if (appointmentDate.isAfter(now, 'day')) {
+      return res.status(400).json({ 
+        error: 'Future appointments cannot be completed',
+        appointmentDate: row.date,
+        appointmentTime: row.time
+      });
+    }
+    
+    next();
+  });
+};
+
 // Mark appointment as completed
-router.patch('/:id/complete', (req, res) => {
+router.patch('/:id/complete', validateCompletionTime, (req, res) => {
   const { id } = req.params;
   const { tip } = req.body;
   const db = getDatabase();

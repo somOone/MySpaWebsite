@@ -1,0 +1,183 @@
+# Admin Portal Validation Rules
+
+This document outlines all validation rules and constraints for the admin portal functionality in the spa management system.
+
+## 🔐 **Authentication & Authorization**
+
+### Admin Login (`POST /api/admin/auth/login`)
+- **Username**: Required, must match configured admin username
+- **Password**: Required, must match configured admin password hash
+- **Session Management**: Uses express-session with bcrypt password verification
+
+### Protected Routes
+- All admin API endpoints (except `/auth/*`) require valid admin session
+- Session validation via `requireAuth` middleware
+- Unauthorized requests return `401 (Unauthorized)`
+
+## 📅 **Appointments Management**
+
+### Get Appointments (`GET /api/admin/appointments`)
+**Query Parameters:**
+- `date`: Optional, ISO8601 format (YYYY-MM-DD)
+- `month`: Optional, 1-12 (padded to 2 digits)
+- `year`: Optional, 4-digit year
+- `client`: Optional, case-insensitive partial match
+- `status`: Optional, must be one of: `pending`, `completed`, `cancelled`
+- `category`: Optional, must be one of: `Facial`, `Massage`, `Facial + Massage`
+
+**Response:** Array of appointment objects with all fields
+
+### Update Appointment (`PUT /api/admin/appointments/:id`)
+**Required Fields:**
+- `date`: Must be valid ISO8601 format (YYYY-MM-DD)
+- `time`: Required, string format
+- `client`: Required, non-empty string
+- `category`: Required, must be one of: `Facial`, `Massage`, `Facial + Massage`
+- `payment`: Required, float ≥ 0
+- `tip`: Required, float ≥ 0
+- `status`: Required, must be one of: `pending`, `completed`, `cancelled`
+- `update_reason`: Required, non-empty string explaining the modification
+
+**Data Sanitization:**
+- `tip`: null values converted to 0
+- `payment`: null values converted to 0
+- `updated_at`: Automatically set to current timestamp
+
+**Validation:** All fields validated before database update
+
+### Delete Appointment (`DELETE /api/admin/appointments/:id`)
+**Required Fields:**
+- `update_reason`: Required, non-empty string explaining the deletion
+
+**Behavior:** Soft delete - sets status to 'cancelled' and adds reason
+**Data Sanitization:** Same as update, plus automatic `updated_at` timestamp
+
+## 💰 **Expenses Management**
+
+### Get Expenses (`GET /api/admin/expenses`)
+**Query Parameters:**
+- `date`: Optional, ISO8601 format (YYYY-MM-DD)
+- `month`: Optional, 1-12 (padded to 2 digits)
+- `year`: Optional, 4-digit year
+- `description`: Optional, case-insensitive partial match
+- `category_id`: Optional, integer ≥ 1
+- `min_amount`: Optional, float ≥ 0
+- `max_amount`: Optional, float ≥ 0
+
+**Response:** Array of expense objects with category names joined
+
+### Update Expense (`PUT /api/admin/expenses/:id`)
+**Required Fields:**
+- `date`: Optional, must be valid ISO8601 format if provided
+- `description`: Optional, non-empty string if provided
+- `amount`: Optional, float ≥ 0 if provided
+- `category_id`: Optional, integer ≥ 1 if provided
+
+**Data Sanitization:**
+- `updated_at`: Automatically set to current timestamp for all modifications
+
+**Validation:** Only provided fields are validated
+
+### Delete Expense (`DELETE /api/admin/expenses/:id`)
+**Required Fields:** None
+**Behavior:** Hard delete - permanently removes from database
+**Response:** Success confirmation with change count
+
+### Get Expense Categories (`GET /api/admin/expense-categories`)
+**Response:** Array of all expense category objects
+**No Parameters:** Returns all categories sorted by name
+
+## 📊 **Dashboard & Statistics**
+
+### Get Admin Stats (`GET /api/admin/stats`)
+**Response:** Comprehensive statistics object containing:
+- **Appointments**: Total, completed, pending, cancelled counts
+- **Expenses**: Total count and sum of amounts
+- **Recent Activity**: Last 10 activities (appointments + expenses) sorted by creation date
+
+## 🛡️ **Security & Data Integrity**
+
+### Input Validation
+- All user inputs validated using `express-validator`
+- SQL injection prevention via parameterized queries
+- XSS protection through input sanitization
+
+### Data Sanitization
+- Null values converted to appropriate defaults
+- Automatic timestamp updates for all modifications
+- Type coercion for numeric fields
+
+### Error Handling
+- Comprehensive error logging
+- User-friendly error messages
+- Proper HTTP status codes
+- Validation error details returned to client
+
+### Session Security
+- bcrypt password hashing (12 rounds)
+- Session-based authentication
+- Automatic session cleanup on logout
+- Protected route middleware
+
+## 🔧 **Technical Constraints**
+
+### Database Operations
+- **Appointments**: Soft delete (status change), inline editing
+- **Expenses**: Hard delete, inline editing
+- **Timestamps**: Automatic `updated_at` for all modifications
+- **Transactions**: Individual operations (no batch updates)
+
+### API Response Format
+- **Success**: `{ success: true, message: string, changes?: number }`
+- **Error**: `{ error: string }` or `{ errors: array }`
+- **Data**: Direct JSON arrays/objects for GET requests
+
+### Rate Limiting
+- No explicit rate limiting implemented
+- Session-based authentication provides basic protection
+
+## 📝 **Usage Examples**
+
+### Valid Appointment Update
+```json
+{
+  "date": "2025-01-15",
+  "time": "2:30 PM",
+  "client": "John Doe",
+  "category": "Facial",
+  "payment": 75.00,
+  "tip": 15.00,
+  "status": "completed",
+  "update_reason": "Client requested time change"
+}
+```
+
+### Valid Expense Update
+```json
+{
+  "date": "2025-01-15",
+  "description": "Updated expense description",
+  "amount": 45.50,
+  "category_id": 2
+}
+```
+
+### Valid Appointment Deletion
+```json
+{
+  "update_reason": "Client cancelled due to illness"
+}
+```
+
+## ⚠️ **Important Notes**
+
+1. **Date Handling**: All dates must be in ISO8601 format (YYYY-MM-DD)
+2. **Time Format**: Times are stored in 12-hour format with AM/PM
+3. **Required Fields**: Update reason is mandatory for all appointment modifications
+4. **Data Persistence**: All changes automatically update `updated_at` timestamp
+5. **Authentication**: Admin session required for all operations except login
+6. **Error Recovery**: Failed operations do not modify database state
+description:
+globs:
+alwaysApply: false
+---

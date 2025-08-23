@@ -10,6 +10,7 @@ import Expenses from './pages/Expenses';
 import Reports from './pages/Reports';
 import ChatBot from './components/ChatBot';
 import TrainingDashboard from './components/chatbot/training/TrainingDashboard';
+import Admin from './pages/Admin';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/expenses" element={<Expenses />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/training" element={<TrainingDashboard />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>
         <ChatBot />

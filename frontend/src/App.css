@@ -507,7 +507,7 @@
 }
 
 .appointments-page .action-btn.complete-btn::after {
-  content: "Done";
+  content: "Complete";
 }
 
 .appointments-page .action-btn.cancel-btn::after {
@@ -739,6 +739,32 @@
   background: var(--spa-accent);
   border-radius: 4px;
   border: 1px solid var(--spa-teal);
+}
+
+/* Disabled completion button styling */
+.completion-disabled {
+  display: inline-block;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.65rem;
+  min-width: 40px;
+  background: var(--spa-grey-light) !important;
+  color: var(--spa-grey) !important;
+  border-radius: 3px;
+  font-weight: 500;
+  cursor: not-allowed;
+  opacity: 0.6;
+  text-align: center;
+}
+
+/* Mobile card disabled completion styling */
+.mobile-cards .appointment-card .completion-disabled {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  width: 100%;
+  background: #e5e7eb !important;
+  color: #6b7280 !important;
 }
 
 /* Expense page specific styles */
@@ -1580,6 +1606,13 @@ body .booking-modal .form-select {
     padding: 0.25rem 0.4rem;
     width: 100%;
     text-align: center;
+  }
+  
+  /* Ensure mobile buttons also hide original text for appointments page */
+  .appointments-page .action-btn.edit-btn,
+  .appointments-page .action-btn.complete-btn,
+  .appointments-page .action-btn.cancel-btn {
+    font-size: 0 !important; /* Hide original text in mobile too */
   }
   
   /* Ensure actions column has reasonable width */

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import moment from 'moment';
 import { convertMilitaryTo12Hour, standardizeTimeForBackend, validateTipAmount } from '../../shared';
 
 /**
@@ -86,6 +87,23 @@ const CompletionWorkflow = ({
       // Appointment found! Store details and ask for tip
       const appointment = appointments[0];
       // console.log('🔍 [COMPLETION VALIDATION] Found appointment:', appointment);
+      
+      // Add time validation before allowing completion
+      const now = moment();
+      const appointmentDate = moment(appointment.date);
+      const appointmentTime = moment(`${appointment.date} ${appointment.time}`, 'YYYY-MM-DD h:mm A');
+      const appointmentEndTime = moment(appointmentTime).add(1, 'hour');
+      
+      if (appointmentDate.isAfter(now, 'day')) {
+        addBotMessage("❌ I cannot complete future appointments. Please wait until the appointment date.");
+        return;
+      }
+      
+      if (appointmentDate.isSame(now, 'day') && now.isBefore(appointmentEndTime)) {
+        const timeUntilCompletion = appointmentEndTime.diff(now, 'minutes');
+        addBotMessage(`⏰ This appointment cannot be completed yet. It will be available for completion in ${timeUntilCompletion} minutes (at ${appointmentEndTime.format('h:mm A')}).`);
+        return;
+      }
       
       // Store the completion details for later execution
       onComplete({
