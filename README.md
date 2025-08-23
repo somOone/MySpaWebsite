@@ -26,6 +26,13 @@ A comprehensive spa management system built with React frontend and Node.js back
 - **Smart Intent Recognition**: Keyword extraction and confidence scoring
 - **Training Engine**: Self-improving ML model with performance analytics
 
+### Automated Reminders & Notifications
+- **Morning Digest SMS**: Daily 7 AM appointment summaries via TextBelt
+- **Free SMS Service**: 1 free SMS per day with no credit card required
+- **Smart Scheduling**: Automated daily reminders using cron jobs
+- **Appointment Summaries**: Client names, services, times, and payments
+- **Timezone Support**: Configurable scheduling for different regions
+
 ### Advanced Features
 - **Real-time Validation**: Business rule enforcement and conflict prevention
 - **Responsive Design**: Modern, mobile-friendly interface
@@ -62,6 +69,7 @@ MySpaWebsite/
 │   │   ├── appointments.js   # Appointment management API
 │   │   └── expenses.js       # Expense management API
 │   ├── utils/         # Database and utility functions
+│   ├── services/      # Automated services (morning digest)
 │   └── validation/    # Business rule validation
 ├── database/          # SQLite database files
 ├── docs/              # Documentation and validation rules
@@ -73,6 +81,7 @@ MySpaWebsite/
 ### Prerequisites
 - Node.js (v14 or higher)
 - npm or yarn
+- TextBelt account (free) for SMS notifications
 
 ### Setup Instructions
 
@@ -98,6 +107,16 @@ MySpaWebsite/
    ```bash
    cd ../backend
    npm start
+   ```
+
+5. **Configure Morning Digest SMS (Optional)**
+   ```bash
+   # Create .env file in backend folder
+   echo "OWNER_PHONE_NUMBER=1234567890" > .env
+   echo "TEXTBELT_API_KEY=textbelt_test" >> .env
+   
+   # Get free API key from textbelt.com for real SMS delivery
+   # Test endpoint: http://localhost:5001/api/test/morning-digest
    ```
 
 5. **Start the frontend application**
